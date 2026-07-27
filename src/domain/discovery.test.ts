@@ -1,0 +1,95 @@
+import { describe, expect, it } from 'vitest'
+import { findDestinations } from './discovery'
+import type { DiscoveryQuery } from './discovery'
+import type { ExplorePlace } from './place'
+
+const ORIGIN = { latitude: -27.6455, longitude: -48.67 }
+
+function place(overrides: Partial<ExplorePlace>): ExplorePlace {
+  return {
+    id: 'x',
+    slug: 'x',
+    name: 'X',
+    description: '',
+    latitude: -27.6455,
+    longitude: -48.67,
+    municipality: 'Palhoça',
+    stateCode: 'SC',
+    category: 'serra',
+    tags: [],
+    coverImageUrl: null,
+    source: 'mock',
+    visitStatus: 'nao-visitado',
+    isFavorite: false,
+    photoCount: 0,
+    lastVisitedAt: null,
+    ...overrides,
+  }
+}
+
+function query(overrides: Partial<DiscoveryQuery> = {}): DiscoveryQuery {
+  return {
+    origin: ORIGIN,
+    timeBudget: 'dia-inteiro',
+    maxDistanceKm: 300,
+    categories: [],
+    onlyUnvisited: false,
+    onlyFavorites: false,
+    ...overrides,
+  }
+}
+
+describe('findDestinations', () => {
+  it('descarta o que passa do limite de distância rodoviária', () => {
+    const perto = place({ id: 'perto', latitude: -27.7, longitude: -48.7 })
+    const longe = place({ id: 'longe', latitude: -28.39, longitude: -49.54 })
+    const result = findDestinations([perto, longe], query({ maxDistanceKm: 50 }))
+    expect(result.map((r) => r.place.id)).toEqual(['perto'])
+  })
+
+  it('descarta o que não cabe no tempo disponível, considerando a volta', () => {
+    const distante = place({ id: 'distante', latitude: -28.39, longitude: -49.54 })
+    const result = findDestinations(
+      [distante],
+      query({ timeBudget: '2h', maxDistanceKm: 300 }),
+    )
+    expect(result).toHaveLength(0)
+  })
+
+  it('ordena do mais distante ao mais próximo entre os que cabem', () => {
+    const a = place({ id: 'a', latitude: -27.7, longitude: -48.7 })
+    const b = place({ id: 'b', latitude: -28.02, longitude: -49.0 })
+    const result = findDestinations([a, b], query())
+    expect(result.map((r) => r.place.id)).toEqual(['b', 'a'])
+  })
+
+  it('respeita somente não visitados', () => {
+    const places = [
+      place({ id: 'a', visitStatus: 'visitado' }),
+      place({ id: 'b', visitStatus: 'nao-visitado' }),
+      place({ id: 'c', visitStatus: 'quero-conhecer' }),
+    ]
+    const result = findDestinations([...places], query({ onlyUnvisited: true }))
+    expect(result.map((r) => r.place.id).sort()).toEqual(['b', 'c'])
+  })
+
+  it('respeita somente favoritos', () => {
+    const places = [
+      place({ id: 'a', isFavorite: true }),
+      place({ id: 'b', isFavorite: false }),
+    ]
+    const result = findDestinations(places, query({ onlyFavorites: true }))
+    expect(result.map((r) => r.place.id)).toEqual(['a'])
+  })
+
+  it('estima estrada maior que a linha reta', () => {
+    const destino = place({ id: 'd', latitude: -28.02, longitude: -49.0 })
+    const [result] = findDestinations([destino], query())
+    expect(result).toBeDefined()
+    expect(result!.estimatedRoadKm).toBeGreaterThan(result!.straightLineKm)
+  })
+
+  it('devolve lista vazia sem lugares', () => {
+    expect(findDestinations([], query())).toEqual([])
+  })
+})

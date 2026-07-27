@@ -35,3 +35,7 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 - Cálculo de distância por haversine e formatadores de coordenada, distância e
   duração, cobertos por testes
 - Derivação de status de visita a partir do estado pessoal do lugar
+- Filtros de exploração por categoria, raio, status de visita e favoritos, como
+  funções puras cobertas por testes
+- Algoritmo de descoberta que estima distância rodoviária e tempo de ida e volta
+  a partir do tempo disponível, reservando margem para paradas
