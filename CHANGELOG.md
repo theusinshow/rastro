@@ -23,3 +23,7 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   critérios de verificação por passo
   (`docs/superpowers/plans/2026-07-27-rastro-fundacao.md`)
 - Este changelog
+- Estrutura base do projeto com Next.js App Router, TypeScript strict, Tailwind
+  CSS v4, ESLint e Vitest
+- ADR 0001 registrando a stack e o limite deliberado de dependências
+- README com instruções de execução e índice da documentação
