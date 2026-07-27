@@ -74,6 +74,11 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   descrição e etiquetas
 - Ação "Abrir rota", que delega a navegação a um aplicativo de rotas externo
 - Formatação de datas de visita no vocabulário de diário de viagem
+- Trilha de filtros por categoria, raio, situação de visita e favoritos
+- Estado de filtros e seleção mantido na URL, tornando qualquer recorte do mapa
+  compartilhável e reproduzível
+- Contagem de lugares visíveis na barra de status
+- ADR 0006 registrando a URL como fonte do estado de exploração
 
 ### Alterado
 
