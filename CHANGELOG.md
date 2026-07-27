@@ -69,6 +69,11 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   lugares com fotos
 - Seleção de lugar por clique no pin, refletida na URL e preservada ao recarregar
 - ADR 0005 registrando os pins como camadas data-driven
+- Painel lateral do lugar, aberto ao selecionar um pin, com categoria,
+  localização, distância e tempo estimados, status de visita, fotografias,
+  descrição e etiquetas
+- Ação "Abrir rota", que delega a navegação a um aplicativo de rotas externo
+- Formatação de datas de visita no vocabulário de diário de viagem
 
 ### Alterado
 
