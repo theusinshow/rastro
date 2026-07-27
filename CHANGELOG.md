@@ -44,3 +44,9 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 - Coleção de 14 lugares de Santa Catarina como dados de desenvolvimento,
   explicitamente marcados como não verificados
 - Moto inicial CFMOTO IBEX 450
+- Migration inicial do Supabase com oito tabelas, enums, índices, trigger de
+  derivação de visitas e políticas de RLS por usuário
+- ADR 0003 registrando a separação entre catálogo, estado pessoal e visitas, e a
+  remoção da entidade `Favorite`
+- ADR 0004 registrando a decisão de não adotar PostGIS nesta fase
+- Documentação do modelo de dados em `docs/DATA-MODEL.md`
