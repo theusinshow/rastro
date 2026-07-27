@@ -33,7 +33,7 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
 function useMapContext(): MapContextValue {
   const context = useContext(MapContext)
   if (!context) {
-    throw new Error('useMapContext precisa estar dentro de <MapProvider>')
+    throw new Error('os hooks de mapa precisam estar dentro de <MapProvider>')
   }
   return context
 }

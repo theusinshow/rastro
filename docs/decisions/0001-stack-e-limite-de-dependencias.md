@@ -25,7 +25,7 @@ subsequentes (`node -p "const p=require('./package.json');JSON.stringify({...p.d
 
 ```json
 {
-  "maplibre-gl": "^6.0.0",
+  "maplibre-gl": "^5.24.0",
   "next": "16.2.12",
   "react": "19.2.4",
   "react-dom": "19.2.4",
@@ -40,6 +40,34 @@ subsequentes (`node -p "const p=require('./package.json');JSON.stringify({...p.d
   "vitest": "^4.1.10"
 }
 ```
+
+## `maplibre-gl` na v5, não na v6
+
+A v6 é a major mais recente, e mesmo assim ficamos na v5 deliberadamente.
+
+A v6 deixou de embutir o worker no bundle: ela o resolve como arquivo ESM irmão
+a partir de `import.meta.url`. O Turbopack não consegue servir isso — o módulo
+vira um chunk hasheado, e mesmo forçando a emissão do worker como asset o seu
+`import` relativo de `maplibre-gl-shared.mjs` não resolve a partir do diretório
+de assets emitidos. Fazer a v6 funcionar exige copiar dois arquivos do
+`node_modules` para o `public/` em cada instalação e apontar `setWorkerUrl` para
+lá. Carregar uma etapa de build no primeiro commit da fundação, por causa de uma
+major `.0` que o ecossistema de bundlers ainda não alcançou, é o trade errado:
+o custo aparece em todo `npm install`, em todo deploy, e em toda leitura futura
+do repositório.
+
+A v5 instancia o worker a partir de uma Blob URL gerada do próprio bundle —
+agnóstica de bundler, zero configuração. A API que usamos é idêntica nas duas:
+`StyleSpecification`, as expressões de camada, `attributionControl`,
+`touchZoomRotate.disableRotation()`.
+
+**Ressalva:** o worker via Blob URL da v5 exige `worker-src blob:` sob uma CSP
+estrita. Se o Rastro passar a servir uma CSP restritiva, a saída é o bundle
+`maplibre-gl-csp-worker` que a própria v5 distribui para esse caso.
+
+**O que nos faria mudar de ideia:** o Turbopack passar a emitir assets ESM
+irmãos junto de seus chunks compartilhados, ou o maplibre voltar a embutir o
+worker no bundle. Qualquer um dos dois torna a v6 uma atualização sem custo.
 
 ## Recusadas deliberadamente
 

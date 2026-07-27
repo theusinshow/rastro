@@ -62,6 +62,18 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 - Coordenadas e zoom ao vivo na barra de status
 - ADR 0002 registrando o mapa persistente no layout
 - Documentação da estratégia de mapa em `docs/MAP-STRATEGY.md`
-- Cópia automática do worker do maplibre-gl para `public/maplibre/` nos scripts
-  `postinstall`, `predev` e `prebuild`, sem a qual o mapa não desenha sob o
-  Turbopack
+- Estado de erro explícito quando o mapa falha ao carregar, com a mensagem
+  técnica visível, no lugar de uma tela preta silenciosa
+
+### Alterado
+
+- `maplibre-gl` fixado na v5: a v6 exige copiar o worker para `public/` a cada
+  instalação para funcionar sob o Turbopack, e a v5 dispensa qualquer
+  configuração
+- ADR 0001 revisado com a versão do `maplibre-gl`, o motivo de ficarmos na v5 e
+  o que nos faria migrar para a v6
+
+### Removido
+
+- Etapa de build que copiava o worker do `maplibre-gl` para `public/maplibre/`,
+  desnecessária na v5

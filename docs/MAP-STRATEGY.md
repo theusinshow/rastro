@@ -148,38 +148,24 @@ autorizado, a restrição de origem é o que a torna inútil.
 
 ---
 
-## Estado de ausência de chave
+## Quando o mapa não pode ser desenhado
 
-Sem `NEXT_PUBLIC_MAPTILER_KEY`, `<MapCanvas />` renderiza `<MapFallback />` em
-vez de tentar subir o MapLibre: um painel com hairline, o nome exato da variável
-e onde obter a chave. Nunca um mapa cinza sem explicação — a aplicação sobe
-inteira e diz o que falta.
+Dois estados explícitos, com a mesma moldura de hairline:
 
----
+- **`<MapFallback />`** — sem `NEXT_PUBLIC_MAPTILER_KEY`, o `MapCanvas` nem
+  tenta subir o MapLibre. Mostra o nome exato da variável e onde obter a chave.
+  É um estado esperado, não uma falha.
+- **`<MapLoadError />`** — o MapLibre emitiu `error` **antes** do evento `load`:
+  estilo inválido, chave revogada, rede fora. Mostra o que fazer e a mensagem
+  técnica do MapLibre, para que a falha seja diagnosticável sem abrir o console.
 
-## O worker do maplibre-gl
+A distinção pelo `load` é deliberada. Depois que o mapa carrega, `error` passa a
+significar coisa transitória — um tile que não veio, um glyph que faltou — e o
+mapa segue utilizável; trocar a tela inteira por um aviso nesse caso seria pior
+que o problema. Antes do `load`, o erro é fatal, e engoli-lo produziria uma tela
+preta com o console limpo — exatamente o que estes estados existem para evitar.
 
-O `maplibre-gl` 6 não embute mais o worker no bundle: ele resolve
-`maplibre-gl-worker.mjs` como arquivo irmão a partir de `import.meta.url`. Sob o
-Turbopack esse arquivo não existe — o módulo vira um chunk hasheado — e o worker
-morre calado. O sintoma é cruel: o mapa aceita eventos, publica câmera e não
-desenha nada, porque o erro acontece dentro do worker e não chega ao console da
-página.
-
-A solução:
-
-- `scripts/copy-maplibre-worker.mjs` copia `maplibre-gl-worker.mjs` e
-  `maplibre-gl-shared.mjs` de `node_modules/maplibre-gl/dist` para
-  `public/maplibre/`, com os nomes originais — o worker importa o `shared` por
-  caminho relativo.
-- O script roda em `postinstall`, `predev` e `prebuild`.
-- `public/maplibre/` está no `.gitignore`: são artefatos de build, não código
-  nosso, e devem acompanhar a versão instalada do pacote.
-- `MapCanvas` aponta o maplibre para lá com
-  `setWorkerUrl('/maplibre/maplibre-gl-worker.mjs')`.
-
-Ao atualizar `maplibre-gl`, verifique se o worker ainda precisa disso: se uma
-versão futura voltar a embutir o worker, o script e a chamada podem sair.
+Nunca um mapa cinza sem explicação: a aplicação sobe inteira e diz o que falta.
 
 ---
 

@@ -1,9 +1,7 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
-// O maplibre-gl 6 não expõe mais um default export: a classe do mapa vem
-// nomeada, e a renomeamos para não colidir com o `Map` nativo do JavaScript.
-import { Map as MapLibreMap, setWorkerUrl } from 'maplibre-gl'
+import { useEffect, useRef, useState } from 'react'
+import maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import {
   INITIAL_CENTER,
@@ -12,29 +10,20 @@ import {
   hasMapTilerKey,
 } from '@/lib/map/config'
 import { buildRastroStyle } from '@/lib/map/style'
-import { MapFallback } from './MapFallback'
+import { MapFallback, MapLoadError } from './MapFallback'
 import { useMapRegistry } from './map-context'
-
-/**
- * O maplibre-gl 6 carrega o worker como um arquivo irmão resolvido a partir de
- * `import.meta.url`. Sob o Turbopack esse arquivo não existe — o módulo vira um
- * chunk hasheado — e o worker morre calado, deixando o mapa preto. Servimos a
- * cópia de `public/maplibre/` (ver `scripts/copy-maplibre-worker.mjs`).
- */
-const WORKER_URL = '/maplibre/maplibre-gl-worker.mjs'
 
 export function MapCanvas() {
   const containerRef = useRef<HTMLDivElement>(null)
   const { registerMap, updateView } = useMapRegistry()
+  const [loadFailure, setLoadFailure] = useState<string | null>(null)
 
   useEffect(() => {
     if (!hasMapTilerKey) return
     const container = containerRef.current
     if (!container) return
 
-    setWorkerUrl(WORKER_URL)
-
-    const map = new MapLibreMap({
+    const map = new maplibregl.Map({
       container,
       style: buildRastroStyle(MAPTILER_KEY),
       center: [INITIAL_CENTER.longitude, INITIAL_CENTER.latitude],
@@ -48,6 +37,8 @@ export function MapCanvas() {
 
     map.touchZoomRotate.disableRotation()
 
+    let loaded = false
+
     function publishView() {
       const center = map.getCenter()
       updateView({
@@ -57,10 +48,20 @@ export function MapCanvas() {
     }
 
     map.on('load', () => {
+      loaded = true
       publishView()
       registerMap(map)
     })
     map.on('move', publishView)
+
+    // Erro depois do `load` é transitório — um tile que não veio, um glyph que
+    // faltou — e o mapa segue utilizável. Antes do `load` é fatal: estilo,
+    // fonte ou chave inválidos deixariam uma tela preta com o console limpo,
+    // que é exatamente o resultado que o estado de fallback existe para evitar.
+    map.on('error', (event) => {
+      if (loaded) return
+      setLoadFailure(event.error.message)
+    })
 
     return () => {
       registerMap(null)
@@ -76,9 +77,13 @@ export function MapCanvas() {
   // maplibre-gl aplica `position: relative` em `.maplibregl-map` e, por vir
   // depois das utilitárias do Tailwind na ordem da folha, venceria um
   // `absolute` aplicado direto no contêiner — colapsando a altura para zero.
+  //
+  // O aviso de falha cobre o contêiner em vez de substituí-lo: desmontar o nó
+  // que o MapLibre já adotou atrapalharia a limpeza do efeito.
   return (
     <div className="absolute inset-0">
       <div ref={containerRef} className="h-full w-full" />
+      {loadFailure === null ? null : <MapLoadError detail={loadFailure} />}
     </div>
   )
 }

@@ -9,9 +9,6 @@ out/
 build/
 dist/
 
-# worker do maplibre copiado do node_modules por scripts/copy-maplibre-worker.mjs
-public/maplibre/
-
 # ambiente
 .env
 .env*.local
