@@ -19,8 +19,12 @@ export default function AppLayout({
             <MapCanvas />
 
             {/* Overlay das rotas. Não intercepta o mapa; cada painel reativa
-                pointer-events por conta própria. */}
-            <div className="pointer-events-none absolute inset-0">
+                pointer-events por conta própria.
+
+                O `z-20` é o degrau da escala de empilhamento documentada em
+                `globals.css`: sem ele os controles do MapLibre, que trazem
+                `z-index: 2` de fábrica, desenham por cima dos painéis. */}
+            <div className="pointer-events-none absolute inset-0 z-20">
               {children}
             </div>
           </div>

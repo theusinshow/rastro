@@ -25,7 +25,7 @@ CSS-first, não há `tailwind.config.js`.
 | `--color-line-strong` | `rgba(255,255,255,0.14)` | Hairline de controles interativos |
 | `--color-ink` | `#e8edea` | Texto primário |
 | `--color-ink-muted` | `#9aa5a0` | Texto secundário |
-| `--color-ink-faint` | `#5e6b66` | Texto terciário |
+| `--color-ink-faint` | `#7b8884` | Texto terciário (5.04:1 sobre `base`) |
 | `--color-accent` | `#f0a32b` | Âmbar de instrumento |
 | `--color-accent-dim` | `#8a5f1a` | Seleção de texto (`::selection`) |
 | `--color-visited` | `#3fbf8f` | Lugar já visitado |
@@ -86,8 +86,8 @@ Todos em `src/components/ui/`, um arquivo por componente:
 
 - **`Button`** — `variant?: 'solid' | 'outline' | 'ghost'` (padrão
   `'outline'`), `size?: 'sm' | 'md'` (padrão `'md'`). `disabled` reduz
-  opacidade a 40% mas mantém o rótulo legível — nunca esconde uma ação ainda
-  não implementada.
+  opacidade a 55% mas mantém o rótulo legível — nunca esconde uma ação ainda
+  não implementada. Traz `.press`: recuo de 2% enquanto pressionado.
 - **`Chip`** — `active?: boolean`. `button` real com `aria-pressed={active}`.
 - **`Toggle`** — `{ label: string; checked: boolean; onChange: (checked:
   boolean) => void }`. Checkbox nativo estilizado, não um switch customizado.

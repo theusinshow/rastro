@@ -86,6 +86,31 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 - Documentação de arquitetura, roadmap e contribuição
 - Briefings de contexto do projeto para as skills de design, evitando respostas
   genéricas ao trabalhar na interface
+- Tokens de movimento no design system: quatro durações, três curvas e um
+  realce de sinal, com o ritmo declarado num lugar só em vez de espalhado
+- Painéis entram e saem com um deslocamento curto em vez de piscar entre um
+  quadro e outro, deixando claro de onde vieram e que o mapa continua atrás
+- Recuo tátil ao pressionar qualquer botão, que confirma o toque mesmo quando o
+  resultado acontece fora do campo de visão
+- O mapa resolve num fade quando os primeiros tiles chegam, em vez de aparecer
+  de estalo sobre o fundo escuro
+- Respeito à preferência de movimento reduzido do sistema, sem desligar os dois
+  movimentos que carregam informação: o crossfade dos pins e o realce da
+  contagem sobrevivem; a câmera passa a cortar seco em vez de viajar
+
+### Alterado
+
+- Texto terciário mais claro (`#7b8884` no lugar de `#5e6b66`): a statusbar, a
+  contagem do recorte e os rótulos de instrumento estavam abaixo do mínimo de
+  contraste da WCAG AA e agora passam
+- Alvos de toque maiores sem mudar o desenho: chips com 32px de área clicável
+  sobre a mesma caixa de 24px, checkboxes de 14px em linhas de 32px, e o botão
+  de fechar o painel com 32×32
+- Ações indisponíveis passam de 40% para 55% de opacidade, o que devolve
+  legibilidade ao rótulo sem sugerir que estão ativas
+- A interface deixa de quebrar em telas estreitas: abaixo de 768px os painéis
+  viram folhas inferiores, a navegação rola na horizontal em vez de cortar
+  "Memórias", e a barra de status mostra coordenada e contagem numa linha só
 
 ### Alterado
 

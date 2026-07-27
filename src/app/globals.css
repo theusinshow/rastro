@@ -15,7 +15,11 @@
   /* Texto */
   --color-ink: #e8edea;
   --color-ink-muted: #9aa5a0;
-  --color-ink-faint: #5e6b66;
+  /* 5.04:1 sobre `base`, 4.68:1 sobre `raised`. O tom anterior (#5e6b66) media
+     3.33:1 e era usado a 10px em texto que carrega informação: statusbar,
+     contagem do recorte, categoria de cada resultado. A leitura de instrumento
+     vem do mono, do tracking e da caixa alta, não de o texto estar apagado. */
+  --color-ink-faint: #7b8884;
 
   /* Acento âmbar de instrumento — painel de moto, farol, GPS outdoor.
      Deliberadamente o oposto do azul de SaaS. */
@@ -31,6 +35,34 @@
   --radius-xs: 2px;
 }
 
+/*
+ * Movimento. Um ritmo só, declarado uma vez: sem estes tokens toda transição
+ * herda o default do Tailwind e o produto não tem cadência própria.
+ * Sem bounce, sem elastic. Saída sempre ~70% da entrada.
+ *
+ * `static` porque o Tailwind remove do CSS entregue todo token de `@theme` que
+ * nenhuma regra referencia, e um token de escala precisa existir mesmo quando
+ * só um degrau dela está em uso.
+ */
+@theme static {
+  --dur-instant: 90ms; /* press, feedback tátil */
+  --dur-fast: 140ms; /* hover, cor */
+  --dur-base: 220ms; /* entrada de painel, revelação */
+  --dur-slow: 320ms; /* mudança de camada de dados */
+  /* Realce de valor que mudou. Sobrevive a `prefers-reduced-motion` porque
+     carrega informação — ver o bloco de movimento reduzido abaixo. */
+  --dur-signal: 400ms;
+
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+
+  /* Default das utilitárias `transition-*` do Tailwind, que sem isto usariam
+     150ms com a curva `ease`. */
+  --default-transition-duration: 140ms;
+  --default-transition-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
+}
+
 @layer base {
   html {
     color-scheme: dark;
@@ -42,6 +74,17 @@
     -webkit-font-smoothing: antialiased;
   }
 
+  :root {
+    /* Deslocamento de entrada e saída. Pequeno de propósito: um slide desde
+       fora da tela leria como gaveta de app mobile e puxaria o olho para longe
+       do mapa, que é o oposto do que os painéis existem para fazer. */
+    --motion-shift: 12px;
+    --motion-press: 0.98;
+    /* Passo do escalonamento da lista. Travado em 8 itens no `.stagger-item`,
+       o total nunca passa de 280ms. */
+    --stagger-step: 35ms;
+  }
+
   /* Foco visível e consistente. Nenhum controle perde o anel. */
   :focus-visible {
     outline: 1px solid var(--color-accent);
@@ -51,6 +94,34 @@
   ::selection {
     background-color: var(--color-accent-dim);
     color: var(--color-ink);
+  }
+
+  /*
+   * Movimento reduzido. Deliberadamente não é o
+   * `* { animation-duration: 0.01ms !important }` de manual: ele mataria também
+   * a câmera do mapa, que aqui é navegação e não enfeite, e o crossfade dos
+   * pins, que é a única evidência de que o recorte mudou.
+   *
+   * Zerado: deslocamento e fade de painel, stagger da lista, press, fade de
+   * primeira pintura do mapa — tudo que é transform ou revelação decorativa.
+   * Preservado: o realce da contagem (`--dur-signal`) e o crossfade de
+   * opacidade dos pins, que roda fora do CSS.
+   * A câmera é resolvida pelo próprio MapLibre, que honra a preferência sozinho
+   * desde que não se passe `essential: true`.
+   */
+  @media (prefers-reduced-motion: reduce) {
+    :root {
+      --dur-instant: 0ms;
+      --dur-fast: 0ms;
+      --dur-base: 0ms;
+      --dur-slow: 0ms;
+      --default-transition-duration: 0ms;
+      --motion-shift: 0px;
+      --motion-press: 1;
+      /* Sem isto o item continuaria invisível durante o atraso: duração zero
+         com `backwards` congela o quadro inicial até a animação começar. */
+      --stagger-step: 0ms;
+    }
   }
 }
 
@@ -71,4 +142,206 @@
     font-variant-numeric: tabular-nums;
     letter-spacing: 0.02em;
   }
+
+  /*
+   * Painel de overlay: geometria e entrada/saída num lugar só.
+   *
+   * Abaixo do ponto de quebra ele vira folha inferior. 232px numa tela de 390
+   * comem 60% da largura, e o que sobra do mapa — que é o produto — não chega
+   * a 160px.
+   */
+  .overlay-panel {
+    --panel-shift-x: 0px;
+    --panel-shift-y: var(--motion-shift);
+
+    position: absolute;
+    z-index: 20;
+    inset-inline: 0;
+    bottom: 0;
+    display: flex;
+    max-height: 45vh;
+    flex-direction: column;
+    border-top: 1px solid var(--color-line);
+    pointer-events: auto;
+    opacity: 1;
+    translate: 0 0;
+    transition:
+      opacity var(--dur-base) var(--ease-out-quint),
+      translate var(--dur-base) var(--ease-out-quint);
+  }
+
+  /* O detalhe cobre o filtro: numa folha inferior os dois não cabem lado a
+     lado, e quem abriu um lugar quer ler o lugar. */
+  .overlay-panel[data-side='right'] {
+    z-index: 21;
+    max-height: 70vh;
+  }
+
+  @starting-style {
+    .overlay-panel {
+      opacity: 0;
+      translate: var(--panel-shift-x) var(--panel-shift-y);
+    }
+  }
+
+  /* React desmonta na hora; `useExitTransition` segura o nó pelo tempo da saída
+     para que fechar um painel não seja um piscar sem explicação. */
+  .overlay-panel[data-exiting='true'] {
+    opacity: 0;
+    translate: var(--panel-shift-x) var(--panel-shift-y);
+    transition-duration: calc(var(--dur-base) * 0.7);
+    transition-timing-function: var(--ease-in);
+  }
+
+  @media (min-width: 768px) {
+    .overlay-panel {
+      --panel-shift-y: 0px;
+
+      top: 0;
+      bottom: 0;
+      inset-inline: auto;
+      width: var(--panel-width);
+      max-height: none;
+      border-top: 0;
+    }
+
+    .overlay-panel[data-side='left'] {
+      --panel-shift-x: calc(var(--motion-shift) * -1);
+
+      left: 0;
+      border-right: 1px solid var(--color-line);
+    }
+
+    .overlay-panel[data-side='right'] {
+      --panel-shift-x: var(--motion-shift);
+
+      z-index: 20;
+      right: 0;
+      max-height: none;
+      border-left: 1px solid var(--color-line);
+    }
+  }
+
+  /*
+   * Revelação escalonada de lista. Trava em 8 itens: o stagger existe para
+   * estabelecer a ordem de leitura de uma resposta recém-produzida, não para
+   * fazer o usuário esperar a lista chegar.
+   */
+  .stagger-item {
+    animation: stagger-in var(--dur-base) var(--ease-out-quint) backwards;
+    animation-delay: calc(min(var(--stagger-index, 0), 8) * var(--stagger-step));
+  }
+
+  @keyframes stagger-in {
+    from {
+      opacity: 0;
+      translate: 0 6px;
+    }
+  }
+
+  /* Confirma o toque numa superfície onde o resultado pode acontecer fora do
+     campo de visão: o mapa atrás do painel.
+
+     A transição é declarada aqui, e não pela utilitária `transition-colors`,
+     porque `scale` precisa estar entre as propriedades animadas — do contrário
+     o recuo aconteceria de um quadro para o outro. */
+  .press {
+    transition-property: color, background-color, border-color, opacity, scale;
+    transition-duration: var(--dur-fast);
+    transition-timing-function: var(--ease-out-quart);
+  }
+
+  .press:active:not(:disabled) {
+    scale: var(--motion-press);
+    transition-duration: var(--dur-instant);
+  }
+
+  /*
+   * Realce de valor que mudou. A contagem tem 10px e mora num canto de uma tela
+   * de 945px: sem sinal de mudança ninguém percebe que ela atualizou, e é por
+   * isso que filtrar hoje "não parece ter feito nada".
+   *
+   * Só `background-color`, sem deslocamento nenhum — por isso sobrevive a
+   * `prefers-reduced-motion`.
+   */
+  .value-changed {
+    animation: value-flash var(--dur-signal) ease-out;
+  }
+
+  @keyframes value-flash {
+    from {
+      background-color: color-mix(in srgb, var(--color-accent) 22%, transparent);
+    }
+    to {
+      background-color: transparent;
+    }
+  }
+
+  /* Primeira pintura do mapa. Sem isto a área central é `void` sólido até os
+     primeiros tiles chegarem, e o mapa aparece de estalo. */
+  .map-surface {
+    opacity: 0;
+    transition: opacity var(--dur-slow) var(--ease-out-quart);
+  }
+
+  .map-surface[data-loaded='true'] {
+    opacity: 1;
+  }
+
+  /* Estado vazio: 120ms de atraso para que uma consulta rápida que devolve
+     resultados nunca pisque a mensagem de vazio antes. */
+  .empty-state {
+    animation: fade-in var(--dur-base) var(--ease-out-quart) 120ms backwards;
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+}
+
+/*
+ * Chrome do MapLibre trazido para a gramática do produto.
+ *
+ * Fora de `@layer` de propósito: `maplibre-gl.css` é importado por um módulo
+ * JavaScript e entra na página sem camada nenhuma, e regra sem camada vence
+ * regra em camada por mais específica que seja. O `.maplibregl-map` na frente
+ * existe para ganhar da especificidade, não da camada.
+ *
+ * Empilhamento: mapa 0 → chrome do mapa 10 → painéis 20 → barras 30. Sem isto
+ * os contêineres de controle trazem `z-index: 2` e a pílula branca de
+ * atribuição desenha por cima dos painéis da aplicação, cobrindo texto próprio.
+ */
+.maplibregl-map .maplibregl-ctrl-top-left,
+.maplibregl-map .maplibregl-ctrl-top-right,
+.maplibregl-map .maplibregl-ctrl-bottom-left,
+.maplibregl-map .maplibregl-ctrl-bottom-right {
+  z-index: 10;
+}
+
+/* A atribuição é obrigação de licença e continua legível. O que sai é o estilo
+   default — branco puro, raio de 12px — que era o único elemento da tela fora
+   do sistema visual. */
+.maplibregl-map .maplibregl-ctrl.maplibregl-ctrl-attrib,
+.maplibregl-map .maplibregl-ctrl-attrib.maplibregl-compact,
+.maplibregl-map .maplibregl-ctrl-attrib.maplibregl-compact-show,
+.maplibregl-map .maplibregl-ctrl-attrib-button {
+  background-color: var(--color-base);
+  border-radius: 0;
+  color: var(--color-ink-faint);
+}
+
+.maplibregl-map .maplibregl-ctrl-attrib.maplibregl-compact {
+  border: 1px solid var(--color-line);
+  margin: 8px;
+}
+
+.maplibregl-map .maplibregl-ctrl-attrib a {
+  color: var(--color-ink-faint);
+}
+
+.maplibregl-map .maplibregl-ctrl-attrib-button {
+  /* O glifo default é preto sobre branco e desaparece numa interface escura. */
+  filter: invert(1) brightness(0.62);
 }

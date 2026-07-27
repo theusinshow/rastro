@@ -11,24 +11,33 @@ export function StatusBar() {
 
   return (
     <footer
-      className="relative z-20 flex h-7 shrink-0 items-center gap-6
-                 border-t border-line bg-base px-4"
+      className="relative z-30 flex h-7 shrink-0 items-center gap-3
+                 overflow-hidden border-t border-line bg-base px-4 md:gap-6"
     >
-      <span className="instrument-value text-[10px] text-ink-faint">
+      <span className="instrument-value whitespace-nowrap text-[10px] text-ink-faint">
         {'⌖ '}
         {view
           ? `${formatCoordinate(view.center.latitude)} ${formatCoordinate(view.center.longitude)}`
           : '—.———— —.————'}
       </span>
-      <span className="instrument-value text-[10px] text-ink-faint">
+      {/* Abaixo de 768px a barra tem 28px de altura fixa e quatro campos a fazem
+          quebrar em duas linhas. Coordenada e contagem ficam; zoom e origem são
+          os dois que menos mudam durante o uso. */}
+      <span className="instrument-value hidden text-[10px] text-ink-faint md:inline">
         Z{view ? view.zoom.toFixed(1) : '—'}
       </span>
       {count !== null ? (
-        <span className="instrument-value text-[10px] text-ink-faint">
+        <span
+          // `key` remonta o nó e reinicia o realce a cada valor novo. Sem ele o
+          // número muda a 10px num canto e ninguém percebe.
+          key={count}
+          className="value-changed instrument-value px-1 text-[10px]
+                     whitespace-nowrap text-ink-faint"
+        >
           ● {count} {count === 1 ? 'lugar' : 'lugares'}
         </span>
       ) : null}
-      <span className="ml-auto instrument-value text-[10px] text-ink-faint">
+      <span className="ml-auto instrument-value hidden text-[10px] text-ink-faint md:inline">
         ⌂ {DEFAULT_ORIGIN_LABEL}
       </span>
     </footer>

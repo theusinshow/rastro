@@ -17,6 +17,7 @@ export function MapCanvas() {
   const containerRef = useRef<HTMLDivElement>(null)
   const { registerMap, updateView } = useMapRegistry()
   const [loadFailure, setLoadFailure] = useState<string | null>(null)
+  const [loaded, setLoaded] = useState(false)
 
   useEffect(() => {
     if (!hasMapTilerKey) return
@@ -51,6 +52,7 @@ export function MapCanvas() {
       loaded = true
       publishView()
       registerMap(map)
+      setLoaded(true)
     })
     map.on('move', publishView)
 
@@ -65,6 +67,7 @@ export function MapCanvas() {
 
     return () => {
       registerMap(null)
+      setLoaded(false)
       map.remove()
     }
   }, [registerMap, updateView])
@@ -80,9 +83,13 @@ export function MapCanvas() {
   //
   // O aviso de falha cobre o contêiner em vez de substituí-lo: desmontar o nó
   // que o MapLibre já adotou atrapalharia a limpeza do efeito.
+  // O fade de primeira pintura mora num nó só nosso: aplicá-lo no contêiner que
+  // o MapLibre adota misturaria nossas classes com as dele.
   return (
     <div className="absolute inset-0">
-      <div ref={containerRef} className="h-full w-full" />
+      <div className="map-surface h-full w-full" data-loaded={loaded}>
+        <div ref={containerRef} className="h-full w-full" />
+      </div>
       {loadFailure === null ? null : <MapLoadError detail={loadFailure} />}
     </div>
   )

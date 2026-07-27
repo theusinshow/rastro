@@ -31,9 +31,12 @@ export function Button({
     <button
       type={type}
       className={cn(
-        'inline-flex items-center justify-center gap-2 rounded-xs font-medium',
-        'uppercase tracking-[0.1em] transition-colors',
-        'disabled:cursor-not-allowed disabled:opacity-40',
+        // `press` traz a transição: ver `.press` em globals.css.
+        'press inline-flex items-center justify-center gap-2 rounded-xs',
+        'font-medium uppercase tracking-[0.1em]',
+        // 55% em vez de 40%: a 40% o rótulo media 3.42:1, o que contradiz a
+        // regra de manter visível o que está explicitamente indisponível.
+        'disabled:cursor-not-allowed disabled:opacity-55',
         VARIANT[variant],
         SIZE[size],
         className,

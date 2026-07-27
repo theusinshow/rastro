@@ -34,9 +34,9 @@ export function DiscoveryForm({ query, onChange, onSubmit }: DiscoveryFormProps)
           event.preventDefault()
           onSubmit()
         }}
-        className="flex flex-1 flex-col overflow-hidden"
+        className="flex min-h-0 flex-1 flex-col overflow-hidden"
       >
-        <div className="flex-1 overflow-y-auto">
+        <div className="min-h-0 flex-1 overflow-y-auto">
           <section className="border-b border-line px-4 py-4">
             <span className="instrument-label">Partida</span>
             <p className="instrument-value mt-1.5 text-sm text-ink">
@@ -116,7 +116,7 @@ export function DiscoveryForm({ query, onChange, onSubmit }: DiscoveryFormProps)
           </section>
         </div>
 
-        <div className="border-t border-line p-3">
+        <div className="shrink-0 border-t border-line p-3">
           <Button type="submit" variant="solid" className="w-full">
             Encontrar destino
           </Button>
