@@ -97,6 +97,31 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 - Respeito à preferência de movimento reduzido do sistema, sem desligar os dois
   movimentos que carregam informação: o crossfade dos pins e o realce da
   contagem sobrevivem; a câmera passa a cortar seco em vez de viajar
+- O mapa passa a responder à seleção: escolher um lugar reposiciona a câmera com
+  o painel descontado do enquadramento, para que o pin escolhido nunca fique
+  embaixo dele
+- "Encontrar destino" recompõe o mapa sobre os destinos encontrados, com as duas
+  colunas descontadas — a pergunta "para onde vamos?" agora é respondida no
+  mapa, e não só numa lista de texto
+- Mudar o recorte faz os pins entrarem e saírem num crossfade, tornando legível
+  o tamanho da mudança em vez de trocar tudo em um quadro
+- O anel de seleção cresce a partir do miolo do pin, o que diz qual dos pins
+  agrupados foi escolhido
+- Lista dos lugares no recorte na trilha de filtros, com nome, categoria,
+  distância e situação de visita: torna o produto navegável só com teclado —
+  antes não havia caminho nenhum até um lugar sem mouse sobre o mapa — e realça
+  no mapa o pin da linha sob o cursor ou o foco
+- Estado vazio na tela inicial: quando nenhum lugar cabe no recorte, a interface
+  diz qual filtro está eliminando mais lugares e oferece a remoção em um clique
+- Estado vazio da descoberta com recuperação: no lugar de sugerir em prosa,
+  oferece o menor ajuste de limite que devolveria destinos
+- Contagem de lugares anunciada a leitores de tela, que era a única
+  representação acessível do resultado de um filtro e era silenciosa
+- Cabeçalho principal em cada rota, para navegação por cabeçalhos
+- Contagem de lugares na barra de status também em "Descobrir", onde ela
+  simplesmente sumia
+- Revelação escalonada dos resultados da descoberta, que estabelece a ordem de
+  leitura da lista — do mais distante ao mais próximo
 
 ### Alterado
 
@@ -111,6 +136,17 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 - A interface deixa de quebrar em telas estreitas: abaixo de 768px os painéis
   viram folhas inferiores, a navegação rola na horizontal em vez de cortar
   "Memórias", e a barra de status mostra coordenada e contagem numa linha só
+- "Para onde vamos?" passa a ser contorno âmbar sobre fundo opaco: o
+  preenchimento âmbar sólido volta a significar exclusivamente "quero conhecer"
+  no mapa, em vez de disputar leitura com o dado
+- O botão principal da tela inicial vem antes da trilha de filtros na ordem de
+  tabulação, e não mais depois de dezenove controles de refinamento
+- A faixa de fotografia do painel de lugar só reserva os 160px quando existe
+  imagem; sem foto, a contagem cabe numa linha e não empurra o nome, a distância
+  e a situação do lugar para baixo
+- As quatro ações ainda não implementadas do painel de lugar deixam de ser uma
+  grade de botões de peso idêntico acima da única ação que funciona: "Abrir
+  rota" sobe para o topo e as demais viram uma linha sob "Em breve"
 
 ### Alterado
 

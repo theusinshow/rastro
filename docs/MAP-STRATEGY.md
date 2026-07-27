@@ -204,8 +204,9 @@ Todas as cinco leem da mesma fonte `places` (`PLACES_SOURCE_ID`).
 | 1 | `favoriteRing` (`places-favorite-ring`) | circle | Anel osso, só onde `isFavorite`. Fica por baixo do miolo para não cobri-lo. |
 | 2 | `core` (`places-core`) | circle | Miolo e contorno. Cor por `match` em `visitStatus`: preenchido verde para visitado, âmbar para quero conhecer, vazado (miolo escuro, contorno frio) para não visitado. |
 | 3 | `photoDot` (`places-photo-dot`) | circle | Ponto satélite osso, só onde `hasPhotos`, deslocado para o canto superior direito do pin via `circle-translate`. |
-| 4 | `selected` (`places-selected`) | circle | Anel de seleção, maior que o de favorito. Filtro compara `slug` com o lugar selecionado; sem seleção, filtra por um slug que não existe (`__none__`) e fica invisível. |
-| 5 | `label` (`places-label`) | symbol | Nome do lugar, visível a partir de `zoom` 8.5, com o mesmo tratamento tipográfico do restante do mapa. |
+| 4 | `hover` (`places-hover`) | circle | Realce do pin correspondente à linha sob o cursor numa lista da interface. Mesmo padrão de filtro por `slug` do `selected`. |
+| 5 | `selected` (`places-selected`) | circle | Anel de seleção, maior que o de favorito. Filtro compara `slug` com o lugar selecionado; sem seleção, filtra por um slug que não existe (`__none__`) e fica invisível. O raio cresce a partir do miolo em 240ms, para amarrar o anel ao pin quando há vários agrupados. |
+| 6 | `label` (`places-label`) | symbol | Nome do lugar, visível a partir de `zoom` 8.5, com o mesmo tratamento tipográfico do restante do mapa. |
 
 ### Duplicação de cores entre CSS e WebGL
 
@@ -226,11 +227,41 @@ mount, `removeLayer`/`removeSource` no unmount) ao ciclo de vida do componente
 React — não para desenhar interface. Isso permite que o React controle quando
 a fonte de pins existe (por exemplo, ela pode ser desmontada e remontada sem
 afetar o resto do mapa) sem que o componente precise produzir qualquer nó
-visual próprio. A limpeza verifica `map.getStyle()` antes de remover camadas,
+visual próprio.
+
+`PlacesLayer` também é onde vivem os movimentos do mapa: o crossfade do recorte,
+o crescimento do anel de seleção, o realce de hover e as chamadas de câmera. A
+limpeza verifica `map.getStyle()` antes de remover camadas,
 porque o `MapCanvas` pode já ter destruído a instância do mapa (`map.remove()`)
 antes do efeito de limpeza rodar — situação comum em Strict Mode, que
 monta/desmonta os efeitos duas vezes em desenvolvimento. O mesmo padrão é
 reaproveitado pela Tarefa 12 para realçar resultados de descoberta.
+
+### Por que a fonte recebe todos os lugares
+
+A fonte `places` recebe **a coleção inteira**, com uma propriedade booleana
+`matched` marcando quem está no recorte atual e `wasMatched` marcando quem
+estava no anterior. A opacidade de cada camada é uma expressão sobre essas duas
+propriedades.
+
+O motivo é técnico e decisivo: o MapLibre não consegue interpolar uma feature
+que deixou de existir. Alimentando a fonte com a lista já filtrada, marcar
+"Cachoeira" fazia treze dos catorze pins desaparecerem em um quadro — e a única
+confirmação de que algo aconteceu era um `0 / 14` de 10px no rodapé de uma
+coluna.
+
+E há uma segunda armadilha: **o MapLibre também não transiciona propriedade de
+pintura dirigida por dados.** O código da biblioteca é explícito — *"transitions
+to data-driven properties are not supported"* — e salta direto para o valor
+final. Declarar `circle-opacity-transition` numa expressão com `['get', ...]`
+não faz nada. Por isso a interpolação roda em `src/lib/map/paint.ts`, com
+`requestAnimationFrame` reescrevendo a expressão a cada quadro. Com catorze
+pontos o custo é irrelevante.
+
+O tween só começa depois que a fonte termina de carregar (`sourcedata` com
+`isSourceLoaded`), porque `setData` analisa o GeoJSON num worker: começar antes
+faz a interpolação inteira rodar sobre os dados antigos, e o recorte troca de
+estalo quando os novos chegam.
 
 Regra que já vale: o âmbar do produto é dos pins e da interface. Nenhuma
 camada de base pode disputá-lo.

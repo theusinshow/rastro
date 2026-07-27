@@ -1,3 +1,4 @@
+import { RADIUS_OPTIONS_KM } from './filters'
 import { haversineKm, type Coordinates } from './geo'
 import type { ExplorePlace, PlaceCategory } from './place'
 
@@ -107,4 +108,62 @@ export function findDestinations(
   }
 
   return results.sort((a, b) => b.estimatedRoadKm - a.estimatedRoadKm)
+}
+
+/** O que precisaria mudar na consulta para que ela devolvesse algo. */
+export type DiscoveryRelaxation = 'maxDistanceKm' | 'timeBudget' | 'categories'
+
+export interface DiscoverySuggestion {
+  relaxation: DiscoveryRelaxation
+  /** A mesma consulta com um único limite ampliado. */
+  query: DiscoveryQuery
+  /** Quantos destinos essa consulta devolveria. */
+  count: number
+}
+
+const TIME_BUDGETS_ASCENDING: TimeBudget[] = ['2h', '4h', '6h', 'dia-inteiro']
+
+/**
+ * A menor ampliação de limite que faria a busca devolver algo. `null` quando
+ * nem remover todos os limites produz destino.
+ *
+ * O sistema sabe qual restrição eliminou o quê, porque foi ele que filtrou.
+ * Devolver isso como prosa ("aumente a distância, o tempo, ou remova alguma
+ * categoria") transfere ao usuário um trabalho que a máquina já fez.
+ *
+ * A ordem das tentativas é de produto: ampliar a distância muda menos a viagem
+ * do que gastar o dia inteiro, e ambas mudam menos do que desistir do tipo de
+ * lugar que se queria ver.
+ */
+export function suggestBroaderQuery(
+  places: readonly ExplorePlace[],
+  query: DiscoveryQuery,
+): DiscoverySuggestion | null {
+  const attempts: Array<{ relaxation: DiscoveryRelaxation; query: DiscoveryQuery }> =
+    []
+
+  for (const radius of RADIUS_OPTIONS_KM) {
+    if (radius > query.maxDistanceKm) {
+      attempts.push({
+        relaxation: 'maxDistanceKm',
+        query: { ...query, maxDistanceKm: radius },
+      })
+    }
+  }
+
+  const currentBudget = TIME_BUDGETS_ASCENDING.indexOf(query.timeBudget)
+  for (const budget of TIME_BUDGETS_ASCENDING.slice(currentBudget + 1)) {
+    attempts.push({ relaxation: 'timeBudget', query: { ...query, timeBudget: budget } })
+  }
+
+  if (query.categories.length > 0) {
+    attempts.push({ relaxation: 'categories', query: { ...query, categories: [] } })
+  }
+
+  for (const attempt of attempts) {
+    const count = findDestinations(places, attempt.query).length
+    if (count > 0) return { ...attempt, count }
+  }
+
+  return null
 }

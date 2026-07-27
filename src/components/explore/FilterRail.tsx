@@ -1,10 +1,11 @@
 'use client'
 
-import type { ExploreFilters } from '@/domain/filters'
+import type { ExploreFilters, FilterRelaxation } from '@/domain/filters'
 import { RADIUS_OPTIONS_KM } from '@/domain/filters'
 import {
   CATEGORY_LABELS,
   PLACE_CATEGORIES,
+  type ExplorePlace,
   type PlaceCategory,
   type VisitStatus,
 } from '@/domain/place'
@@ -12,6 +13,7 @@ import { OverlayPanel } from '@/components/layout/OverlayPanel'
 import { Button } from '@/components/ui/Button'
 import { Chip } from '@/components/ui/Chip'
 import { Toggle } from '@/components/ui/Toggle'
+import { PlaceList } from './PlaceList'
 
 const STATUS_OPTIONS: Array<{ value: VisitStatus; label: string }> = [
   { value: 'nao-visitado', label: 'Não visitados' },
@@ -30,8 +32,12 @@ interface FilterRailProps {
   setFilters: (filters: ExploreFilters) => void
   reset: () => void
   isDefault: boolean
-  resultCount: number
+  visible: ExplorePlace[]
   totalCount: number
+  selectedSlug: string | null
+  onSelectPlace: (slug: string) => void
+  onHoverPlace: (slug: string | null) => void
+  relaxation: FilterRelaxation | null
 }
 
 export function FilterRail({
@@ -39,12 +45,20 @@ export function FilterRail({
   setFilters,
   reset,
   isDefault,
-  resultCount,
+  visible,
   totalCount,
+  selectedSlug,
+  onSelectPlace,
+  onHoverPlace,
+  relaxation,
 }: FilterRailProps) {
   return (
     <OverlayPanel side="left">
-      <div className="flex-1 overflow-y-auto">
+      {/* No desktop os filtros tomam a altura que precisam, com teto de 60% da
+          coluna, e a lista fica com o resto — assim nada é cortado no meio de
+          uma linha. Na folha inferior a altura é indefinida e a divisão volta a
+          ser proporcional, que é o único repartimento previsível ali. */}
+      <div className="min-h-0 flex-1 overflow-y-auto md:max-h-[60%] md:flex-none">
         <section className="border-b border-line px-4 py-4">
           <span className="instrument-label">Categoria</span>
           <div className="mt-2.5 flex flex-wrap gap-1">
@@ -85,7 +99,7 @@ export function FilterRail({
           </div>
         </section>
 
-        <section className="border-b border-line px-4 py-4">
+        <section className="px-4 py-4">
           <span className="instrument-label">Situação</span>
           <div className="mt-1.5">
             {STATUS_OPTIONS.map((option) => (
@@ -112,10 +126,21 @@ export function FilterRail({
         </section>
       </div>
 
-      <div className="flex items-center justify-between border-t border-line px-4 py-3">
-        <span className="instrument-value text-[10px] text-ink-faint">
-          {resultCount} / {totalCount}
-        </span>
+      {/* A lista ocupa o terço de coluna que antes era `bg-base` liso, e é o
+          único caminho de teclado até um lugar — ver `PlaceList`. */}
+      <PlaceList
+        className="min-h-0 flex-1 border-t border-line"
+        places={visible}
+        totalCount={totalCount}
+        selectedSlug={selectedSlug}
+        onSelect={onSelectPlace}
+        onHover={onHoverPlace}
+        relaxation={relaxation}
+        onRelax={setFilters}
+        onReset={reset}
+      />
+
+      <div className="flex shrink-0 items-center justify-end border-t border-line px-4 py-2">
         <Button size="sm" variant="ghost" onClick={reset} disabled={isDefault}>
           Limpar
         </Button>

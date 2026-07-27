@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { DEFAULT_EXPLORE_FILTERS, filterPlaces } from './filters'
+import {
+  DEFAULT_EXPLORE_FILTERS,
+  filterPlaces,
+  mostRestrictiveCriterion,
+} from './filters'
 import type { ExplorePlace } from './place'
 
 const ORIGIN = { latitude: -27.6455, longitude: -48.67 }
@@ -101,5 +105,60 @@ describe('filterPlaces', () => {
     const places = [place({ id: 'a' })]
     filterPlaces(places, { ...DEFAULT_EXPLORE_FILTERS, radiusKm: 1 }, ORIGIN)
     expect(places).toHaveLength(1)
+  })
+})
+
+describe('mostRestrictiveCriterion', () => {
+  const places = [
+    place({ id: 'a', category: 'serra', visitStatus: 'visitado' }),
+    place({ id: 'b', category: 'serra', visitStatus: 'nao-visitado' }),
+    place({ id: 'c', category: 'praia', visitStatus: 'nao-visitado' }),
+  ]
+
+  it('devolve null quando não há filtro nenhum ativo', () => {
+    expect(
+      mostRestrictiveCriterion(places, DEFAULT_EXPLORE_FILTERS, ORIGIN),
+    ).toBeNull()
+  })
+
+  it('aponta o critério que sozinho devolve mais lugares', () => {
+    // Categoria "cafe" (0 lugares) somada a "visitado" (1 lugar): remover a
+    // categoria devolve 1, remover a situação devolve 0.
+    const relaxation = mostRestrictiveCriterion(
+      places,
+      {
+        ...DEFAULT_EXPLORE_FILTERS,
+        categories: ['cafe'],
+        visitStatus: ['visitado'],
+      },
+      ORIGIN,
+    )
+
+    expect(relaxation?.criterion).toBe('categories')
+    expect(relaxation?.recovered).toBe(1)
+  })
+
+  it('entrega os filtros já com o critério removido, prontos para aplicar', () => {
+    const relaxation = mostRestrictiveCriterion(
+      places,
+      { ...DEFAULT_EXPLORE_FILTERS, categories: ['cafe'] },
+      ORIGIN,
+    )
+
+    expect(relaxation?.filters.categories).toEqual([])
+  })
+
+  it('devolve null quando nenhum critério isolado resolve', () => {
+    const relaxation = mostRestrictiveCriterion(
+      places,
+      {
+        ...DEFAULT_EXPLORE_FILTERS,
+        categories: ['cafe'],
+        favoritesOnly: true,
+      },
+      ORIGIN,
+    )
+
+    expect(relaxation).toBeNull()
   })
 })

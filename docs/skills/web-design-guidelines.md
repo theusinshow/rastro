@@ -28,11 +28,12 @@ para auditar acessibilidade, foco, contraste ou semântica no Rastro.
 
 ## Riscos conhecidos desta interface — checar sempre
 
-- **Contraste de `--color-ink-faint` (`#5e6b66`) sobre `--color-base`
-  (`#101413`).** É o par de cor mais frágil da paleta. `--color-ink-faint` é
-  usado em `.instrument-label`, em `Chip` inativo, em texto terciário — meça
-  a razão de contraste real antes de aprovar qualquer novo uso em texto que
-  carregue informação (não apenas decorativo).
+- **Contraste de `--color-ink-faint` sobre `--color-base` (`#101413`).**
+  Continua sendo o par mais frágil da paleta, embora não falhe mais: o token
+  subiu de `#5e6b66` (3.33:1, reprovado) para `#7b8884` (5.04:1 sobre `base`,
+  4.68:1 sobre `raised`). Ainda assim, `--color-ink-faint` é usado a 10px em
+  `.instrument-label`, na statusbar e em texto terciário — meça a razão real
+  antes de aprovar qualquer novo uso em texto que carregue informação.
 - **Legibilidade dos rótulos sobre o mapa.** O fundo por trás de um label do
   MapLibre (`places-label`, `road-label`, `place-label`) varia com o que
   está sob ele — água, mata, relevo sombreado — mesmo com halo aplicado
@@ -42,20 +43,22 @@ para auditar acessibilidade, foco, contraste ou semântica no Rastro.
   (`src/lib/map/layers.ts`) têm raio pensado para precisão de mouse
   (`circle-radius` interpolado de 3.5px a 6.5px conforme o zoom) — não há
   ajuste de área de toque maior para dedo em tela sensível ao toque.
-- **Ausência de anúncio para leitores de tela quando a contagem de
-  resultados muda após filtrar.** `StatusBar` atualiza o texto visível
-  (`{count} lugares`) a cada mudança de filtro, mas não há `aria-live` nem
-  qualquer anúncio equivalente — quem usa leitor de tela não é avisado de
-  que o recorte mudou.
+- **Anúncio da contagem de resultados.** Resolvido: `PlaceList`
+  (`src/components/explore/PlaceList.tsx`) mantém um `role="status"`
+  `aria-live="polite"` `aria-atomic="true"` com a frase completa
+  ("3 lugares de 14 no recorte"). A `StatusBar` continua sem `aria-live` de
+  propósito — duas regiões vivas anunciando o mesmo número seria ruído.
 - **Os pins do mapa são desenhados em WebGL e portanto não são alcançáveis
   por teclado nem expostos à árvore de acessibilidade.** `PlacesLayer`
   desenha camadas `circle`/`symbol` do MapLibre sobre um `<canvas>`; não
   existe nenhum nó de DOM por pin, então não há como tabular até um lugar,
   não há papel ARIA, e um leitor de tela não sabe que ali existem pontos
   selecionáveis. Isso não é um detalhe de implementação a ajustar — é uma
-  lacuna estrutural do MapLibre com canvas/WebGL. **A mitigação natural é
-  uma lista textual dos lugares visíveis, navegável por teclado e lida por
-  leitor de tela, equivalente em conteúdo aos pins — e ela ainda não
-  existe.** Qualquer auditoria de acessibilidade deste produto deve
-  assinalar essa ausência explicitamente, não presumir que o mapa por si só
-  cobre o requisito de acesso a teclado.
+  lacuna estrutural do MapLibre com canvas/WebGL. **A mitigação existe desde
+  a Tarefa 14: `PlaceList` (`src/components/explore/PlaceList.tsx`) é a lista
+  textual dos lugares no recorte, navegável por teclado, com nome, categoria,
+  distância e situação de visita — equivalente em conteúdo aos três canais
+  visuais do pin.** Ela também é o parceiro de hover do mapa: passar o cursor
+  ou o foco numa linha realça o pin correspondente. Qualquer trabalho futuro
+  em pins deve manter essa lista em dia, porque ela é o único caminho de
+  teclado até a ação primária do produto.

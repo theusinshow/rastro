@@ -30,6 +30,40 @@ export function haversineKm(from: Coordinates, to: Coordinates): number {
   return 2 * EARTH_RADIUS_KM * Math.asin(Math.min(1, Math.sqrt(a)))
 }
 
+/** Retângulo geográfico em graus decimais. */
+export interface BoundingBox {
+  west: number
+  south: number
+  east: number
+  north: number
+}
+
+/**
+ * Menor retângulo que contém todos os pontos. `null` para uma lista vazia.
+ *
+ * Não trata a travessia do antimeridiano: o produto é de Santa Catarina e
+ * inventar suporte a um caso que não existe custaria clareza sem comprar nada.
+ */
+export function boundingBox(
+  points: readonly Coordinates[],
+): BoundingBox | null {
+  if (points.length === 0) return null
+
+  let west = Infinity
+  let south = Infinity
+  let east = -Infinity
+  let north = -Infinity
+
+  for (const point of points) {
+    if (point.longitude < west) west = point.longitude
+    if (point.longitude > east) east = point.longitude
+    if (point.latitude < south) south = point.latitude
+    if (point.latitude > north) north = point.latitude
+  }
+
+  return { west, south, east, north }
+}
+
 /** Coordenada para leitura de instrumento: sinal explícito, quatro decimais. */
 export function formatCoordinate(value: number): string {
   return value.toFixed(4)

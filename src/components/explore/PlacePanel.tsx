@@ -20,58 +20,67 @@ import { VisitStatusBadge } from './VisitStatusBadge'
 interface PlacePanelProps {
   place: ExplorePlace
   onClose: () => void
+  exiting?: boolean
 }
 
-export function PlacePanel({ place, onClose }: PlacePanelProps) {
+export function PlacePanel({ place, onClose, exiting }: PlacePanelProps) {
   const straightLineKm = haversineKm(DEFAULT_ORIGIN, place)
   const roadKm = straightLineKm * ROAD_SINUOSITY_FACTOR
   const minutes = (roadKm / AVERAGE_SPEED_KMH) * 60
 
   return (
-    <OverlayPanel side="right">
-      <header className="flex items-start gap-3 border-b border-line px-5 py-4">
+    <OverlayPanel side="right" exiting={exiting}>
+      <header className="flex shrink-0 items-start gap-3 border-b border-line px-5 py-4">
         <div className="min-w-0 flex-1">
           <span className="instrument-label">
             {CATEGORY_LABELS[place.category]}
           </span>
-          <h1 className="mt-1 text-lg leading-tight font-medium text-ink">
+          {/* `h2`: o `h1` da rota é o título da tela, e o nome de um lugar é
+              conteúdo dentro dela — não a identidade do documento. */}
+          <h2 className="mt-1 text-lg leading-tight font-medium text-ink">
             {place.name}
-          </h1>
+          </h2>
           <p className="mt-1 text-xs text-ink-muted">
             {place.municipality} · {place.stateCode}
           </p>
         </div>
 
+        {/* O glifo continua com o mesmo tamanho; o alvo é que sobe para 32×32.
+            É a única saída do painel e era o alvo mais difícil da interface. */}
         <button
           type="button"
           onClick={onClose}
           aria-label="Fechar painel"
-          className="shrink-0 px-1 text-lg leading-none text-ink-faint
-                     transition-colors hover:text-ink"
+          className="-mt-1 -mr-2 flex h-8 w-8 shrink-0 items-center justify-center
+                     text-lg leading-none text-ink-faint transition-colors
+                     hover:text-ink"
         >
           ×
         </button>
       </header>
 
-      <div className="flex-1 overflow-y-auto">
-        {/* Faixa de fotografia. Sem foto, o espaço é assumido em vez de
-            desaparecer: fotografia é conteúdo central deste produto. */}
-        <div className="flex h-40 items-center justify-center border-b border-line bg-raised">
-          {place.coverImageUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
+      <div className="min-h-0 flex-1 overflow-y-auto">
+        {/* Os 160px de faixa ficam reservados para quando existe imagem. Sem
+            foto, o elemento mais alto do painel comunicava ausência e empurrava
+            para baixo o nome, a distância e o status do lugar. */}
+        {place.coverImageUrl ? (
+          <div className="h-40 border-b border-line bg-raised">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={place.coverImageUrl}
-              alt=""
+              alt={`${place.name}, em ${place.municipality}`}
               className="h-full w-full object-cover"
             />
-          ) : (
+          </div>
+        ) : (
+          <div className="border-b border-line px-5 py-3">
             <span className="instrument-label">
               {place.photoCount > 0
                 ? `${place.photoCount} fotografias`
                 : 'Sem fotografias'}
             </span>
-          )}
-        </div>
+          </div>
+        )}
 
         <div className="flex gap-8 border-b border-line px-5 py-4">
           <Stat

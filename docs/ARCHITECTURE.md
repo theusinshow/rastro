@@ -116,15 +116,31 @@ Do primeiro byte servido até o pin aparecer no mapa:
    — função pura de `src/domain/filters.ts` — obtendo `visible: ExplorePlace[]`,
    a lista já recortada por categoria, raio, situação de visita e favoritos
    (todos os critérios combinados com E).
-6. `visible` é entregue a **`<PlacesLayer places={visible} />`**
-   (`src/components/map/PlacesLayer.tsx`).
+6. `visible` é entregue a
+   **`<PlacesLayer places={places} visible={visible} … />`**
+   (`src/components/map/PlacesLayer.tsx`), **junto com a lista completa**.
 7. `PlacesLayer` obtém a instância do MapLibre via `useMapInstance()`
    (contexto `MapProvider`). No efeito de dados, chama
-   **`buildPlacesGeoJson(visible)`** (`src/lib/map/layers.ts`) para converter
-   a lista em um `FeatureCollection` GeoJSON e chama
-   **`source.setData(...)`** sobre a fonte `places` já registrada no mapa —
-   é este `setData` que efetivamente redesenha os pins.
-8. Em paralelo, `ExploreContent` publica `visible.length` no
+   **`buildPlacesGeoJson(places, matched, previouslyMatched)`**
+   (`src/lib/map/layers.ts`) e chama **`source.setData(...)`** sobre a fonte
+   `places` já registrada no mapa.
+
+   **A fonte recebe todos os lugares, sempre.** O recorte chega como a
+   propriedade booleana `matched` de cada feature, e não como ausência: o
+   MapLibre não consegue interpolar uma feature que deixou de existir, e sem
+   isso marcar um filtro faria treze dos catorze pins sumirem em um quadro.
+   Quem decide o recorte continua sendo `filterPlaces`, no domínio; o que muda
+   é como o resultado é representado no mapa. `previouslyMatched` é o recorte
+   anterior, e existe só para que o crossfade saiba quem entrou e quem saiu.
+
+   A interpolação em si roda em `src/lib/map/paint.ts`, dirigida por
+   `requestAnimationFrame`, porque o MapLibre ignora `*-transition` em qualquer
+   propriedade de pintura dirigida por dados.
+8. Ainda em `PlacesLayer`, mudar `place` na URL move a câmera
+   (`src/lib/map/camera.ts`): reposiciona quando a seleção veio de um clique no
+   pin, aproxima quando veio de uma lista. O `padding` corresponde às larguras
+   dos painéis da rota, para que o pin selecionado não termine embaixo deles.
+9. Em paralelo, `ExploreContent` publica `visible.length` no
    `VisiblePlacesProvider` via `useSetVisiblePlaceCount()`, e a `StatusBar`
    (montada no layout persistente, fora da árvore da página) lê esse valor
    via `useVisiblePlaceCount()` para mostrar a contagem de lugares visíveis.

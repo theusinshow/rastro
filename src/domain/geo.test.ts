@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  boundingBox,
   formatCoordinate,
   formatDistanceKm,
   formatDurationMinutes,
@@ -62,5 +63,30 @@ describe('formatDurationMinutes', () => {
 
   it('zera os minutos com dois dígitos', () => {
     expect(formatDurationMinutes(120)).toBe('2h00')
+  })
+})
+
+describe('boundingBox', () => {
+  it('devolve null para uma lista vazia', () => {
+    expect(boundingBox([])).toBeNull()
+  })
+
+  it('devolve o próprio ponto quando há um só', () => {
+    expect(boundingBox([{ latitude: -27.6, longitude: -48.5 }])).toEqual({
+      west: -48.5,
+      south: -27.6,
+      east: -48.5,
+      north: -27.6,
+    })
+  })
+
+  it('encontra os extremos em qualquer ordem de entrada', () => {
+    expect(
+      boundingBox([
+        { latitude: -28.4, longitude: -49.5 },
+        { latitude: -26.9, longitude: -48.6 },
+        { latitude: -27.6, longitude: -50.1 },
+      ]),
+    ).toEqual({ west: -50.1, south: -28.4, east: -48.6, north: -26.9 })
   })
 })

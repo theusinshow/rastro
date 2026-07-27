@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { findDestinations } from './discovery'
+import { findDestinations, suggestBroaderQuery } from './discovery'
 import type { DiscoveryQuery } from './discovery'
 import type { ExplorePlace } from './place'
 
@@ -91,5 +91,47 @@ describe('findDestinations', () => {
 
   it('devolve lista vazia sem lugares', () => {
     expect(findDestinations([], query())).toEqual([])
+  })
+})
+
+describe('suggestBroaderQuery', () => {
+  // ~130 km em linha reta a partir da origem, ~176 km de estrada estimada.
+  const distante = place({ id: 'distante', latitude: -28.39, longitude: -49.54 })
+
+  it('sugere o menor raio que devolve destino', () => {
+    const suggestion = suggestBroaderQuery(
+      [distante],
+      query({ maxDistanceKm: 50, timeBudget: 'dia-inteiro' }),
+    )
+
+    expect(suggestion?.relaxation).toBe('maxDistanceKm')
+    expect(suggestion?.query.maxDistanceKm).toBe(300)
+    expect(suggestion?.count).toBe(1)
+  })
+
+  it('recorre ao tempo quando a distância já está no máximo', () => {
+    const suggestion = suggestBroaderQuery(
+      [distante],
+      query({ maxDistanceKm: 300, timeBudget: '2h' }),
+    )
+
+    expect(suggestion?.relaxation).toBe('timeBudget')
+    expect(suggestion?.query.timeBudget).toBe('dia-inteiro')
+  })
+
+  it('só abre mão da categoria depois de distância e tempo', () => {
+    const suggestion = suggestBroaderQuery(
+      [distante],
+      query({ categories: ['praia'] }),
+    )
+
+    expect(suggestion?.relaxation).toBe('categories')
+    expect(suggestion?.query.categories).toEqual([])
+  })
+
+  it('devolve null quando nenhuma ampliação de limite resolve', () => {
+    expect(
+      suggestBroaderQuery([distante], query({ onlyFavorites: true })),
+    ).toBeNull()
   })
 })
