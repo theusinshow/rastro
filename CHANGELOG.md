@@ -27,3 +27,7 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   CSS v4, ESLint e Vitest
 - ADR 0001 registrando a stack e o limite deliberado de dependências
 - README com instruções de execução e índice da documentação
+- Design system com tokens de superfície, texto, acento âmbar e estados de visita
+- Primitivos de interface: Button, Chip, Toggle e Stat
+- Tipografia Geist Sans e Geist Mono auto-hospedadas via next/font
+- Documentação do design system em `docs/DESIGN-SYSTEM.md`

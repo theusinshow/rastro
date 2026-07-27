@@ -1,26 +1,74 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  /* Superfícies — carvão levemente frio, referência de carta náutica noturna.
+     Nunca preto puro: preto absoluto achata o mapa e mata a profundidade. */
+  --color-void: #0a0c0b;
+  --color-base: #101413;
+  --color-raised: #171c1a;
+  --color-overlay: #1e2422;
+
+  /* Traços — hairlines fazem a separação estrutural no lugar de sombras */
+  --color-line: rgba(255, 255, 255, 0.07);
+  --color-line-strong: rgba(255, 255, 255, 0.14);
+
+  /* Texto */
+  --color-ink: #e8edea;
+  --color-ink-muted: #9aa5a0;
+  --color-ink-faint: #5e6b66;
+
+  /* Acento âmbar de instrumento — painel de moto, farol, GPS outdoor.
+     Deliberadamente o oposto do azul de SaaS. */
+  --color-accent: #f0a32b;
+  --color-accent-dim: #8a5f1a;
+
+  /* Estados de visita */
+  --color-visited: #3fbf8f;
+  --color-wanted: #f0a32b;
+  --color-unvisited: #7d8a85;
+
+  /* Raio — teto de 2px. Nada aqui é arredondado por decoração. */
+  --radius-xs: 2px;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+@layer base {
+  html {
+    color-scheme: dark;
+  }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  body {
+    background-color: var(--color-void);
+    color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Foco visível e consistente. Nenhum controle perde o anel. */
+  :focus-visible {
+    outline: 1px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: var(--color-accent-dim);
+    color: var(--color-ink);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  /* Label de instrumento: caixa alta, tracking largo, mono.
+     Esta regra carrega boa parte do caráter técnico do produto. */
+  .instrument-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-ink-faint);
+  }
+
+  /* Todo dado numérico usa isto: km, coordenada, duração, zoom. */
+  .instrument-value {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
+  }
 }
