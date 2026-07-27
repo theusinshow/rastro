@@ -58,6 +58,10 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   com relevo sombreado das serras e ênfase na malha viária
 - Instância de mapa persistente no layout, preservando posição e zoom ao navegar
   entre as áreas do aplicativo
+- Área "Para onde vamos?" com tempo disponível, distância máxima, categorias e
+  filtros de não visitados e favoritos
+- Resultados de descoberta ordenados por distância e recortados no mapa,
+  considerando o tempo de ida e volta e reservando margem para paradas
 - Estado de fallback explícito quando a chave do MapTiler não está configurada
 - Coordenadas e zoom ao vivo na barra de status
 - ADR 0002 registrando o mapa persistente no layout

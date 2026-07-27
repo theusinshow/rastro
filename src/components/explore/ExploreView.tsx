@@ -5,6 +5,7 @@ import { filterPlaces } from '@/domain/filters'
 import type { ExplorePlace } from '@/domain/place'
 import { DEFAULT_ORIGIN } from '@/mocks/user'
 import { PlacesLayer } from '@/components/map/PlacesLayer'
+import { DiscoveryLauncher } from './DiscoveryLauncher'
 import { FilterRail } from './FilterRail'
 import { PlacePanel } from './PlacePanel'
 import { useExploreFilters } from './use-explore-filters'
@@ -46,6 +47,7 @@ function ExploreContent({ places }: ExploreViewProps) {
         resultCount={visible.length}
         totalCount={places.length}
       />
+      <DiscoveryLauncher />
       {selected ? (
         <PlacePanel place={selected} onClose={() => select(null)} />
       ) : null}
