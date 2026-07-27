@@ -83,6 +83,9 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   compartilhável e reproduzível
 - Contagem de lugares visíveis na barra de status
 - ADR 0006 registrando a URL como fonte do estado de exploração
+- Documentação de arquitetura, roadmap e contribuição
+- Briefings de contexto do projeto para as skills de design, evitando respostas
+  genéricas ao trabalhar na interface
 
 ### Alterado
 

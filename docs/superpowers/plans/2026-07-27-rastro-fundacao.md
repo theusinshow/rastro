@@ -4815,7 +4815,10 @@ Confirme:
 - Selecionar "150 km" reduz para os lugares dentro do raio a partir de Palhoça.
 - Combinar categoria e favoritos aplica **E**, não OU.
 - Colar a URL completa numa aba nova reproduz exatamente o mesmo estado.
-- Voltar pelo botão do navegador desfaz um filtro por vez.
+- Voltar pelo botão do navegador **não** desfaz um filtro por vez: como
+  `setFilters` usa `router.replace`, cada mudança substitui a mesma entrada de
+  histórico, e voltar sai direto do Explore para a página anterior, sem passar
+  pelos filtros intermediários.
 - Editar a URL para `?cat=inexistente&raio=abc` não quebra: os valores inválidos
   são ignorados e o mapa mostra tudo.
 - "Limpar" fica desabilitado quando não há filtro ativo.
