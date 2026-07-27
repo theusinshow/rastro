@@ -19,4 +19,7 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   (`docs/superpowers/specs/2026-07-27-rastro-fundacao-design.md`)
 - `CLAUDE.md` com as regras operacionais do repositório, incluindo a regra
   primordial do changelog, a definição de concluído e as regras de camadas
+- Plano de implementação da fundação em treze tarefas, com código, testes e
+  critérios de verificação por passo
+  (`docs/superpowers/plans/2026-07-27-rastro-fundacao.md`)
 - Este changelog
