@@ -6,13 +6,12 @@ import {
   DEFAULT_EXPLORE_FILTERS,
   type ExploreFilters,
 } from '@/domain/filters'
-import { PLACE_CATEGORIES, type PlaceCategory, type VisitStatus } from '@/domain/place'
-
-const VISIT_STATUSES: VisitStatus[] = [
-  'nao-visitado',
-  'quero-conhecer',
-  'visitado',
-]
+import {
+  PLACE_CATEGORIES,
+  VISIT_STATUSES,
+  type PlaceCategory,
+  type VisitStatus,
+} from '@/domain/place'
 
 function parseList<T extends string>(raw: string | null, allowed: readonly T[]): T[] {
   if (!raw) return []

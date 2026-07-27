@@ -25,14 +25,29 @@ src/domain/                (tipos e funções puras)
          src/app/          (rotas do Next.js — App Router)
 ```
 
-A regra, verificável por leitura de imports (copiada de `CLAUDE.md`):
+A regra, verificável por leitura de imports (a de `CLAUDE.md`, aqui com as
+duas pastas de apoio de `src/lib/` explicitadas):
 
 | Camada | Pode importar | Nunca importa |
 |---|---|---|
 | `src/domain/` | nada do projeto além de `domain` | React, Next, componentes, dados |
 | `src/lib/data/` | `domain` | componentes |
 | `src/lib/map/` | `domain` | componentes de página |
+| `src/lib/motion/` | React | `domain`, `lib/data`, `lib/map`, componentes |
+| `src/lib/utils/` | nada do projeto | qualquer coisa do projeto |
 | `src/components/` | `domain`, `lib` | outros repositórios diretamente |
+
+`src/lib/motion/` é a única pasta fora de `src/components/` que contém hooks
+React, e isso é deliberado: `useReducedMotion` e `useExitTransition` são
+mecanismos de movimento reaproveitados por vários componentes, não regra de
+negócio. Ficariam errados em `src/domain/`, que não importa React por
+princípio, e errados dentro de um componente específico, que os prenderia a
+uma tela. `animate-progress.ts`, no mesmo diretório, não é hook — é função
+pura testada em `animate-progress.test.ts`.
+
+`src/lib/utils/` guarda utilitário genérico sem nenhuma noção do produto —
+hoje só `cn.ts`, quatro linhas que concatenam classes. Não importa nada do
+projeto, e é por isso que qualquer camada pode importá-lo.
 
 ### Por que a regra existe
 
@@ -148,6 +163,19 @@ Do primeiro byte servido até o pin aparecer no mapa:
 O mesmo caminho, com `findDestinations` no lugar de `filterPlaces`, é usado
 por `DiscoveryView`/`DiscoveryContent` na rota `/descobrir` — que reaproveita
 o mesmo `PlacesLayer`, apenas alimentado por outra lista.
+
+### Nota: hoje `/` e `/descobrir` são pré-renderizadas como estáticas
+
+Apesar de `page.tsx` ser um Server Component com `await`, `next build` marca as
+duas rotas como estáticas. A razão é o adapter ativo: `mockPlaceRepository`
+resolve a partir de um array em memória, sem rede nem banco, então o Next.js
+consegue executar a página em tempo de build e servir HTML pronto.
+
+Isso é consequência do mock, não uma propriedade da arquitetura. Quando o
+adapter Supabase entrar (`src/lib/data/index.ts`), a leitura passa a depender
+de requisição e as duas rotas viram dinâmicas — sem que nenhuma linha de
+componente mude. Vale saber disso antes de olhar para a saída de `next build`
+hoje e concluir que o Explore é uma página estática por desenho.
 
 ---
 

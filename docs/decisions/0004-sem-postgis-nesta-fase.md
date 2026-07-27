@@ -24,13 +24,16 @@ PostGIS é habilitada nesta fase.
   índice de apoio `places_lat_lng_idx` para recorte por caixa envolvente antes
   do cálculo — é irrelevante em termos de desempenho. O ganho de PostGIS só
   aparece em escalas que o produto não tem hoje nem projeta ter em breve.
-- **PostGIS quebraria a paridade entre o repositório mock e o adapter
-  Supabase.** O projeto mantém uma interface `PlaceRepository` com dois
-  adapters — um em memória (mock) e um sobre Supabase. Se a filtragem por raio
-  vivesse em `ST_DWithin` no banco, o adapter em memória teria de replicar a
-  semântica exata de um tipo geométrico geodésico só para os dois adapters
-  concordarem. Manter o cálculo em `double precision` + haversine no domínio
-  evita essa duplicação de semântica.
+- **PostGIS quebraria a paridade entre o repositório mock e o futuro adapter
+  Supabase.** O projeto expõe a interface `PlaceRepository`
+  (`src/lib/data/place-repository.ts`), hoje com um único adapter: o de memória
+  (`src/lib/data/mock/mock-place-repository.ts`). O adapter sobre Supabase está
+  previsto e ainda não existe — conectá-lo é item pendente em `ROADMAP.md`. É
+  justamente por isso que a decisão importa agora: se a filtragem por raio
+  passasse a viver em `ST_DWithin` no banco, o adapter em memória teria de
+  replicar a semântica exata de um tipo geométrico geodésico só para os dois
+  concordarem quando o segundo chegar. Manter o cálculo em `double precision` +
+  haversine no domínio evita essa duplicação de semântica antes que ela exista.
 - **Testabilidade sem banco.** Com o cálculo de distância vivendo no domínio
   como função pura, ele é testado em `src/domain/geo.test.ts` sem precisar de
   Postgres, PostGIS ou qualquer conexão de rede.

@@ -24,6 +24,27 @@ export const ROAD_SINUOSITY_FACTOR = 1.35
  */
 export const RIDING_TIME_RATIO = 0.75
 
+/**
+ * Distância rodoviária estimada a partir da linha reta.
+ *
+ * Existe como função, e não como multiplicação repetida em cada chamador, para
+ * que a lista do recorte, o painel do lugar e a descoberta não possam divergir
+ * sobre quantos quilômetros tem o mesmo destino.
+ */
+export function estimateRoadKm(straightLineKm: number): number {
+  return straightLineKm * ROAD_SINUOSITY_FACTOR
+}
+
+/**
+ * Tempo de pilotagem, em minutos, para uma distância rodoviária estimada.
+ *
+ * Recebe quilômetros de estrada — nunca linha reta. Para ida e volta, passe o
+ * dobro da distância.
+ */
+export function estimateRidingMinutes(roadKm: number): number {
+  return (roadKm / AVERAGE_SPEED_KMH) * 60
+}
+
 export type TimeBudget = '2h' | '4h' | '6h' | 'dia-inteiro'
 
 export const TIME_BUDGET_MINUTES: Record<TimeBudget, number> = {
@@ -90,12 +111,11 @@ export function findDestinations(
     if (query.onlyFavorites && !place.isFavorite) continue
 
     const straightLineKm = haversineKm(query.origin, place)
-    const estimatedRoadKm = straightLineKm * ROAD_SINUOSITY_FACTOR
+    const estimatedRoadKm = estimateRoadKm(straightLineKm)
 
     if (estimatedRoadKm > query.maxDistanceKm) continue
 
-    const estimatedRoundTripMinutes =
-      ((estimatedRoadKm * 2) / AVERAGE_SPEED_KMH) * 60
+    const estimatedRoundTripMinutes = estimateRidingMinutes(estimatedRoadKm * 2)
 
     if (estimatedRoundTripMinutes > ridingBudgetMinutes) continue
 

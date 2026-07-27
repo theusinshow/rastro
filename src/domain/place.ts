@@ -65,10 +65,26 @@ export interface PlaceUserState {
   /** Cache derivado de `place_visits`, mantido por trigger no banco. */
   lastVisitedAt: string | null
   visitCount: number
+  /**
+   * Cache derivado de `trip_photos`. Ao contrário de `lastVisitedAt` e
+   * `visitCount`, nenhum trigger o mantém ainda: é contrato para uma iteração
+   * futura e não deve ser lido como garantidamente sincronizado
+   * (ver `docs/DATA-MODEL.md`).
+   */
   photoCount: number
 }
 
-export type VisitStatus = 'nao-visitado' | 'quero-conhecer' | 'visitado'
+/**
+ * Const em tempo de execução, e não só união de tipos, porque quem lê filtro da
+ * URL precisa validar contra a lista real — como `PLACE_CATEGORIES`.
+ */
+export const VISIT_STATUSES = [
+  'nao-visitado',
+  'quero-conhecer',
+  'visitado',
+] as const
+
+export type VisitStatus = (typeof VISIT_STATUSES)[number]
 
 /**
  * Eixo primário de leitura do pin. Mutuamente exclusivo por construção.

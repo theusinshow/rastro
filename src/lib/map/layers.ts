@@ -255,8 +255,11 @@ export function buildPlaceLayers(): Array<
         'text-offset': [0, 1.3],
         'text-anchor': 'top',
         'text-max-width': 9,
-        // Rótulo de pin nunca some por colisão: perder o nome do destino é
-        // pior do que sobrepor um rótulo da base.
+        // O rótulo cede à colisão e o pin fica: `text-optional` deixa o
+        // MapLibre descartar só o texto quando não há espaço. Em Urubici há
+        // três lugares a poucos quilômetros um do outro — permitir
+        // sobreposição empilharia nomes ilegíveis exatamente onde o catálogo
+        // é mais denso, e um nome ilegível não vale mais que nenhum.
         'text-allow-overlap': false,
         'text-optional': true,
       },

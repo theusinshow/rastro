@@ -212,9 +212,17 @@ export function PlacesLayer({
     }
 
     function handleBackgroundClick(event: MapMouseEvent) {
-      const hits = map!.queryRenderedFeatures(event.point, {
-        layers: [PLACE_LAYERS.core],
-      })
+      // O anel de favorito é bem maior que o miolo: sem ele na consulta,
+      // clicar na borda de um favorito conta como clique no fundo e fecha o
+      // painel que o clique acabou de abrir. O anel, porém, é desenhado para
+      // todo favorito — inclusive fora do recorte, com opacidade zero — então
+      // vale aqui a mesma regra do clique no pin: só conta quem está no
+      // recorte, ou um anel invisível viraria uma zona morta.
+      const hits = map!
+        .queryRenderedFeatures(event.point, {
+          layers: [PLACE_LAYERS.core, PLACE_LAYERS.favoriteRing],
+        })
+        .filter((hit) => hit.properties?.matched === true)
       if (hits.length === 0) select(null)
     }
 

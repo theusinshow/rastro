@@ -194,10 +194,10 @@ um miolo âmbar seria ilegível, e em volta de um miolo verde sugeriria
 falsamente uma mistura de status. Osso lê como destaque e não colide com
 nenhum status de visita.
 
-### As cinco camadas, em ordem de desenho
+### As seis camadas, em ordem de desenho
 
 A ordem importa: no MapLibre a última camada da lista é a que fica por cima.
-Todas as cinco leem da mesma fonte `places` (`PLACES_SOURCE_ID`).
+Todas as seis leem da mesma fonte `places` (`PLACES_SOURCE_ID`).
 
 | # | Camada (`PLACE_LAYERS`) | Tipo | Papel |
 | --- | --- | --- | --- |
@@ -206,7 +206,7 @@ Todas as cinco leem da mesma fonte `places` (`PLACES_SOURCE_ID`).
 | 3 | `photoDot` (`places-photo-dot`) | circle | Ponto satélite osso, só onde `hasPhotos`, deslocado para o canto superior direito do pin via `circle-translate`. |
 | 4 | `hover` (`places-hover`) | circle | Realce do pin correspondente à linha sob o cursor numa lista da interface. Mesmo padrão de filtro por `slug` do `selected`. |
 | 5 | `selected` (`places-selected`) | circle | Anel de seleção, maior que o de favorito. Filtro compara `slug` com o lugar selecionado; sem seleção, filtra por um slug que não existe (`__none__`) e fica invisível. O raio cresce a partir do miolo em 240ms, para amarrar o anel ao pin quando há vários agrupados. |
-| 6 | `label` (`places-label`) | symbol | Nome do lugar, visível a partir de `zoom` 8.5, com o mesmo tratamento tipográfico do restante do mapa. |
+| 6 | `label` (`places-label`) | symbol | Nome do lugar, visível a partir de `zoom` 8.5. Mesma cor e mesmo halo dos rótulos da base, mas **caixa mista** e tracking de `0.06` — os topônimos de `style.ts` são caixa alta com `0.16`. O nome de um destino é conteúdo do produto, não toponímia de fundo, e a diferença de caixa e tracking é o que separa os dois níveis de leitura. Cede à colisão (`text-optional`) para não empilhar nomes onde os pins se agrupam. |
 
 ### Duplicação de cores entre CSS e WebGL
 

@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { findDestinations, suggestBroaderQuery } from './discovery'
+import {
+  AVERAGE_SPEED_KMH,
+  ROAD_SINUOSITY_FACTOR,
+  estimateRidingMinutes,
+  estimateRoadKm,
+  findDestinations,
+  suggestBroaderQuery,
+} from './discovery'
 import type { DiscoveryQuery } from './discovery'
 import type { ExplorePlace } from './place'
 
@@ -39,7 +46,49 @@ function query(overrides: Partial<DiscoveryQuery> = {}): DiscoveryQuery {
   }
 }
 
+describe('estimateRoadKm', () => {
+  it('aplica o fator de sinuosidade sobre a linha reta', () => {
+    expect(estimateRoadKm(100)).toBeCloseTo(100 * ROAD_SINUOSITY_FACTOR, 10)
+  })
+
+  it('sempre estima estrada maior que a linha reta', () => {
+    expect(estimateRoadKm(132)).toBeGreaterThan(132)
+  })
+
+  it('mantém a origem em zero', () => {
+    expect(estimateRoadKm(0)).toBe(0)
+  })
+})
+
+describe('estimateRidingMinutes', () => {
+  it('converte quilômetros de estrada em minutos na velocidade média', () => {
+    expect(estimateRidingMinutes(AVERAGE_SPEED_KMH)).toBeCloseTo(60, 10)
+  })
+
+  it('escala linearmente com a distância', () => {
+    expect(estimateRidingMinutes(220)).toBeCloseTo(
+      estimateRidingMinutes(110) * 2,
+      10,
+    )
+  })
+
+  it('não gasta tempo para distância nenhuma', () => {
+    expect(estimateRidingMinutes(0)).toBe(0)
+  })
+})
+
 describe('findDestinations', () => {
+  it('usa os mesmos estimadores expostos ao restante do produto', () => {
+    const destino = place({ id: 'd', latitude: -28.02, longitude: -49.0 })
+    const [result] = findDestinations([destino], query())
+
+    expect(result).toBeDefined()
+    expect(result!.estimatedRoadKm).toBe(estimateRoadKm(result!.straightLineKm))
+    expect(result!.estimatedRoundTripMinutes).toBe(
+      estimateRidingMinutes(result!.estimatedRoadKm * 2),
+    )
+  })
+
   it('descarta o que passa do limite de distância rodoviária', () => {
     const perto = place({ id: 'perto', latitude: -27.7, longitude: -48.7 })
     const longe = place({ id: 'longe', latitude: -28.39, longitude: -49.54 })

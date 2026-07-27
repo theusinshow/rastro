@@ -1,6 +1,8 @@
 'use client'
 
 import {
+  AVERAGE_SPEED_KMH,
+  RIDING_TIME_RATIO,
   TIME_BUDGET_LABELS,
   type DiscoveryQuery,
   type DiscoveryResult,
@@ -122,9 +124,13 @@ export function DiscoveryResults({
         </ul>
       )}
 
+      {/* Os números vêm das constantes do domínio: elas existem para serem
+          calibradas com dados reais, e um literal aqui passaria a mentir sobre
+          como a estimativa foi produzida no dia da calibragem. */}
       <p className="shrink-0 border-t border-line px-5 py-3 text-[10px] leading-relaxed text-ink-faint">
-        Estimativas em linha reta com fator de estrada, a 55 km/h médios,
-        reservando um quarto do tempo para paradas. Não substituem um roteador.
+        Estimativas em linha reta com fator de estrada, a {AVERAGE_SPEED_KMH}{' '}
+        km/h médios, reservando {Math.round((1 - RIDING_TIME_RATIO) * 100)}% do
+        tempo para paradas. Não substituem um roteador.
       </p>
     </OverlayPanel>
   )

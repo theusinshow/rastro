@@ -1,5 +1,6 @@
 'use client'
 
+import { estimateRoadKm } from '@/domain/discovery'
 import {
   FILTER_CRITERION_LABELS,
   type ExploreFilters,
@@ -128,8 +129,14 @@ export function PlaceList({
                 >
                   <div className="flex items-baseline justify-between gap-2">
                     <span className="truncate text-xs text-ink">{place.name}</span>
+                    {/* Distância corrigida por estrada, a mesma do painel e da
+                        descoberta: a linha e o painel ficam visíveis ao mesmo
+                        tempo e não podem discordar sobre o mesmo lugar. */}
                     <span className="instrument-value shrink-0 text-[10px] text-ink-faint">
-                      {formatDistanceKm(haversineKm(DEFAULT_ORIGIN, place))} km
+                      {formatDistanceKm(
+                        estimateRoadKm(haversineKm(DEFAULT_ORIGIN, place)),
+                      )}{' '}
+                      km
                     </span>
                   </div>
                   <div className="mt-1 flex items-center gap-3">

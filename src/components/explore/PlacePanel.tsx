@@ -1,10 +1,7 @@
 'use client'
 
 import { formatVisitDate } from '@/domain/dates'
-import {
-  AVERAGE_SPEED_KMH,
-  ROAD_SINUOSITY_FACTOR,
-} from '@/domain/discovery'
+import { estimateRidingMinutes, estimateRoadKm } from '@/domain/discovery'
 import {
   formatDistanceKm,
   formatDurationMinutes,
@@ -24,9 +21,8 @@ interface PlacePanelProps {
 }
 
 export function PlacePanel({ place, onClose, exiting }: PlacePanelProps) {
-  const straightLineKm = haversineKm(DEFAULT_ORIGIN, place)
-  const roadKm = straightLineKm * ROAD_SINUOSITY_FACTOR
-  const minutes = (roadKm / AVERAGE_SPEED_KMH) * 60
+  const roadKm = estimateRoadKm(haversineKm(DEFAULT_ORIGIN, place))
+  const minutes = estimateRidingMinutes(roadKm)
 
   return (
     <OverlayPanel side="right" exiting={exiting}>

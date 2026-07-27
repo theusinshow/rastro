@@ -129,8 +129,10 @@ Três camadas:
    fade de primeira pintura do mapa. O bloco
    `@media (prefers-reduced-motion: reduce)` zera `--dur-instant`, `--dur-fast`,
    `--dur-base`, `--dur-slow`, `--default-transition-duration`, `--motion-shift`,
-   `--stagger-step` e devolve `--motion-press` a `1`. Tudo vira mudança
-   instantânea de estado.
+   `--stagger-step`, `--empty-delay` e devolve `--motion-press` a `1`. Tudo vira
+   mudança instantânea de estado. Os dois atrasos entram na lista pelo mesmo
+   motivo que as durações: atraso que sobrevive à duração zerada deixa o
+   elemento em branco antes de aparecer.
 2. **Preservado.** O realce da contagem (`--dur-signal`, só `background-color`) e
    o crossfade de opacidade dos pins. Carregam informação, e opacidade sem
    deslocamento é segura para gatilho vestibular.

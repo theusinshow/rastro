@@ -159,9 +159,43 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   configuração
 - ADR 0001 revisado com a versão do `maplibre-gl`, o motivo de ficarmos na v5 e
   o que nos faria migrar para a v6
+- A estimativa de estrada e a de tempo de pilotagem passam a viver como funções
+  nomeadas do domínio (`estimateRoadKm`, `estimateRidingMinutes`), cobertas por
+  teste: o painel de lugar repetia a mesma conta por fora, sem teste, e era daí
+  que vinha a divergência de distância entre as telas
+- A nota de rodapé da descoberta lê a velocidade média e a margem para paradas
+  das constantes do domínio, em vez de repeti-las como texto que envelheceria em
+  silêncio na primeira calibragem
+- `AGENTS.md` deixa de ser o texto padrão do create-next-app e passa a apontar
+  para `CLAUDE.md`, carregando junto a regra primordial do changelog: agentes
+  que só leem `AGENTS.md` não enxergavam nenhuma regra do repositório
 
 ### Corrigido
 
+- A lista do recorte e o painel do lugar mostravam distâncias diferentes para o
+  mesmo lugar — 119 km na lista e 161 km no painel para a Serra do Rio do
+  Rastro, ambos rotulados "km", com os dois visíveis ao mesmo tempo. A lista
+  mostrava linha reta; agora as duas telas e a descoberta mostram a mesma
+  distância corrigida por estrada
+- Clicar no anel externo de um lugar favorito fechava o painel que o clique
+  acabara de abrir: o mapa só considerava o miolo do pin, e a borda do anel
+  contava como clique no fundo
+- Comentário da camada de rótulo do mapa dizia que o rótulo do pin nunca some
+  por colisão, enquanto a configuração logo abaixo faz exatamente o contrário —
+  e faz de propósito, para não empilhar nomes onde os pins se agrupam
+- ADR 0004 afirmava que existem dois adapters de `PlaceRepository`, um deles
+  sobre Supabase; só o adapter em memória existe. O argumento da decisão vale
+  igual no tempo futuro e foi preservado
+- Documentação alcançada pelo passe de movimento: `docs/ARCHITECTURE.md` não
+  citava `src/lib/motion/` nem `src/lib/utils/`, `docs/MAP-STRATEGY.md` dizia
+  "cinco camadas" sobre uma tabela de seis e atribuía aos rótulos de pin a
+  tipografia dos topônimos da base, `docs/ROADMAP.md` listava telas estreitas
+  como trabalho futuro depois de a folha inferior já ter sido entregue, e
+  `docs/DESIGN-SYSTEM.md` omitia `--empty-delay` da lista de tokens zerados sob
+  movimento reduzido
+- Comentário de `photoCount` no domínio, que descrevia o campo como derivado de
+  `place_visits` e mantido por trigger; ele deriva de `trip_photos` e nenhum
+  trigger o mantém ainda
 - Estado vazio (recorte de lugares e busca de descoberta) que sob movimento
   reduzido ficava 120ms em branco antes de aparecer: o atraso da animação era
   um valor fixo em vez de um token, e sobrevivia à duração zerada. Agora é
