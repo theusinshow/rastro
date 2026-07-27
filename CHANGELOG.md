@@ -39,3 +39,8 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   funções puras cobertas por testes
 - Algoritmo de descoberta que estima distância rodoviária e tempo de ida e volta
   a partir do tempo disponível, reservando margem para paradas
+- Interface `PlaceRepository` com adapter em memória, isolando a interface do
+  banco de dados
+- Coleção de 14 lugares de Santa Catarina como dados de desenvolvimento,
+  explicitamente marcados como não verificados
+- Moto inicial CFMOTO IBEX 450
