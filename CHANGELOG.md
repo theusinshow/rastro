@@ -54,3 +54,14 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 - Navegação principal entre Explorar, Descobrir, Viagens e Memórias
 - Painel de overlay reutilizável, posicionado sobre a área do mapa
 - Rotas de Viagens e Memórias como stubs explicativos
+- Mapa MapLibre em tela cheia com estilo escuro autoral sobre tiles do MapTiler,
+  com relevo sombreado das serras e ênfase na malha viária
+- Instância de mapa persistente no layout, preservando posição e zoom ao navegar
+  entre as áreas do aplicativo
+- Estado de fallback explícito quando a chave do MapTiler não está configurada
+- Coordenadas e zoom ao vivo na barra de status
+- ADR 0002 registrando o mapa persistente no layout
+- Documentação da estratégia de mapa em `docs/MAP-STRATEGY.md`
+- Cópia automática do worker do maplibre-gl para `public/maplibre/` nos scripts
+  `postinstall`, `predev` e `prebuild`, sem a qual o mapa não desenha sob o
+  Turbopack
