@@ -31,3 +31,7 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 - Primitivos de interface: Button, Chip, Toggle e Stat
 - Tipografia Geist Sans e Geist Mono auto-hospedadas via next/font
 - Documentação do design system em `docs/DESIGN-SYSTEM.md`
+- Camada de domínio com tipos de lugar, moto e viagem, sem dependência de UI
+- Cálculo de distância por haversine e formatadores de coordenada, distância e
+  duração, cobertos por testes
+- Derivação de status de visita a partir do estado pessoal do lugar
