@@ -50,3 +50,7 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   remoção da entidade `Favorite`
 - ADR 0004 registrando a decisão de não adotar PostGIS nesta fase
 - Documentação do modelo de dados em `docs/DATA-MODEL.md`
+- Shell da aplicação com barra superior, corpo de altura total e barra de status
+- Navegação principal entre Explorar, Descobrir, Viagens e Memórias
+- Painel de overlay reutilizável, posicionado sobre a área do mapa
+- Rotas de Viagens e Memórias como stubs explicativos
