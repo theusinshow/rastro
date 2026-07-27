@@ -171,12 +171,66 @@ Nunca um mapa cinza sem explicação: a aplicação sobe inteira e diz o que fal
 
 ## Camadas de pins
 
-> **Reservado para a Tarefa 9.**
->
-> Esta seção descreverá as camadas de pins — fonte GeoJSON dos lugares, cores
-> por estado de visita (`--color-visited`, `--color-wanted`, `--color-unvisited`),
-> codificação de favorito, comportamento de seleção e interação — e viverá em
-> `src/lib/map/layers.ts`, ao lado de `style.ts`.
->
-> Regra que já vale: o âmbar do produto é dos pins e da interface. Nenhuma
-> camada de base pode disputá-lo.
+Os pins vivem em `src/lib/map/layers.ts`, ao lado de `style.ts`, e são
+desenhados como camadas nativas do MapLibre sobre uma fonte GeoJSON — não como
+marcadores HTML. Ver [ADR 0005](./decisions/0005-pins-como-camadas-data-driven.md)
+para o raciocínio completo por trás dessa escolha.
+
+### Os três canais visuais
+
+Os cinco estados de pin do brief original não são mutuamente exclusivos — um
+lugar pode ser visitado, favorito e ter fotos ao mesmo tempo. Por isso cada
+estado vira um canal visual independente, e não uma cor única por pin:
+
+| Canal | Camada | Codifica |
+|---|---|---|
+| Cor do miolo e do contorno | `places-core` | Status de visita |
+| Anel externo | `places-favorite-ring` | Favorito |
+| Ponto satélite | `places-photo-dot` | Possui fotos |
+
+**Ajuste em relação ao brief:** o anel de favorito é **osso** (`#e8edea`), não
+âmbar. Âmbar já codifica "quero conhecer" no miolo; um anel âmbar em volta de
+um miolo âmbar seria ilegível, e em volta de um miolo verde sugeriria
+falsamente uma mistura de status. Osso lê como destaque e não colide com
+nenhum status de visita.
+
+### As cinco camadas, em ordem de desenho
+
+A ordem importa: no MapLibre a última camada da lista é a que fica por cima.
+Todas as cinco leem da mesma fonte `places` (`PLACES_SOURCE_ID`).
+
+| # | Camada (`PLACE_LAYERS`) | Tipo | Papel |
+| --- | --- | --- | --- |
+| 1 | `favoriteRing` (`places-favorite-ring`) | circle | Anel osso, só onde `isFavorite`. Fica por baixo do miolo para não cobri-lo. |
+| 2 | `core` (`places-core`) | circle | Miolo e contorno. Cor por `match` em `visitStatus`: preenchido verde para visitado, âmbar para quero conhecer, vazado (miolo escuro, contorno frio) para não visitado. |
+| 3 | `photoDot` (`places-photo-dot`) | circle | Ponto satélite osso, só onde `hasPhotos`, deslocado para o canto superior direito do pin via `circle-translate`. |
+| 4 | `selected` (`places-selected`) | circle | Anel de seleção, maior que o de favorito. Filtro compara `slug` com o lugar selecionado; sem seleção, filtra por um slug que não existe (`__none__`) e fica invisível. |
+| 5 | `label` (`places-label`) | symbol | Nome do lugar, visível a partir de `zoom` 8.5, com o mesmo tratamento tipográfico do restante do mapa. |
+
+### Duplicação de cores entre CSS e WebGL
+
+As cores dos pins (`VISITED`, `WANTED`, `UNVISITED`, `HOLLOW`, `BONE`) estão
+declaradas como constantes literais em `layers.ts`, com os mesmos valores dos
+tokens `--color-visited`, `--color-wanted`, `--color-unvisited` e `--color-ink`
+de `src/app/globals.css`. Isso é duplicação deliberada, não descuido: uma
+expressão de camada do MapLibre roda em WebGL e não tem acesso a variáveis
+CSS, então o valor precisa existir como literal na definição da camada. Ao
+alterar um token de cor do design system, o mesmo valor tem de ser propagado
+manualmente para `layers.ts` — o comentário no código marca esse ponto.
+
+### `PlacesLayer`: componente sem DOM
+
+`src/components/map/PlacesLayer.tsx` renderiza `null`. Ele existe apenas para
+amarrar o ciclo de vida das camadas do MapLibre (`addSource`/`addLayer` no
+mount, `removeLayer`/`removeSource` no unmount) ao ciclo de vida do componente
+React — não para desenhar interface. Isso permite que o React controle quando
+a fonte de pins existe (por exemplo, ela pode ser desmontada e remontada sem
+afetar o resto do mapa) sem que o componente precise produzir qualquer nó
+visual próprio. A limpeza verifica `map.getStyle()` antes de remover camadas,
+porque o `MapCanvas` pode já ter destruído a instância do mapa (`map.remove()`)
+antes do efeito de limpeza rodar — situação comum em Strict Mode, que
+monta/desmonta os efeitos duas vezes em desenvolvimento. O mesmo padrão é
+reaproveitado pela Tarefa 12 para realçar resultados de descoberta.
+
+Regra que já vale: o âmbar do produto é dos pins e da interface. Nenhuma
+camada de base pode disputá-lo.

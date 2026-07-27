@@ -64,6 +64,11 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 - Documentação da estratégia de mapa em `docs/MAP-STRATEGY.md`
 - Estado de erro explícito quando o mapa falha ao carregar, com a mensagem
   técnica visível, no lugar de uma tela preta silenciosa
+- Pins de lugares no mapa com três canais visuais independentes: cor do miolo
+  para o status de visita, anel externo para favorito e ponto satélite para
+  lugares com fotos
+- Seleção de lugar por clique no pin, refletida na URL e preservada ao recarregar
+- ADR 0005 registrando os pins como camadas data-driven
 
 ### Alterado
 
