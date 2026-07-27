@@ -14,6 +14,12 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Adicionado
 
+- Auditoria de design da fundação em `docs/2026-07-27-auditoria-de-design.md`,
+  com o plano de movimento completo e o backlog de polimento ainda não
+  implementado
+
+### Adicionado
+
 - Documento de design da fundação do Rastro, definindo modelo de dados, estratégia
   de mapa, direção visual e escopo da primeira entrega
   (`docs/superpowers/specs/2026-07-27-rastro-fundacao-design.md`)
