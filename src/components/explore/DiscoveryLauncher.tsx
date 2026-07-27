@@ -8,14 +8,17 @@ import Link from 'next/link'
  * fazia o olho tratar o botão como se fosse dado. O contorno âmbar sobre `base`
  * opaco mantém a ação inequívoca sem gastar o vocabulário do mapa.
  *
- * Abaixo de 768px a trilha de filtros vira folha inferior de 45vh e o botão
- * sobe para ficar acima dela.
+ * Abaixo de 768px a trilha de filtros vira folha inferior e o botão sobe para
+ * ficar acima dela. A altura da folha vem de `--sheet-height`
+ * (`src/app/globals.css`), a mesma variável que `.overlay-panel` usa como
+ * `max-height`: mudar a altura da folha num lugar só move o botão junto, em
+ * vez de os dois números divergirem em silêncio.
  */
 export function DiscoveryLauncher() {
   return (
     <Link
       href="/descobrir"
-      className="press pointer-events-auto absolute bottom-[calc(45vh+12px)]
+      className="press pointer-events-auto absolute bottom-[calc(var(--sheet-height)+12px)]
                  left-1/2 flex -translate-x-1/2 items-center gap-3 border
                  border-accent bg-base px-5 py-2.5 text-[11px] font-semibold
                  tracking-[0.16em] whitespace-nowrap text-accent uppercase

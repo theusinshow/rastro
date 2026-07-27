@@ -26,6 +26,16 @@ interface ExitState<T> {
  * o painel não pisque vazio antes de sumir.
  *
  * Sob `prefers-reduced-motion` não há saída para esperar: o desmonte é imediato.
+ *
+ * **Contrato de `value`:** precisa ter identidade estável entre renders enquanto
+ * representa o mesmo painel (mesma referência de objeto, ou `null`). O ajuste de
+ * estado acima acontece durante o render — se `value` for um objeto recriado a
+ * cada chamada (por exemplo, um literal montado inline em vez de vindo de
+ * estado ou memoização), `state.rendered !== value` é sempre verdadeiro e o
+ * `setState` dispara em todo render, entrando em loop infinito. Hoje todo
+ * chamador passa um valor de estado ou `null`, o que é estável; um refator que
+ * passe a montar o valor no próprio JSX quebra essa garantia sem aviso do
+ * TypeScript.
  */
 export function useExitTransition<T>(value: T | null): ExitState<T> {
   const reducedMotion = useReducedMotion()

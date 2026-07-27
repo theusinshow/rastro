@@ -48,7 +48,7 @@
   --dur-instant: 90ms; /* press, feedback tátil */
   --dur-fast: 140ms; /* hover, cor */
   --dur-base: 220ms; /* entrada de painel, revelação */
-  --dur-slow: 320ms; /* mudança de camada de dados */
+  --dur-slow: 320ms; /* primeira pintura do mapa */
   /* Realce de valor que mudou. Sobrevive a `prefers-reduced-motion` porque
      carrega informação — ver o bloco de movimento reduzido abaixo. */
   --dur-signal: 400ms;
@@ -83,6 +83,12 @@
     /* Passo do escalonamento da lista. Travado em 8 itens no `.stagger-item`,
        o total nunca passa de 280ms. */
     --stagger-step: 35ms;
+    /* Atraso do estado vazio — ver `.empty-state` abaixo. */
+    --empty-delay: 120ms;
+    /* Altura da folha inferior abaixo de 768px. Compartilhada com
+       `DiscoveryLauncher`, que precisa ficar acima dela: um valor só impede que
+       mudar a altura da folha faça o CTA sobrepor silenciosamente o painel. */
+    --sheet-height: 45vh;
   }
 
   /* Foco visível e consistente. Nenhum controle perde o anel. */
@@ -121,6 +127,9 @@
       /* Sem isto o item continuaria invisível durante o atraso: duração zero
          com `backwards` congela o quadro inicial até a animação começar. */
       --stagger-step: 0ms;
+      /* Mesmo defeito do stagger: um atraso literal sobreviveria à duração
+         zerada e o estado vazio ficaria em branco por 120ms antes de aparecer. */
+      --empty-delay: 0ms;
     }
   }
 }
@@ -159,7 +168,7 @@
     inset-inline: 0;
     bottom: 0;
     display: flex;
-    max-height: 45vh;
+    max-height: var(--sheet-height);
     flex-direction: column;
     border-top: 1px solid var(--color-line);
     pointer-events: auto;
@@ -288,10 +297,13 @@
     opacity: 1;
   }
 
-  /* Estado vazio: 120ms de atraso para que uma consulta rápida que devolve
-     resultados nunca pisque a mensagem de vazio antes. */
+  /* Estado vazio: atraso para que uma consulta rápida que devolve resultados
+     nunca pisque a mensagem de vazio antes. Tokenizado em `--empty-delay` e
+     zerado sob movimento reduzido pela mesma razão do `--stagger-step`: um
+     atraso literal sobreviveria à duração zero e deixaria o estado vazio em
+     branco por 120ms antes do "pop". */
   .empty-state {
-    animation: fade-in var(--dur-base) var(--ease-out-quart) 120ms backwards;
+    animation: fade-in var(--dur-base) var(--ease-out-quart) var(--empty-delay) backwards;
   }
 
   @keyframes fade-in {

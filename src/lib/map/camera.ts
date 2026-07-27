@@ -31,8 +31,13 @@ function easeOutQuart(t: number): number {
  * os mesmos números deixariam a área útil negativa e o MapLibre enquadraria
  * fora do mapa — por isso o padding é descartado quando não cabe, em vez de
  * aplicado às cegas.
+ *
+ * Exportada (e não só interna) porque é uma função pura de números e das
+ * dimensões do canvas, com um limiar não óbvio (0.7) e um descarte tudo-ou-nada
+ * por eixo — o tipo de regra sutil que merece teste direto em vez de só ser
+ * exercitada de leve através de `focusPlace`/`fitPlaces`.
  */
-function usable(map: MapLibreMap, padding: PaddingOptions): PaddingOptions {
+export function usable(map: MapLibreMap, padding: PaddingOptions): PaddingOptions {
   const canvas = map.getCanvas()
   const horizontal = (padding.left ?? 0) + (padding.right ?? 0)
   const vertical = (padding.top ?? 0) + (padding.bottom ?? 0)

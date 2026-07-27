@@ -122,6 +122,13 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   simplesmente sumia
 - Revelação escalonada dos resultados da descoberta, que estabelece a ordem de
   leitura da lista — do mais distante ao mais próximo
+- `--sheet-height`, variável compartilhada entre a folha inferior de filtros e o
+  botão "Para onde vamos?": mudar a altura da folha move o botão junto, em vez
+  de os dois números divergirem em silêncio
+- Testes de `animateProgress` (duração zero, cancelamento em andamento e depois
+  de completo) e de `usable()` (o descarte de padding por eixo perto do
+  limiar), a interpolação de câmera e o tween fora do CSS que não tinham
+  cobertura nenhuma
 
 ### Alterado
 
@@ -147,14 +154,26 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 - As quatro ações ainda não implementadas do painel de lugar deixam de ser uma
   grade de botões de peso idêntico acima da única ação que funciona: "Abrir
   rota" sobe para o topo e as demais viram uma linha sob "Em breve"
-
-### Alterado
-
 - `maplibre-gl` fixado na v5: a v6 exige copiar o worker para `public/` a cada
   instalação para funcionar sob o Turbopack, e a v5 dispensa qualquer
   configuração
 - ADR 0001 revisado com a versão do `maplibre-gl`, o motivo de ficarmos na v5 e
   o que nos faria migrar para a v6
+
+### Corrigido
+
+- Estado vazio (recorte de lugares e busca de descoberta) que sob movimento
+  reduzido ficava 120ms em branco antes de aparecer: o atraso da animação era
+  um valor fixo em vez de um token, e sobrevivia à duração zerada. Agora é
+  `--empty-delay`, zerado no mesmo bloco que já zerava o passo do
+  escalonamento pelo defeito idêntico
+- Comentário de `--dur-slow` corrigido: dizia "mudança de camada de dados",
+  mas o token é usado pelo fade da primeira pintura do mapa
+- Duas seções "Alterado" duplicadas neste changelog, mescladas numa só sem
+  perder entrada nenhuma
+- Contrato de `useExitTransition` documentado: o valor recebido precisa ter
+  identidade estável entre renders, ou o ajuste de estado durante o render
+  entra em loop infinito
 
 ### Removido
 
