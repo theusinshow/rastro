@@ -54,6 +54,23 @@ describe('buildPlacesGeoJson', () => {
     expect(properties.hasPhotos).toBe(true)
   })
 
+  // O tamanho do pin é dirigido por esta propriedade. Se ela deixar de ser
+  // emitida, `['get', 'visitCount']` devolve null, o multiplicador vira 1, e
+  // todos os pins voltam ao mesmo tamanho — sem erro em lugar nenhum.
+  it('expõe a contagem de visitas, que dirige o peso do pin', () => {
+    const visita = { id: 'v', visitedAt: '2026-07-27', notes: null, rating: null }
+    const result = buildPlacesGeoJson(
+      [
+        place({ slug: 'sem', visits: [] }),
+        place({ slug: 'com', visits: [visita, { ...visita, id: 'v2' }] }),
+      ],
+      new Set(['sem', 'com']),
+    )
+
+    expect(result.features[0]!.properties.visitCount).toBe(0)
+    expect(result.features[1]!.properties.visitCount).toBe(2)
+  })
+
   it('converte contagem de fotos em booleano', () => {
     const result = buildPlacesGeoJson([place({ photoCount: 0 })], ALL)
     expect(result.features[0]!.properties.hasPhotos).toBe(false)

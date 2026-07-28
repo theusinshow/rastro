@@ -1,5 +1,6 @@
 import type {
   CircleLayerSpecification,
+  ExpressionSpecification,
   SymbolLayerSpecification,
 } from 'maplibre-gl'
 import type { ExplorePlace } from '@/domain/place'
@@ -22,6 +23,8 @@ export interface PlaceFeatureProperties {
   visitStatus: string
   isFavorite: boolean
   hasPhotos: boolean
+  /** Quantas visitas registradas. Dirige o tamanho do pin — ver `weightFactor`. */
+  visitCount: number
   /** Dentro do recorte atual (filtro do Explore, resultado da descoberta). */
   matched: boolean
   /** Dentro do recorte anterior. Existe só para o crossfade — ver `paint.ts`. */
@@ -76,6 +79,7 @@ export function buildPlacesGeoJson(
         visitStatus: place.visitStatus,
         isFavorite: place.isFavorite,
         hasPhotos: place.photoCount > 0,
+        visitCount: place.visits.length,
         matched: matched.has(place.slug),
         wasMatched: previouslyMatched.has(place.slug),
       },
@@ -138,13 +142,46 @@ export function matchFadeTextOpacity(progress: number): TextOpacity {
  */
 export function selectionRadius(progress: number): CircleRadius {
   const scale = 0.55 + 0.45 * progress
-  return ['interpolate', ['linear'], ['zoom'], 6, 11 * scale, 12, 16 * scale]
+  return weightedRadius(11 * scale, 16 * scale)
 }
 
 /** Realce do pin correspondente à linha sob o cursor na lista. */
 export function hoverRadius(progress: number): CircleRadius {
   const scale = 0.6 + 0.4 * progress
-  return ['interpolate', ['linear'], ['zoom'], 6, 9 * scale, 12, 13 * scale]
+  return weightedRadius(9 * scale, 13 * scale)
+}
+
+/**
+ * Multiplicador de raio pelo número de visitas.
+ *
+ * Um lugar onde você voltou cinco vezes desenha maior que um onde passou uma
+ * vez. O mapa deixa de mostrar só *onde* os lugares estão e passa a mostrar
+ * **onde a sua vida aconteceu mais** — que é a diferença entre um catálogo e uma
+ * memória.
+ *
+ * Trava em cinco visitas. Sem teto, um lugar de rotina viraria um disco que
+ * engole os vizinhos e o mapa perderia mais informação do que ganharia. A escala
+ * é modesta de propósito: 60% de crescimento no extremo, não o dobro.
+ *
+ * `interpolate` devolve o valor da ponta fora da faixa, então quem tem quinze
+ * visitas fica no mesmo tamanho de quem tem cinco.
+ */
+function weightFactor(): ExpressionSpecification {
+  return ['interpolate', ['linear'], ['get', 'visitCount'], 0, 1, 1, 1.18, 5, 1.6]
+}
+
+/**
+ * Raio base por zoom, multiplicado pelo peso da visita.
+ *
+ * Os anéis externos usam o mesmo par para crescerem junto: se só o miolo
+ * crescesse, o anel de favorito descolaria e o pin leria como dois objetos.
+ */
+function weightedRadius(near: number, far: number): ExpressionSpecification {
+  return [
+    '*',
+    ['interpolate', ['linear'], ['zoom'], 6, near, 12, far],
+    weightFactor(),
+  ]
 }
 
 /** Miolo preenchido para visitado e quero conhecer; vazado para não visitado. */
@@ -168,7 +205,7 @@ const CORE_FILL: CircleLayerSpecification['paint'] = {
     UNVISITED,
   ],
   'circle-stroke-width': 1.4,
-  'circle-radius': ['interpolate', ['linear'], ['zoom'], 6, 3.5, 12, 6.5],
+  'circle-radius': weightedRadius(3.5, 6.5),
   'circle-opacity': matchFadeOpacity(1),
   'circle-stroke-opacity': matchFadeOpacity(1),
 }
@@ -187,7 +224,7 @@ export function buildPlaceLayers(): Array<
         'circle-stroke-color': BONE,
         'circle-stroke-width': 1,
         'circle-stroke-opacity': matchFadeOpacity(1, 0.55),
-        'circle-radius': ['interpolate', ['linear'], ['zoom'], 6, 7, 12, 11],
+        'circle-radius': weightedRadius(7, 11),
       },
     },
     {
