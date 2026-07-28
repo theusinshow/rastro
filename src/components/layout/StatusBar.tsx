@@ -18,9 +18,14 @@ export function StatusBar() {
   const shown = picking ? cursor : (view?.center ?? null)
 
   return (
+    /* Flutuante como o resto do cromo. Ver ADR 0010. Continua sendo o elemento
+       de assinatura do produto — o que muda é ela deixar de ser a moldura de
+       baixo e passar a boiar sobre o mapa, como tudo o mais. */
     <footer
-      className="relative z-30 flex h-9 shrink-0 items-center gap-3
-                 overflow-hidden border-t border-line bg-base px-4 md:gap-6"
+      className="absolute inset-x-(--chrome-gap) bottom-(--chrome-gap)
+                 z-(--z-bar) flex h-(--status-height) items-center gap-3
+                 overflow-hidden rounded-lg border border-line bg-base/85 px-4
+                 backdrop-blur-sm md:gap-6"
     >
       <span
         className={cn(

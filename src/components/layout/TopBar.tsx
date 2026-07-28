@@ -22,10 +22,18 @@ export function TopBar() {
   const pathname = usePathname()
 
   return (
+    /*
+     * Barra flutuante sobre o mapa. Ver ADR 0010.
+     *
+     * O `backdrop-blur` sobre `base/85` é o que mantém o texto legível quando o
+     * que passa por baixo é relevo sombreado ou água quase preta. É legibilidade,
+     * não efeito — e continua sendo o único uso de blur permitido no produto.
+     */
     <header
-      className="relative z-30 flex h-14 shrink-0 items-stretch gap-2
-                 border-b border-line bg-base/85 px-3 backdrop-blur-sm
-                 md:gap-6 md:px-4"
+      className="absolute inset-x-(--chrome-gap) top-(--chrome-gap) z-(--z-bar)
+                 grid h-(--bar-height) grid-cols-[auto_1fr] grid-rows-[auto_1fr]
+                 items-center gap-x-2 rounded-lg border border-line bg-base/85
+                 px-3 backdrop-blur-sm md:flex md:items-stretch md:gap-6 md:px-4"
     >
       <Link
         href="/"
@@ -37,11 +45,13 @@ export function TopBar() {
         <span className="hidden sm:inline">Rastro</span>
       </Link>
 
-      {/* Abaixo de 768px os quatro destinos não cabem ao lado da marca. Rolar
-          na horizontal mantém todos alcançáveis; cortar "Memórias" não. */}
+      {/* Abaixo de 768px a navegação desce para a segunda linha da grade e ocupa
+          a largura inteira. Espremida ao lado da marca e das ações, ela cortava
+          "Descobrir" no meio da palavra. */}
       <nav
         aria-label="Navegação principal"
-        className="min-w-0 overflow-x-auto [scrollbar-width:none]"
+        className="col-span-2 row-start-2 min-w-0 self-stretch overflow-x-auto
+                   scrollbar-none md:col-span-1 md:row-start-auto"
       >
         <ul className="flex h-full items-stretch gap-0.5">
           {NAV_ITEMS.map((item) => {
@@ -76,7 +86,8 @@ export function TopBar() {
       {/* Criar lugar é AÇÃO, não destino: sai da gramática da navegação e ganha
           contorno. Estava com o mesmo peso terciário de "Sair", e as duas
           ficavam coladas — errar o alvo custava a sessão. */}
-      <div className="ml-auto flex shrink-0 items-center gap-2 md:gap-3">
+      <div className="col-start-2 row-start-1 ml-auto flex shrink-0 items-center
+                      gap-2 md:col-start-auto md:row-start-auto md:gap-3">
         <Link
           href="/lugar/novo"
           className="press flex h-9 items-center gap-2 rounded-sm border

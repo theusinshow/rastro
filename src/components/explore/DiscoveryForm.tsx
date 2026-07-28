@@ -31,7 +31,7 @@ export function DiscoveryForm({ query, onChange, onSubmit }: DiscoveryFormProps)
   const { label: originLabel } = useOrigin()
 
   return (
-    <OverlayPanel side="left" width={272}>
+    <OverlayPanel side="left">
       <form
         onSubmit={(event) => {
           event.preventDefault()

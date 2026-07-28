@@ -15,19 +15,23 @@ import { useSelectedPlace } from './use-selected-place'
 import { useSetVisiblePlaceCount } from './visible-places-context'
 
 /**
- * Espaço tomado pelos painéis desta rota. Precisa bater com `--panel-narrow` e
- * `--panel-base` de `globals.css`: a câmera do MapLibre roda em JavaScript e não
- * lê variável CSS, então os dois números são espelhados à mão. Divergir faz o
- * pin selecionado terminar embaixo de um painel.
+ * Espaço tomado pelo cromo desta rota. Precisa bater com `--panel-narrow`,
+ * `--panel-base`, `--bar-height`, `--status-height` e `--chrome-gap` de
+ * `globals.css`: a câmera do MapLibre roda em JavaScript e não lê variável CSS,
+ * então os números são espelhados à mão. Divergir faz o pin selecionado terminar
+ * embaixo de um painel.
+ *
+ * Com o cromo flutuante (ADR 0010) cada lado soma a folga: painel de 280px mais
+ * 12px de folga de cada borda; barra de 56px mais duas folgas.
  *
  * Constante de módulo porque um literal novo a cada render remontaria o efeito
  * de câmera.
  */
 const CAMERA_PADDING: PaddingOptions = {
-  top: 60,
-  right: 380,
-  bottom: 40,
-  left: 280,
+  top: 56 + 24,
+  right: 380 + 24,
+  bottom: 36 + 24,
+  left: 280 + 24,
 }
 
 /**

@@ -21,12 +21,15 @@ import { DiscoveryResults } from './DiscoveryResults'
 import { useSelectedPlace } from './use-selected-place'
 import { useSetVisiblePlaceCount } from './visible-places-context'
 
-/** Formulário de 272px à esquerda, resultados de 340px à direita. */
+/**
+ * Formulário à esquerda, resultados à direita, mais o cromo flutuante — mesma
+ * conta de `ExploreView`, e pelo mesmo motivo: o MapLibre não lê variável CSS.
+ */
 const CAMERA_PADDING: PaddingOptions = {
-  top: 60,
-  right: 340,
-  bottom: 40,
-  left: 272,
+  top: 56 + 24,
+  right: 380 + 24,
+  bottom: 36 + 24,
+  left: 280 + 24,
 }
 
 interface DiscoveryViewProps {
@@ -137,7 +140,7 @@ export function DiscoveryView({ places }: DiscoveryViewProps) {
     return (
       <>
         <h1 className="sr-only">Descobrir destinos</h1>
-        <OverlayPanel side="left" width={272}>
+        <OverlayPanel side="left">
           <div className="flex flex-1 flex-col justify-center gap-3 px-4">
             <span className="instrument-label">Para onde vamos?</span>
             <p className="text-body leading-relaxed text-ink-muted">

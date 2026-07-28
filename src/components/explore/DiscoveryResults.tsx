@@ -47,7 +47,7 @@ export function DiscoveryResults({
   exiting,
 }: DiscoveryResultsProps) {
   return (
-    <OverlayPanel side="right" width={340} exiting={exiting}>
+    <OverlayPanel side="right" exiting={exiting}>
       <header className="shrink-0 border-b border-line px-5 py-4">
         <span className="instrument-label">Destinos possíveis</span>
         <p className="instrument-value mt-1 text-title text-ink">{results.length}</p>

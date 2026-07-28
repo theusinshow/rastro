@@ -24,12 +24,15 @@ export function DiscoveryLauncher() {
   return (
     <Link
       href="/descobrir"
-      className="press pointer-events-auto absolute bottom-[calc(var(--sheet-height)+12px)]
-                 left-1/2 flex -translate-x-1/2 items-center gap-3 rounded-sm
-                 border border-accent bg-base px-5 py-2.5 text-small
+      className="press pointer-events-auto absolute
+                 bottom-[calc(var(--sheet-height)+var(--status-height)+var(--chrome-gap)*3)]
+                 left-1/2 flex -translate-x-1/2 items-center gap-3 rounded-lg
+                 border border-accent bg-base/85 px-5 py-3 text-small
                  font-semibold tracking-[0.16em] whitespace-nowrap text-accent
-                 uppercase hover:bg-accent/10 md:bottom-5 md:left-(--panel-narrow)
-                 md:right-0 md:mx-auto md:w-fit md:translate-x-0"
+                 uppercase backdrop-blur-sm hover:bg-accent/10
+                 md:bottom-[calc(var(--status-height)+var(--chrome-gap)*2)]
+                 md:left-[calc(var(--panel-narrow)+var(--chrome-gap))]
+                 md:right-(--chrome-gap) md:mx-auto md:w-fit md:translate-x-0"
     >
       Para onde vamos?
       <span aria-hidden>→</span>

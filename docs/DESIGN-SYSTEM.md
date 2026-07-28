@@ -118,7 +118,32 @@ vezes — decidiu zero vez. Painel novo lê daqui.
 A escala existe para que o raio seja **proporcional ao tamanho do elemento**, não
 para decorar. Nada é arredondado sem razão.
 
-### Foco, indisponível, painéis e empilhamento
+### Cromo flutuante
+
+O mapa sangra de borda a borda e todo o cromo flutua sobre ele
+([ADR 0010](./decisions/0010-cromo-flutuante-sobre-mapa-sangrando.md)).
+
+| Token | Valor | Uso |
+|---|---|---|
+| `--chrome-gap` | `12px` | Folga entre o cromo e a borda da tela, e entre peças de cromo |
+| `--bar-height` | `104px` / `56px` a partir de 768px | Barra superior. Duas linhas no celular |
+| `--status-height` | `36px` | Barra de status |
+| `--panel-narrow` / `--panel-base` / `--panel-wide` | `280` / `380` / `420px` | Larguras de painel |
+
+Os painéis leem `--bar-height` e `--status-height` para saber onde começar e
+terminar. **Mudar a altura de uma barra sem esses tokens faria o painel passar
+por baixo dela em silêncio.**
+
+O `padding` da câmera do mapa espelha tudo isso à mão, em `ExploreView` e
+`DiscoveryView`, porque o MapLibre roda em JavaScript e não lê variável CSS.
+Divergir faz o pin selecionado terminar embaixo de um painel.
+
+**`backdrop-blur` sobre `base/85` é obrigatório em cromo flutuante.** Não há mais
+superfície opaca garantida por baixo: o texto precisa sobreviver a relevo
+sombreado e a água quase preta. É legibilidade, e continua sendo o único uso de
+blur permitido.
+
+### Foco, indisponível e empilhamento
 
 Em `:root`, dentro de `@layer base`:
 
@@ -126,7 +151,6 @@ Em `:root`, dentro de `@layer base`:
 |---|---|---|
 | `--focus-width` / `--focus-offset` | `2px` / `3px` | Anel de foco. Aplicado a 100% dos controles, sem exceção. |
 | `--disabled-opacity` | `0.45` | Indisponível, com o rótulo ainda legível. |
-| `--panel-narrow` / `--panel-base` / `--panel-wide` | `232` / `340` / `420px` | Larguras de painel. O `padding` da câmera do mapa precisa bater com elas. |
 | `--z-map` / `--z-map-chrome` / `--z-panel` / `--z-bar` | `0` / `10` / `20` / `30` | Empilhamento. Sem isto os controles do MapLibre (`z-index: 2` de fábrica) desenham sobre os painéis. |
 
 ### Movimento

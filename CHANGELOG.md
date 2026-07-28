@@ -208,6 +208,12 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Alterado
 
+- **O mapa passa a ocupar a tela inteira, e todo o resto flutua sobre ele.**
+  Antes ele era o retângulo que sobrava entre as barras — o produto dizia que o
+  mapa é a estrutura e desenhava ele como o buraco no meio do enquadramento.
+  Agora a superfície é contínua e os painéis são o que são: temporários
+- No celular a barra de navegação passa a ter duas linhas. Espremida numa linha
+  só, ela cortava "Descobrir" no meio da palavra
 - A navegação principal marca onde você está com um traço âmbar, e não só com a
   cor do texto — quem não distingue os dois tons continuava sem saber em que
   tela estava

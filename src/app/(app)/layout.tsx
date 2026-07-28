@@ -25,27 +25,31 @@ export default async function AppLayout({
       <MapProvider>
         <PickerProvider>
           <VisiblePlacesProvider>
-          <div className="flex h-screen flex-col overflow-hidden bg-void">
-            <TopBar />
+            {/*
+              O mapa sangra de borda a borda e todo o cromo flutua por cima.
+              Ver ADR 0010: o produto declarava o mapa como estrutura e o
+              desenhava como o buraco no meio das barras.
 
-            {/* O mapa vive aqui, no layout, e não nas páginas: navegar entre as
-                rotas não desmonta a instância do MapLibre. Ver ADR 0002. */}
-            <div className="relative flex-1">
+              Ele vive aqui, no layout, e não nas páginas: navegar entre as
+              rotas não desmonta a instância do MapLibre. Ver ADR 0002.
+            */}
+            <div className="relative h-screen overflow-hidden bg-void">
               <MapCanvas />
+
+              <TopBar />
 
               {/* Overlay das rotas. Não intercepta o mapa; cada painel reativa
                   pointer-events por conta própria.
 
-                  O `z-20` é o degrau da escala de empilhamento documentada em
+                  O `z-panel` é o degrau da escala de empilhamento documentada em
                   `globals.css`: sem ele os controles do MapLibre, que trazem
                   `z-index: 2` de fábrica, desenham por cima dos painéis. */}
-              <div className="pointer-events-none absolute inset-0 z-20">
+              <div className="pointer-events-none absolute inset-0 z-(--z-panel)">
                 {children}
               </div>
-            </div>
 
-            <StatusBar />
-          </div>
+              <StatusBar />
+            </div>
           </VisiblePlacesProvider>
         </PickerProvider>
       </MapProvider>

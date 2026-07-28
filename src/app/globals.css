@@ -151,6 +151,17 @@
     --space-panel: 1.25rem; /* 20px — respiro interno de painel */
     --space-section: 2rem; /* 32px — entre blocos de assunto diferente */
 
+    /* Cromo flutuante sobre o mapa. Ver ADR 0010.
+       Os painéis leem as duas alturas para saber onde começar e terminar: sem
+       isso, mudar a altura de uma barra faria o painel passar por baixo dela em
+       silêncio. */
+    --chrome-gap: 0.75rem; /* folga da borda e entre peças de cromo */
+    /* Duas linhas abaixo de 768px: numa barra de 366px não cabem a marca, os
+       quatro destinos, "Novo lugar" e "Sair". Rolar na horizontal cortava
+       "Descobrir" no meio da palavra. */
+    --bar-height: 6.5rem;
+    --status-height: 2.25rem; /* barra de status */
+
     /* Foco — um token só, aplicado a 100% dos controles. Estava hardcoded na
        regra `:focus-visible` e não dava para referenciar em lugar nenhum. */
     --focus-width: 2px;
@@ -262,24 +273,30 @@
   }
 
   /*
-   * Painel de overlay: geometria e entrada/saída num lugar só.
+   * Painel flutuante sobre o mapa. Geometria e entrada/saída num lugar só.
+   * Ver ADR 0010.
    *
-   * Abaixo do ponto de quebra ele vira folha inferior. 232px numa tela de 390
-   * comem 60% da largura, e o que sobra do mapa — que é o produto — não chega
-   * a 160px.
+   * Abaixo do ponto de quebra ele vira folha inferior. Uma coluna lateral numa
+   * tela de 390 comeria mais da metade da largura, e o que sobra do mapa — que é
+   * o produto — não chegaria a 160px.
    */
   .overlay-panel {
     --panel-shift-x: 0px;
     --panel-shift-y: var(--motion-shift);
 
     position: absolute;
-    z-index: 20;
-    inset-inline: 0;
-    bottom: 0;
+    z-index: var(--z-panel);
+    inset-inline: var(--chrome-gap);
+    /* Acima da barra de status, que também flutua. */
+    bottom: calc(var(--status-height) + var(--chrome-gap) * 2);
     display: flex;
     max-height: var(--sheet-height);
     flex-direction: column;
-    border-top: 1px solid var(--color-line);
+    /* O raio precisa cortar o conteúdo: sem isto a primeira linha de uma lista
+       vaza por cima do canto arredondado. */
+    overflow: hidden;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
     pointer-events: auto;
     opacity: 1;
     translate: 0 0;
@@ -291,7 +308,7 @@
   /* O detalhe cobre o filtro: numa folha inferior os dois não cabem lado a
      lado, e quem abriu um lugar quer ler o lugar. */
   .overlay-panel[data-side='right'] {
-    z-index: 21;
+    z-index: calc(var(--z-panel) + 1);
     max-height: 70vh;
   }
 
@@ -312,31 +329,35 @@
   }
 
   @media (min-width: 768px) {
+    :root {
+      /* Uma linha só: a partir daqui tudo cabe lado a lado. */
+      --bar-height: 3.5rem;
+    }
+
+    /* Entre as duas barras flutuantes, com a mesma folga. As alturas vêm dos
+       tokens: mudar uma barra sem isto faria o painel passar por baixo dela. */
     .overlay-panel {
       --panel-shift-y: 0px;
 
-      top: 0;
-      bottom: 0;
+      top: calc(var(--bar-height) + var(--chrome-gap) * 2);
+      bottom: calc(var(--status-height) + var(--chrome-gap) * 2);
       inset-inline: auto;
       width: var(--panel-width);
       max-height: none;
-      border-top: 0;
     }
 
     .overlay-panel[data-side='left'] {
       --panel-shift-x: calc(var(--motion-shift) * -1);
 
-      left: 0;
-      border-right: 1px solid var(--color-line);
+      left: var(--chrome-gap);
     }
 
     .overlay-panel[data-side='right'] {
       --panel-shift-x: var(--motion-shift);
 
-      z-index: 20;
-      right: 0;
+      z-index: var(--z-panel);
+      right: var(--chrome-gap);
       max-height: none;
-      border-left: 1px solid var(--color-line);
     }
   }
 
