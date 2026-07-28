@@ -13,7 +13,17 @@ import { buildRastroStyle } from '@/lib/map/style'
 import { MapFallback, MapLoadError } from './MapFallback'
 import { useMapRegistry } from './map-context'
 
-export function MapCanvas() {
+interface MapCanvasProps {
+  /**
+   * Falso torna o mapa cenário: sem arrastar, sem zoom, e — o que mais importa —
+   * fora da ordem de tabulação, porque o MapLibre só põe `tabindex` no canvas
+   * quando é interativo. Usado na tela de entrada, onde o mapa diz o que o
+   * produto é e não deve competir com o único controle da tela.
+   */
+  interactive?: boolean
+}
+
+export function MapCanvas({ interactive = true }: MapCanvasProps = {}) {
   const containerRef = useRef<HTMLDivElement>(null)
   const { registerMap, updateView } = useMapRegistry()
   const [loadFailure, setLoadFailure] = useState<string | null>(null)
@@ -30,6 +40,7 @@ export function MapCanvas() {
       center: [INITIAL_CENTER.longitude, INITIAL_CENTER.latitude],
       zoom: INITIAL_ZOOM,
       attributionControl: { compact: true },
+      interactive,
       // Sem rotação: o norte fixo é convenção cartográfica e evita
       // desorientação em uso rápido, que é o caso durante uma viagem.
       dragRotate: false,
@@ -70,7 +81,7 @@ export function MapCanvas() {
       setLoaded(false)
       map.remove()
     }
-  }, [registerMap, updateView])
+  }, [registerMap, updateView, interactive])
 
   if (!hasMapTilerKey) {
     return <MapFallback />

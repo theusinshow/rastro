@@ -208,6 +208,11 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Alterado
 
+- A tela de entrada passa a mostrar o mapa. Ela usa a mesma estrutura do
+  aplicativo — mapa como superfície, painel ancorado por cima —, então o produto
+  já se apresenta antes de você entrar, em vez de um formulário centralizado num
+  vazio. O mapa ali não se arrasta nem se aproxima: ele diz o que o produto é e
+  não disputa com o único botão da tela
 - Os pins do mapa passam a crescer com o número de visitas. O mapa deixa de
   mostrar só onde os lugares estão e passa a mostrar onde a sua vida aconteceu
   mais
