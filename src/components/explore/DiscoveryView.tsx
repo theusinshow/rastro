@@ -140,11 +140,11 @@ export function DiscoveryView({ places }: DiscoveryViewProps) {
         <OverlayPanel side="left" width={272}>
           <div className="flex flex-1 flex-col justify-center gap-3 px-4">
             <span className="instrument-label">Para onde vamos?</span>
-            <p className="text-sm leading-relaxed text-ink-muted">
+            <p className="text-[1rem] leading-relaxed text-ink-muted">
               A descoberta mede distância e tempo de ida e volta a partir de onde
               suas viagens começam. Defina seu ponto de partida para usá-la.
             </p>
-            <Link href="/perfil/origem" className="text-xs text-accent">
+            <Link href="/perfil/origem" className="text-[0.9375rem] text-accent">
               Definir ponto de partida
             </Link>
           </div>

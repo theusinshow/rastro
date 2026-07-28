@@ -11,10 +11,10 @@ import {
 import { OverlayPanel } from '@/components/layout/OverlayPanel'
 import { PointPicker } from '@/components/map/PointPicker'
 import { Button } from '@/components/ui/Button'
+import { Field, Input, Select, Textarea } from '@/components/ui/Field'
+import { InlineMessage } from '@/components/ui/InlineMessage'
+import { SectionHeader } from '@/components/ui/Section'
 import type { ActionResult } from '@/app/actions/result'
-
-const FIELD_CLASS =
-  'mt-1.5 w-full rounded-xs border border-line bg-raised px-2 py-1.5 text-sm text-ink placeholder:text-ink-faint'
 
 interface PlaceFormProps {
   initial?: Partial<NewPlace>
@@ -89,88 +89,88 @@ export function PlaceForm({
       <OverlayPanel side="right">
         <form onSubmit={submit} className="flex min-h-0 flex-1 flex-col">
           <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-5 py-4">
-            <div>
-              <span className="instrument-label">Coordenada</span>
-              <p className="instrument-value mt-1 text-sm text-ink">
+            <div className="flex flex-col gap-2">
+              <SectionHeader label="Coordenada" />
+              <p className="instrument-value text-[1.125rem] text-ink">
                 {point
                   ? `${formatCoordinate(point.latitude)} ${formatCoordinate(point.longitude)}`
                   : 'clique no mapa'}
               </p>
               {picking ? (
-                <p className="mt-1 text-[10px] leading-relaxed text-ink-faint">
+                <p className="text-[0.9375rem] leading-relaxed text-ink-faint">
                   A barra de status mostra a coordenada sob o cursor.
                 </p>
               ) : null}
             </div>
 
-            <label className="block border-t border-line pt-3">
-              <span className="instrument-label">Nome</span>
-              <input
-                type="text"
-                value={name}
-                maxLength={120}
-                onChange={(event) => setName(event.target.value)}
-                placeholder="Mirante da Serra"
-                className={FIELD_CLASS}
-              />
-            </label>
+            <Field label="Nome" className="border-t border-line pt-4">
+              {(field) => (
+                <Input
+                  {...field}
+                  type="text"
+                  value={name}
+                  maxLength={120}
+                  onChange={(event) => setName(event.target.value)}
+                  placeholder="Mirante da Serra"
+                />
+              )}
+            </Field>
 
-            <label className="block">
-              <span className="instrument-label">Categoria</span>
-              <select
-                value={category}
-                onChange={(event) =>
-                  setCategory(event.target.value as PlaceCategory)
-                }
-                className={FIELD_CLASS}
-              >
-                {PLACE_CATEGORIES.map((option) => (
-                  <option key={option} value={option}>
-                    {CATEGORY_LABELS[option]}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <Field label="Categoria">
+              {(field) => (
+                <Select
+                  {...field}
+                  value={category}
+                  onChange={(event) =>
+                    setCategory(event.target.value as PlaceCategory)
+                  }
+                >
+                  {PLACE_CATEGORIES.map((option) => (
+                    <option key={option} value={option}>
+                      {CATEGORY_LABELS[option]}
+                    </option>
+                  ))}
+                </Select>
+              )}
+            </Field>
 
-            <label className="block">
-              <span className="instrument-label">Município</span>
-              <input
-                type="text"
-                value={municipality}
-                onChange={(event) => setMunicipality(event.target.value)}
-                placeholder="Urubici"
-                className={FIELD_CLASS}
-              />
-            </label>
+            <Field label="Município">
+              {(field) => (
+                <Input
+                  {...field}
+                  type="text"
+                  value={municipality}
+                  onChange={(event) => setMunicipality(event.target.value)}
+                  placeholder="Urubici"
+                />
+              )}
+            </Field>
 
-            <label className="block">
-              <span className="instrument-label">Descrição</span>
-              <textarea
-                rows={3}
-                value={description}
-                onChange={(event) => setDescription(event.target.value)}
-                placeholder="O que faz este lugar valer a viagem."
-                className={FIELD_CLASS}
-              />
-            </label>
+            <Field label="Descrição">
+              {(field) => (
+                <Textarea
+                  {...field}
+                  rows={3}
+                  value={description}
+                  onChange={(event) => setDescription(event.target.value)}
+                  placeholder="O que faz este lugar valer a viagem."
+                />
+              )}
+            </Field>
 
-            <label className="block">
-              <span className="instrument-label">Etiquetas</span>
-              <input
-                type="text"
-                value={tags}
-                onChange={(event) => setTags(event.target.value)}
-                placeholder="curvas, mirante"
-                className={FIELD_CLASS}
-              />
-              <span className="mt-1 block text-[10px] text-ink-faint">
-                Separadas por vírgula.
-              </span>
-            </label>
+            <Field label="Etiquetas" hint="Separadas por vírgula.">
+              {(field) => (
+                <Input
+                  {...field}
+                  type="text"
+                  value={tags}
+                  onChange={(event) => setTags(event.target.value)}
+                  placeholder="curvas, mirante"
+                />
+              )}
+            </Field>
 
-            {error ? (
-              <p className="text-[11px] leading-relaxed text-ink-muted">{error}</p>
-            ) : null}
+            {error ? <InlineMessage tone="error">{error}</InlineMessage> : null}
 
             <Button
               type="submit"

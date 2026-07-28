@@ -6,7 +6,7 @@ export default function ViagensPage() {
       <h1 className="sr-only">Viagens registradas</h1>
       <div className="flex flex-1 flex-col justify-center gap-3 px-5">
         <span className="instrument-label">Viagens</span>
-        <p className="text-sm leading-relaxed text-ink-muted">
+        <p className="text-[1rem] leading-relaxed text-ink-muted">
           Ainda não há viagens registradas. O registro de viagens entra numa
           próxima etapa.
         </p>

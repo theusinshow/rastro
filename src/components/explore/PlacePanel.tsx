@@ -41,7 +41,7 @@ export function PlacePanel({ place, onClose, exiting }: PlacePanelProps) {
           <h2 className="mt-1 text-lg leading-tight font-medium text-ink">
             {place.name}
           </h2>
-          <p className="mt-1 text-xs text-ink-muted">
+          <p className="mt-1 text-[0.9375rem] text-ink-muted">
             {place.municipality} · {place.stateCode}
           </p>
         </div>
@@ -93,7 +93,7 @@ export function PlacePanel({ place, onClose, exiting }: PlacePanelProps) {
         <div className="flex items-center gap-4 border-b border-line px-5 py-3">
           <VisitStatusBadge status={place.visitStatus} />
           {place.lastVisitedAt ? (
-            <span className="instrument-value text-[10px] text-ink-faint">
+            <span className="instrument-value text-[0.75rem] text-ink-faint">
               {formatVisitDate(place.lastVisitedAt)}
             </span>
           ) : null}
@@ -103,7 +103,7 @@ export function PlacePanel({ place, onClose, exiting }: PlacePanelProps) {
         <PlaceVisits place={place} />
 
         {place.description ? (
-          <p className="px-5 py-4 text-sm leading-relaxed text-ink-muted">
+          <p className="px-5 py-4 text-[1rem] leading-relaxed text-ink-muted">
             {place.description}
           </p>
         ) : null}
@@ -113,7 +113,7 @@ export function PlacePanel({ place, onClose, exiting }: PlacePanelProps) {
             {place.tags.map((tag) => (
               <li
                 key={tag}
-                className="border border-line px-1.5 py-0.5 text-[10px]
+                className="border border-line px-1.5 py-0.5 text-[0.75rem]
                            tracking-[0.08em] text-ink-faint"
               >
                 {tag}
@@ -123,7 +123,7 @@ export function PlacePanel({ place, onClose, exiting }: PlacePanelProps) {
         ) : null}
 
         {originLabel ? (
-          <p className="px-5 pb-4 text-[10px] leading-relaxed text-ink-faint">
+          <p className="px-5 pb-4 text-[0.75rem] leading-relaxed text-ink-faint">
             Distância e tempo são estimativas em linha reta a partir de{' '}
             {originLabel}, corrigidas por um fator de estrada. Não substituem um
             roteador.

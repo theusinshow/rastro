@@ -8,6 +8,7 @@ import {
   updatePlaceAction,
 } from '@/app/actions/place-catalog-actions'
 import { Button } from '@/components/ui/Button'
+import { InlineMessage } from '@/components/ui/InlineMessage'
 import { PlaceForm } from './PlaceForm'
 import { SELECTED_PLACE_PARAM } from './use-selected-place'
 
@@ -64,45 +65,42 @@ export function EditPlaceView({ place }: { place: ExplorePlace }) {
                 `on delete cascade` sobre `places`, então apagar o lugar apaga a
                 memória junto. Esconder isso seria a pior omissão possível neste
                 produto. */}
-            <p className="text-[11px] leading-relaxed text-ink-muted">
+            <InlineMessage tone="warn">
               Apagar {place.name}
               {visitsClause(place.visits.length)}. Não há como desfazer.
-            </p>
-            <div className="mt-3 flex gap-2">
+            </InlineMessage>
+            <div className="mt-3 flex flex-wrap gap-2">
               <Button
-                type="button"
+                variant="danger"
                 size="sm"
-                variant="solid"
                 disabled={pending}
                 onClick={confirmDelete}
               >
                 Apagar mesmo assim
               </Button>
               <Button
-                type="button"
+                variant="ghost"
                 size="sm"
-                variant="outline"
                 onClick={() => setConfirming(false)}
               >
                 Cancelar
               </Button>
             </div>
             {error ? (
-              <p className="mt-2 text-[11px] leading-relaxed text-ink-muted">
+              <InlineMessage tone="error" className="mt-3">
                 {error}
-              </p>
+              </InlineMessage>
             ) : null}
           </div>
         ) : (
           <div className="shrink-0 border-t border-line px-5 py-4">
-            <button
-              type="button"
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => setConfirming(true)}
-              className="text-[10px] tracking-[0.14em] text-ink-faint uppercase
-                         transition-colors hover:text-ink-muted"
             >
               Apagar este lugar
-            </button>
+            </Button>
           </div>
         )
       }

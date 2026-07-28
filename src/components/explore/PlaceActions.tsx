@@ -30,7 +30,7 @@ export function PlaceActions({ place }: { place: ExplorePlace }) {
       {place.isOwn ? (
         <Link
           href={`/lugar/${place.slug}/editar`}
-          className="mt-3 block text-[10px] tracking-[0.14em] text-ink-faint
+          className="mt-3 block text-[0.75rem] tracking-[0.14em] text-ink-faint
                      uppercase transition-colors hover:text-ink-muted"
         >
           Editar lugar
@@ -39,12 +39,12 @@ export function PlaceActions({ place }: { place: ExplorePlace }) {
 
       <div className="mt-4">
         <span className="instrument-label">Em breve</span>
-        <p className="mt-1.5 text-[11px] leading-relaxed text-ink-faint">
+        <p className="mt-1.5 text-[0.9375rem] leading-relaxed text-ink-faint">
           Criar viagem
         </p>
       </div>
 
-      <p className="mt-2 text-[10px] leading-relaxed text-ink-faint">
+      <p className="mt-2 text-[0.75rem] leading-relaxed text-ink-faint">
         Criar viagem grava paradas e fotos, e fica disponível na etapa de
         viagens.
       </p>

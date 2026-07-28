@@ -6,11 +6,13 @@ import {
   setFavoriteAction,
   setWantsToVisitAction,
 } from '@/app/actions/place-state-actions'
+import { InlineMessage } from '@/components/ui/InlineMessage'
 import { cn } from '@/lib/utils/cn'
 
 const BASE_CLASS =
-  'press rounded-xs border px-2 py-1.5 text-[10px] uppercase tracking-[0.14em] transition-colors'
-const INACTIVE_CLASS = 'border-line text-ink-faint hover:text-ink-muted'
+  'press inline-flex h-10 items-center rounded-full border px-4 text-[1rem]'
+const INACTIVE_CLASS =
+  'border-line-strong text-ink-muted hover:bg-overlay hover:text-ink'
 
 /**
  * As duas chaves do vínculo com um lugar, no vocabulário do mapa.
@@ -59,7 +61,9 @@ export function PlaceStateControls({ place }: { place: ExplorePlace }) {
           aria-pressed={favorite}
           className={cn(
             BASE_CLASS,
-            favorite ? 'border-accent text-accent' : INACTIVE_CLASS,
+            favorite
+              ? 'border-accent bg-accent-dim/45 text-accent'
+              : INACTIVE_CLASS,
           )}
         >
           Favorito
@@ -71,7 +75,7 @@ export function PlaceStateControls({ place }: { place: ExplorePlace }) {
           aria-pressed={wanted}
           className={cn(
             BASE_CLASS,
-            wanted ? 'border-wanted text-wanted' : INACTIVE_CLASS,
+            wanted ? 'border-wanted bg-accent-dim/45 text-wanted' : INACTIVE_CLASS,
           )}
         >
           Quero conhecer
@@ -81,13 +85,15 @@ export function PlaceStateControls({ place }: { place: ExplorePlace }) {
       {/* Uma visita registrada vence o interesse na leitura do pin. Dizer isso
           evita que o botão pareça quebrado em lugar já visitado. */}
       {place.visitStatus === 'visitado' && wanted ? (
-        <p className="mt-2 text-[10px] leading-relaxed text-ink-faint">
+        <p className="mt-3 text-[0.9375rem] leading-relaxed text-ink-faint">
           Você já esteve aqui, então o pin mostra visitado.
         </p>
       ) : null}
 
       {error ? (
-        <p className="mt-2 text-[11px] leading-relaxed text-ink-muted">{error}</p>
+        <InlineMessage tone="error" className="mt-3">
+          {error}
+        </InlineMessage>
       ) : null}
     </div>
   )

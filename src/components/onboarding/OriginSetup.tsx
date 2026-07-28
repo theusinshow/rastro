@@ -8,6 +8,9 @@ import { OverlayPanel } from '@/components/layout/OverlayPanel'
 import { useOrigin } from '@/components/layout/origin-context'
 import { PointPicker } from '@/components/map/PointPicker'
 import { Button } from '@/components/ui/Button'
+import { Field, Input } from '@/components/ui/Field'
+import { InlineMessage } from '@/components/ui/InlineMessage'
+import { SectionHeader } from '@/components/ui/Section'
 
 export function OriginSetup() {
   const router = useRouter()
@@ -40,36 +43,34 @@ export function OriginSetup() {
         <div className="flex flex-1 flex-col gap-4 overflow-y-auto px-5 py-4">
           <div>
             <span className="instrument-label">Ponto de partida</span>
-            <p className="mt-1.5 text-sm leading-relaxed text-ink-muted">
+            <p className="mt-1.5 text-[1rem] leading-relaxed text-ink-muted">
               Clique no mapa onde suas viagens começam. Toda distância e todo
               cálculo de tempo do Rastro partem daqui.
             </p>
           </div>
 
-          <div className="border-t border-line pt-3">
-            <span className="instrument-label">Coordenada</span>
-            <p className="instrument-value mt-1 text-sm text-ink">
+          <div className="flex flex-col gap-2 border-t border-line pt-4">
+            <SectionHeader label="Coordenada" />
+            <p className="instrument-value text-[1.125rem] text-ink">
               {point
                 ? `${formatCoordinate(point.latitude)} ${formatCoordinate(point.longitude)}`
                 : 'aguardando o clique'}
             </p>
           </div>
 
-          <label className="block">
-            <span className="instrument-label">Como chamar</span>
-            <input
-              type="text"
-              value={label}
-              onChange={(event) => setLabel(event.target.value)}
-              placeholder="Palhoça, SC"
-              className="mt-1.5 w-full rounded-xs border border-line bg-raised px-2
-                         py-1.5 text-sm text-ink placeholder:text-ink-faint"
-            />
-          </label>
+          <Field label="Como chamar">
+            {(field) => (
+              <Input
+                {...field}
+                type="text"
+                value={label}
+                onChange={(event) => setLabel(event.target.value)}
+                placeholder="Palhoça, SC"
+              />
+            )}
+          </Field>
 
-          {error ? (
-            <p className="text-xs leading-relaxed text-ink-muted">{error}</p>
-          ) : null}
+          {error ? <InlineMessage tone="error">{error}</InlineMessage> : null}
 
           <Button
             type="button"

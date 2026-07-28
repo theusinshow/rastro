@@ -25,7 +25,7 @@ export default async function EntrarPage({
   return (
     <main className="flex h-screen flex-col items-center justify-center bg-void px-6">
       <div className="w-full max-w-sm border-t border-line pt-8">
-        <span className="flex items-center gap-2 text-sm font-semibold tracking-[0.18em] text-ink uppercase">
+        <span className="flex items-center gap-2 text-[1rem] font-semibold tracking-[0.18em] text-ink uppercase">
           <span aria-hidden className="h-3.5 w-0.5 bg-accent" />
           Rastro
         </span>
@@ -34,7 +34,7 @@ export default async function EntrarPage({
           O mapa da sua vida sobre duas rodas
         </h1>
 
-        <p className="mt-2 text-sm leading-relaxed text-ink-muted">
+        <p className="mt-2 text-[1rem] leading-relaxed text-ink-muted">
           Onde você já esteve, o que ainda quer conhecer, e as histórias que
           ficaram dessas viagens.
         </p>
@@ -47,7 +47,7 @@ export default async function EntrarPage({
             </Button>
           </form>
         ) : (
-          <p className="mt-8 border-t border-line pt-4 text-xs leading-relaxed text-ink-muted">
+          <p className="mt-8 border-t border-line pt-4 text-[0.9375rem] leading-relaxed text-ink-muted">
             O banco de dados não está configurado. Defina{' '}
             <span className="instrument-value">NEXT_PUBLIC_SUPABASE_URL</span> e{' '}
             <span className="instrument-value">NEXT_PUBLIC_SUPABASE_ANON_KEY</span>{' '}
@@ -59,13 +59,13 @@ export default async function EntrarPage({
         {erro ? (
           <div className="mt-6 border-t border-line pt-4">
             <span className="instrument-label">Não foi possível entrar</span>
-            <p className="mt-2 text-xs leading-relaxed text-ink-muted">
+            <p className="mt-2 text-[0.9375rem] leading-relaxed text-ink-muted">
               {ERROR_MESSAGES[erro] ?? 'A entrada falhou.'}
             </p>
             {/* Mesma decisão do MapLoadError: a mensagem técnica fica visível.
                 Escondê-la trocaria uma causa conhecida por uma tela genérica. */}
             {detalhe ? (
-              <p className="mt-3 text-[11px] leading-relaxed text-ink-faint">
+              <p className="mt-3 text-[0.9375rem] leading-relaxed text-ink-faint">
                 <code className="instrument-value">{detalhe}</code>
               </p>
             ) : null}

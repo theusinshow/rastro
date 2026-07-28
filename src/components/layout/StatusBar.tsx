@@ -19,12 +19,12 @@ export function StatusBar() {
 
   return (
     <footer
-      className="relative z-30 flex h-7 shrink-0 items-center gap-3
+      className="relative z-30 flex h-9 shrink-0 items-center gap-3
                  overflow-hidden border-t border-line bg-base px-4 md:gap-6"
     >
       <span
         className={cn(
-          'instrument-value text-[10px] whitespace-nowrap',
+          'instrument-value text-[0.75rem] whitespace-nowrap',
           picking ? 'text-accent' : 'text-ink-faint',
         )}
       >
@@ -33,10 +33,10 @@ export function StatusBar() {
           ? `${formatCoordinate(shown.latitude)} ${formatCoordinate(shown.longitude)}`
           : '—.———— —.————'}
       </span>
-      {/* Abaixo de 768px a barra tem 28px de altura fixa e quatro campos a fazem
+      {/* Abaixo de 768px a barra tem 36px de altura fixa e quatro campos a fazem
           quebrar em duas linhas. Coordenada e contagem ficam; zoom e origem são
           os dois que menos mudam durante o uso. */}
-      <span className="instrument-value hidden text-[10px] text-ink-faint md:inline">
+      <span className="instrument-value hidden text-[0.75rem] text-ink-faint md:inline">
         Z{view ? view.zoom.toFixed(1) : '—'}
       </span>
       {count !== null ? (
@@ -44,7 +44,7 @@ export function StatusBar() {
           // `key` remonta o nó e reinicia o realce a cada valor novo. Sem ele o
           // número muda a 10px num canto e ninguém percebe.
           key={count}
-          className="value-changed instrument-value px-1 text-[10px]
+          className="value-changed instrument-value px-1 text-[0.75rem]
                      whitespace-nowrap text-ink-faint"
         >
           ● {count} {count === 1 ? 'lugar' : 'lugares'}
@@ -53,7 +53,7 @@ export function StatusBar() {
       {/* Sem origem definida o campo some, em vez de mostrar um lugar que não é
           o seu. É o mesmo princípio do resto: não inventar dado. */}
       {originLabel ? (
-        <span className="ml-auto instrument-value hidden text-[10px] text-ink-faint md:inline">
+        <span className="ml-auto instrument-value hidden text-[0.75rem] text-ink-faint md:inline">
           ⌂ {originLabel}
         </span>
       ) : null}

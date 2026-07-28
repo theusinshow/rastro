@@ -2,25 +2,49 @@ import { cn } from '@/lib/utils/cn'
 
 interface ChipProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   active?: boolean
+  /** Quantos itens este filtro deixaria no recorte. Opcional. */
+  count?: number
 }
 
-export function Chip({ active = false, className, ...props }: ChipProps) {
+/**
+ * Filtro de um toque. 40px de altura porque o produto se usa com a mão suja e a
+ * luva do lado — não é o lugar de espremer densidade.
+ *
+ * A ativação é instantânea: um filtro é uma chave, não um fade.
+ */
+export function Chip({
+  active = false,
+  count,
+  className,
+  children,
+  ...props
+}: ChipProps) {
   return (
     <button
       type="button"
       aria-pressed={active}
       className={cn(
-        'relative h-6 rounded-xs border px-2 text-[10px] uppercase',
-        'tracking-[0.12em] transition-colors',
-        // A caixa visual continua com 24px — a densidade é parte da linguagem.
-        // O que cresce para 32px é só a área clicável.
-        'before:absolute before:inset-x-0 before:-inset-y-1 before:content-[""]',
+        'press inline-flex h-10 items-center gap-2 rounded-full border px-4',
+        'text-[1rem]',
         active
-          ? 'border-accent text-accent'
-          : 'border-line text-ink-faint hover:border-line-strong hover:text-ink-muted',
+          ? 'border-accent bg-accent-dim/45 text-ink'
+          : 'border-line-strong text-ink-muted hover:bg-overlay hover:text-ink',
+        'disabled:pointer-events-none disabled:opacity-(--disabled-opacity)',
         className,
       )}
       {...props}
-    />
+    >
+      {children}
+      {typeof count === 'number' ? (
+        <span
+          className={cn(
+            'instrument-value text-[0.8125rem]',
+            active ? 'text-accent' : 'text-ink-faint',
+          )}
+        >
+          {count}
+        </span>
+      ) : null}
+    </button>
   )
 }

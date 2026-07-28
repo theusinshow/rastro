@@ -9,6 +9,9 @@ import {
   updateVisitDateAction,
 } from '@/app/actions/place-state-actions'
 import { Button } from '@/components/ui/Button'
+import { Input } from '@/components/ui/Field'
+import { InlineMessage } from '@/components/ui/InlineMessage'
+import { SectionHeader } from '@/components/ui/Section'
 import type { ActionResult } from '@/app/actions/result'
 
 function today(): string {
@@ -37,17 +40,17 @@ export function PlaceVisits({ place }: { place: ExplorePlace }) {
 
   return (
     <div className="border-b border-line px-5 py-4">
-      <span className="instrument-label">Visitas</span>
+      <SectionHeader
+        label="Visitas"
+        hint={place.visits.length === 0 ? 'nenhuma registrada' : undefined}
+      />
 
-      {place.visits.length === 0 ? (
-        <p className="mt-1.5 text-[11px] leading-relaxed text-ink-muted">
-          Nenhuma visita registrada.
-        </p>
-      ) : (
-        <ul className="mt-2 flex flex-col gap-1.5">
+      {place.visits.length > 0 ? (
+        <ul className="mt-3 flex flex-col gap-2">
           {place.visits.map((visit) => (
-            <li key={visit.id} className="flex items-center gap-2">
-              <input
+            <li key={visit.id} className="flex items-center gap-3">
+              <Input
+                numeric
                 type="date"
                 defaultValue={visit.visitedAt}
                 max={today()}
@@ -55,25 +58,21 @@ export function PlaceVisits({ place }: { place: ExplorePlace }) {
                 onChange={(event) =>
                   run(() => updateVisitDateAction(visit.id, event.target.value))
                 }
-                className="instrument-value rounded-xs border border-line bg-raised
-                           px-1.5 py-1 text-[11px] text-ink"
+                className="w-auto flex-1"
               />
-              <button
-                type="button"
+              <Button
+                variant="danger"
+                size="sm"
                 onClick={() => run(() => removeVisitAction(visit.id))}
-                className="ml-auto text-[10px] tracking-[0.14em] text-ink-faint
-                           uppercase transition-colors hover:text-ink-muted"
               >
                 Remover
-              </button>
+              </Button>
             </li>
           ))}
         </ul>
-      )}
+      ) : null}
 
       <Button
-        type="button"
-        size="sm"
         variant="outline"
         className="mt-3 w-full"
         disabled={pending}
@@ -83,7 +82,9 @@ export function PlaceVisits({ place }: { place: ExplorePlace }) {
       </Button>
 
       {error ? (
-        <p className="mt-2 text-[11px] leading-relaxed text-ink-muted">{error}</p>
+        <InlineMessage tone="error" className="mt-3">
+          {error}
+        </InlineMessage>
       ) : null}
     </div>
   )

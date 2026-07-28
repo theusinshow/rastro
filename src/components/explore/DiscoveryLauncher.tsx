@@ -20,7 +20,7 @@ export function DiscoveryLauncher() {
       href="/descobrir"
       className="press pointer-events-auto absolute bottom-[calc(var(--sheet-height)+12px)]
                  left-1/2 flex -translate-x-1/2 items-center gap-3 border
-                 border-accent bg-base px-5 py-2.5 text-[11px] font-semibold
+                 border-accent bg-base px-5 py-2.5 text-[0.9375rem] font-semibold
                  tracking-[0.16em] whitespace-nowrap text-accent uppercase
                  hover:bg-accent/10 md:bottom-5"
     >
