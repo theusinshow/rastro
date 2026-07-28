@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { signOutAction } from '@/app/entrar/actions'
 import { cn } from '@/lib/utils/cn'
 
 const NAV_ITEMS = [
@@ -63,6 +64,18 @@ export function TopBar() {
           })}
         </ul>
       </nav>
+
+      {/* Texto, não ícone: o produto não tem conjunto de ícones e é melhor por
+          isso. Peso terciário — sair não é uma ação que se procura. */}
+      <form action={signOutAction} className="ml-auto shrink-0">
+        <button
+          type="submit"
+          className="px-2 py-2.5 text-[11px] tracking-[0.12em] whitespace-nowrap
+                     text-ink-faint uppercase transition-colors hover:text-ink-muted"
+        >
+          Sair
+        </button>
+      </form>
     </header>
   )
 }

@@ -20,6 +20,10 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 - Perfil criado automaticamente no primeiro login, sem origem definida: a origem
   é escolhida por você, e inventar uma faria o produto mentir sobre distâncias
   na primeira sessão
+- Entrada pelo Google, em um toque e sem senha — o produto é usado na estrada, e
+  digitar senha de luva não é um requisito razoável
+- A tela de entrada diz em texto quando o banco não está configurado, em vez de
+  oferecer um botão que falharia em silêncio
 - As telas do aplicativo passam a exigir sessão, e uma sessão que expira no meio
   de uma tarefa devolve você ao ponto onde estava depois de entrar, em vez de
   jogar na tela inicial
