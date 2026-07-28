@@ -208,6 +208,13 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Alterado
 
+- Os pins do mapa passam a crescer com o número de visitas. O mapa deixa de
+  mostrar só onde os lugares estão e passa a mostrar onde a sua vida aconteceu
+  mais
+- Os tamanhos de texto do produto passam a vir de uma escala nomeada, em vez de
+  oito valores soltos escolhidos um de cada vez. O espaçamento ganha nomes pela
+  mesma razão: dois painéis com respiros diferentes não eram duas decisões, eram
+  nenhuma
 - O mapa deixa de ser uma lavagem marrom só. A vegetação volta a ser verde —
   floresta marrom não lê como floresta — e o relevo perde a saturação laranja que
   dominava a tela inteira. Agora dá para distinguir a mata do litoral do planalto

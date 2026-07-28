@@ -75,6 +75,35 @@ as utilities `bg-*`, `text-*` e `border-*`; cada `--radius-*` gera `rounded-*`.
 operação bem sucedida; hoje `visited` e `ok` coincidem em valor e podem divergir
 amanhã sem que nada avise. Ver ADR 0009.
 
+### Escala tipográfica
+
+| Utilitária | Valor | Uso |
+|---|---|---|
+| `text-micro` | 12px / 1 | Rótulo de instrumento, statusbar, contagem |
+| `text-small` | 15px / 1.5 | Dica de campo, legenda, texto terciário |
+| `text-base` | **17px** / 1.55 | **Piso do corpo.** Nenhum texto corrido desce daqui |
+| `text-lead` | 20px / 1.4 | Primeira linha de um painel, valor em destaque |
+| `text-title` | 24px / 1.2 | Nome de lugar, título de tela |
+| `text-display` | 32px / 1 | Só display |
+
+Antes desta escala existiam **oito tamanhos arbitrários** espalhados por vinte
+arquivos, escolhidos no olho um de cada vez. Um degrau novo agora exige entrar em
+`@theme`, que é onde a decisão pode ser discutida.
+
+### Escala de espaçamento
+
+Não é escala nova: é o passo de 4px do Tailwind, **nomeado por intenção**.
+
+| Token | Valor | Uso |
+|---|---|---|
+| `--space-tight` | 8px | Entre um rótulo e o seu controle |
+| `--space-snug` | 12px | Entre controles irmãos |
+| `--space-panel` | 20px | Respiro interno de painel |
+| `--space-section` | 32px | Entre blocos de assunto diferente |
+
+Quem escreve `px-5 py-4` num painel e `px-4 py-4` no seguinte não decidiu duas
+vezes — decidiu zero vez. Painel novo lê daqui.
+
 ### Raio
 
 | Token | Valor |

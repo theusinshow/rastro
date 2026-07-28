@@ -65,7 +65,7 @@ export function PlaceList({
         <span
           // `key` reinicia o realce a cada valor novo — ver `.value-changed`.
           key={places.length}
-          className="value-changed instrument-value px-1 text-[0.75rem] text-ink-faint"
+          className="value-changed instrument-value px-1 text-micro text-ink-faint"
         >
           {places.length} / {totalCount}
         </span>
@@ -79,12 +79,12 @@ export function PlaceList({
 
       {places.length === 0 ? (
         <div className="empty-state flex flex-1 flex-col items-start gap-3 px-4 py-5">
-          <p className="text-[1rem] leading-relaxed text-ink-muted">
+          <p className="text-base leading-relaxed text-ink-muted">
             Nenhum lugar cabe nesse recorte.
           </p>
           {relaxation && criterionLabel ? (
             <>
-              <p className="text-[0.9375rem] leading-relaxed text-ink-faint">
+              <p className="text-small leading-relaxed text-ink-faint">
                 O filtro de {criterionLabel} é o que mais elimina: sem ele voltam{' '}
                 {relaxation.recovered} {plural(relaxation.recovered)}.
               </p>
@@ -99,7 +99,7 @@ export function PlaceList({
             </>
           ) : (
             <>
-              <p className="text-[0.9375rem] leading-relaxed text-ink-faint">
+              <p className="text-small leading-relaxed text-ink-faint">
                 Nenhum filtro isolado explica o vazio: são as restrições juntas.
               </p>
               <Button size="sm" className="h-auto w-full py-1.5" onClick={onReset}>
@@ -131,12 +131,12 @@ export function PlaceList({
                   )}
                 >
                   <div className="flex items-baseline justify-between gap-2">
-                    <span className="truncate text-[0.9375rem] text-ink">{place.name}</span>
+                    <span className="truncate text-small text-ink">{place.name}</span>
                     {/* Distância corrigida por estrada, a mesma do painel e da
                         descoberta: a linha e o painel ficam visíveis ao mesmo
                         tempo e não podem discordar sobre o mesmo lugar. */}
                     {origin ? (
-                      <span className="instrument-value shrink-0 text-[0.75rem] text-ink-faint">
+                      <span className="instrument-value shrink-0 text-micro text-ink-faint">
                         {formatDistanceKm(
                           estimateRoadKm(haversineKm(origin, place)),
                         )}{' '}
@@ -145,7 +145,7 @@ export function PlaceList({
                     ) : null}
                   </div>
                   <div className="mt-1 flex items-center gap-3">
-                    <span className="text-[0.75rem] tracking-[0.1em] text-ink-faint uppercase">
+                    <span className="text-micro tracking-[0.1em] text-ink-faint uppercase">
                       {CATEGORY_LABELS[place.category]}
                     </span>
                     <VisitStatusBadge status={place.visitStatus} />

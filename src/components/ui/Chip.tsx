@@ -25,7 +25,7 @@ export function Chip({
       aria-pressed={active}
       className={cn(
         'press inline-flex h-10 items-center gap-2 rounded-full border px-4',
-        'text-[1rem]',
+        'text-base',
         active
           ? 'border-accent bg-accent-dim/45 text-ink'
           : 'border-line-strong text-ink-muted hover:bg-overlay hover:text-ink',
@@ -38,7 +38,7 @@ export function Chip({
       {typeof count === 'number' ? (
         <span
           className={cn(
-            'instrument-value text-[0.8125rem]',
+            'instrument-value text-micro',
             active ? 'text-accent' : 'text-ink-faint',
           )}
         >

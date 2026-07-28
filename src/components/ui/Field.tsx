@@ -85,7 +85,7 @@ export function Field({ label, hint, error, children, className }: FieldProps) {
       {/* A dica some quando há erro: dois textos de apoio embaixo do mesmo
           controle competem, e o erro é o que precisa ser lido. */}
       {hint && !error ? (
-        <p id={hintId} className="text-[0.9375rem] text-ink-faint">
+        <p id={hintId} className="text-small text-ink-faint">
           {hint}
         </p>
       ) : null}

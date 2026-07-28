@@ -46,6 +46,27 @@
   --color-warn: #e0a02e; /* aviso */
   --color-ok: #8fa36a; /* sucesso */
 
+  /* Tipografia — escala nomeada, com altura de linha embutida.
+     Antes disto os tamanhos eram valores soltos: oito arbitrários espalhados
+     por vinte arquivos, escolhidos no olho um de cada vez. Um degrau novo agora
+     exige entrar aqui, que é onde a decisão pode ser discutida.
+
+     O piso é `--text-base`, 17px: o produto é lido parado no acostamento, com
+     luva e sol na tela. Abaixo dele só existem os dois degraus de apoio, e
+     nenhum deles carrega texto corrido. */
+  --text-micro: 0.75rem; /* 12px — rótulo de instrumento, statusbar */
+  --text-micro--line-height: 1;
+  --text-small: 0.9375rem; /* 15px — dica de campo, legenda, texto terciário */
+  --text-small--line-height: 1.5;
+  --text-base: 1.0625rem; /* 17px — piso do corpo */
+  --text-base--line-height: 1.55;
+  --text-lead: 1.25rem; /* 20px — primeira linha de um painel */
+  --text-lead--line-height: 1.4;
+  --text-title: 1.5rem; /* 24px — nome de lugar, título de tela */
+  --text-title--line-height: 1.2;
+  --text-display: 2rem; /* 32px — só display */
+  --text-display--line-height: 1;
+
   /* Raio — o teto de 2px caiu no ADR 0009. A escala existe para que o raio seja
      proporcional ao tamanho do elemento, não para decorar. */
   --radius-sm: 8px;
@@ -115,6 +136,16 @@
        `DiscoveryLauncher`, que precisa ficar acima dela: um valor só impede que
        mudar a altura da folha faça o CTA sobrepor silenciosamente o painel. */
     --sheet-height: 45vh;
+
+    /* Espaçamento. Não é escala nova: é o passo de 4px do Tailwind, nomeado por
+       intenção para que a escolha deixe de ser "quanto parece bom aqui".
+
+       Quem escreve `px-5 py-4` num painel e `px-4 py-4` no seguinte não decidiu
+       duas vezes — decidiu zero vez. Painel novo lê daqui. */
+    --space-tight: 0.5rem; /* 8px — entre rótulo e seu controle */
+    --space-snug: 0.75rem; /* 12px — entre controles irmãos */
+    --space-panel: 1.25rem; /* 20px — respiro interno de painel */
+    --space-section: 2rem; /* 32px — entre blocos de assunto diferente */
 
     /* Foco — um token só, aplicado a 100% dos controles. Estava hardcoded na
        regra `:focus-visible` e não dava para referenciar em lugar nenhum. */

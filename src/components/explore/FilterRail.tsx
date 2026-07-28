@@ -105,7 +105,7 @@ export function FilterRail({
               ))}
             </div>
           ) : (
-            <p className="mt-2 text-[0.9375rem] leading-relaxed text-ink-muted">
+            <p className="mt-2 text-small leading-relaxed text-ink-muted">
               O raio precisa de uma origem.{' '}
               <Link href="/perfil/origem" className="text-accent">
                 Defina a sua

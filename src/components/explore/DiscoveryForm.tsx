@@ -42,12 +42,12 @@ export function DiscoveryForm({ query, onChange, onSubmit }: DiscoveryFormProps)
         <div className="min-h-0 flex-1 overflow-y-auto">
           <section className="border-b border-line px-4 py-4">
             <span className="instrument-label">Partida</span>
-            <p className="instrument-value mt-1.5 text-[1rem] text-ink">
+            <p className="instrument-value mt-1.5 text-base text-ink">
               {originLabel ?? '—'}
             </p>
             <Link
               href="/perfil/origem"
-              className="mt-1 inline-block text-[0.75rem] text-ink-faint
+              className="mt-1 inline-block text-micro text-ink-faint
                          transition-colors hover:text-ink-muted"
             >
               Mudar ponto de partida
@@ -82,7 +82,7 @@ export function DiscoveryForm({ query, onChange, onSubmit }: DiscoveryFormProps)
                 </Chip>
               ))}
             </div>
-            <p className="mt-2 text-[0.75rem] leading-relaxed text-ink-faint">
+            <p className="mt-2 text-micro leading-relaxed text-ink-faint">
               Quilometragem de estrada estimada, só de ida.
             </p>
           </section>

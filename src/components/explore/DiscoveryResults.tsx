@@ -50,17 +50,17 @@ export function DiscoveryResults({
     <OverlayPanel side="right" width={340} exiting={exiting}>
       <header className="shrink-0 border-b border-line px-5 py-4">
         <span className="instrument-label">Destinos possíveis</span>
-        <p className="instrument-value mt-1 text-lg text-ink">{results.length}</p>
+        <p className="instrument-value mt-1 text-title text-ink">{results.length}</p>
       </header>
 
       {results.length === 0 ? (
         <div className="empty-state flex flex-1 flex-col justify-center gap-3 px-5">
-          <p className="text-[1rem] leading-relaxed text-ink-muted">
+          <p className="text-base leading-relaxed text-ink-muted">
             Nenhum destino cabe nesses limites.
           </p>
           {suggestion ? (
             <>
-              <p className="text-[0.9375rem] leading-relaxed text-ink-faint">
+              <p className="text-small leading-relaxed text-ink-faint">
                 O menor ajuste que devolve resultado:
               </p>
               <Button
@@ -72,7 +72,7 @@ export function DiscoveryResults({
               </Button>
             </>
           ) : (
-            <p className="text-[0.9375rem] leading-relaxed text-ink-faint">
+            <p className="text-small leading-relaxed text-ink-faint">
               Nem ampliando distância, tempo e categorias aparece destino. Remova
               o filtro de favoritos ou o de não visitados.
             </p>
@@ -101,16 +101,16 @@ export function DiscoveryResults({
                            transition-colors hover:bg-overlay"
               >
                 <div className="flex items-baseline justify-between gap-3">
-                  <span className="text-[1rem] text-ink">{result.place.name}</span>
-                  <span className="instrument-value shrink-0 text-[0.9375rem] text-accent">
+                  <span className="text-base text-ink">{result.place.name}</span>
+                  <span className="instrument-value shrink-0 text-small text-accent">
                     {formatDistanceKm(result.estimatedRoadKm)} km
                   </span>
                 </div>
                 <div className="mt-1 flex items-center gap-3">
-                  <span className="text-[0.75rem] tracking-[0.1em] text-ink-faint uppercase">
+                  <span className="text-micro tracking-[0.1em] text-ink-faint uppercase">
                     {CATEGORY_LABELS[result.place.category]}
                   </span>
-                  <span className="instrument-value text-[0.75rem] text-ink-faint">
+                  <span className="instrument-value text-micro text-ink-faint">
                     {formatDurationMinutes(result.estimatedRoundTripMinutes)} ida
                     e volta
                   </span>
@@ -127,7 +127,7 @@ export function DiscoveryResults({
       {/* Os números vêm das constantes do domínio: elas existem para serem
           calibradas com dados reais, e um literal aqui passaria a mentir sobre
           como a estimativa foi produzida no dia da calibragem. */}
-      <p className="shrink-0 border-t border-line px-5 py-3 text-[0.75rem] leading-relaxed text-ink-faint">
+      <p className="shrink-0 border-t border-line px-5 py-3 text-micro leading-relaxed text-ink-faint">
         Estimativas em linha reta com fator de estrada, a {AVERAGE_SPEED_KMH}{' '}
         km/h médios, reservando {Math.round((1 - RIDING_TIME_RATIO) * 100)}% do
         tempo para paradas. Não substituem um roteador.

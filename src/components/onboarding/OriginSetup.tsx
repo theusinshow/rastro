@@ -43,7 +43,7 @@ export function OriginSetup() {
         <div className="flex flex-1 flex-col gap-4 overflow-y-auto px-5 py-4">
           <div>
             <span className="instrument-label">Ponto de partida</span>
-            <p className="mt-1.5 text-[1rem] leading-relaxed text-ink-muted">
+            <p className="mt-1.5 text-base leading-relaxed text-ink-muted">
               Clique no mapa onde suas viagens começam. Toda distância e todo
               cálculo de tempo do Rastro partem daqui.
             </p>
@@ -51,7 +51,7 @@ export function OriginSetup() {
 
           <div className="flex flex-col gap-2 border-t border-line pt-4">
             <SectionHeader label="Coordenada" />
-            <p className="instrument-value text-[1.125rem] text-ink">
+            <p className="instrument-value text-lead text-ink">
               {point
                 ? `${formatCoordinate(point.latitude)} ${formatCoordinate(point.longitude)}`
                 : 'aguardando o clique'}

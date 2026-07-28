@@ -44,7 +44,7 @@ export function SectionHeader({
       <div className="flex items-baseline gap-3">
         <span className="instrument-label">{label}</span>
         {hint ? (
-          <span className="text-[0.9375rem] text-ink-faint">{hint}</span>
+          <span className="text-small text-ink-faint">{hint}</span>
         ) : null}
       </div>
       {action}

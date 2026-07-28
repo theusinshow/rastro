@@ -38,10 +38,10 @@ export function PlacePanel({ place, onClose, exiting }: PlacePanelProps) {
           </span>
           {/* `h2`: o `h1` da rota é o título da tela, e o nome de um lugar é
               conteúdo dentro dela — não a identidade do documento. */}
-          <h2 className="mt-1 text-lg leading-tight font-medium text-ink">
+          <h2 className="mt-1 text-title font-medium text-ink">
             {place.name}
           </h2>
-          <p className="mt-1 text-[0.9375rem] text-ink-muted">
+          <p className="mt-1 text-small text-ink-muted">
             {place.municipality} · {place.stateCode}
           </p>
         </div>
@@ -53,7 +53,7 @@ export function PlacePanel({ place, onClose, exiting }: PlacePanelProps) {
           onClick={onClose}
           aria-label="Fechar painel"
           className="-mt-1 -mr-2 flex h-8 w-8 shrink-0 items-center justify-center
-                     text-lg leading-none text-ink-faint transition-colors
+                     text-lead leading-none text-ink-faint transition-colors
                      hover:text-ink"
         >
           ×
@@ -93,7 +93,7 @@ export function PlacePanel({ place, onClose, exiting }: PlacePanelProps) {
         <div className="flex items-center gap-4 border-b border-line px-5 py-3">
           <VisitStatusBadge status={place.visitStatus} />
           {place.lastVisitedAt ? (
-            <span className="instrument-value text-[0.75rem] text-ink-faint">
+            <span className="instrument-value text-micro text-ink-faint">
               {formatVisitDate(place.lastVisitedAt)}
             </span>
           ) : null}
@@ -103,7 +103,7 @@ export function PlacePanel({ place, onClose, exiting }: PlacePanelProps) {
         <PlaceVisits place={place} />
 
         {place.description ? (
-          <p className="px-5 py-4 text-[1rem] leading-relaxed text-ink-muted">
+          <p className="px-5 py-4 text-base leading-relaxed text-ink-muted">
             {place.description}
           </p>
         ) : null}
@@ -113,7 +113,7 @@ export function PlacePanel({ place, onClose, exiting }: PlacePanelProps) {
             {place.tags.map((tag) => (
               <li
                 key={tag}
-                className="border border-line px-1.5 py-0.5 text-[0.75rem]
+                className="border border-line px-1.5 py-0.5 text-micro
                            tracking-[0.08em] text-ink-faint"
               >
                 {tag}
@@ -123,7 +123,7 @@ export function PlacePanel({ place, onClose, exiting }: PlacePanelProps) {
         ) : null}
 
         {originLabel ? (
-          <p className="px-5 pb-4 text-[0.75rem] leading-relaxed text-ink-faint">
+          <p className="px-5 pb-4 text-micro leading-relaxed text-ink-faint">
             Distância e tempo são estimativas em linha reta a partir de{' '}
             {originLabel}, corrigidas por um fator de estrada. Não substituem um
             roteador.

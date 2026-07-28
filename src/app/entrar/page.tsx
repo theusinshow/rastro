@@ -26,19 +26,18 @@ export default async function EntrarPage({
   return (
     <main className="flex h-screen flex-col items-center justify-center bg-void px-6">
       <div className="w-full max-w-sm border-t border-line pt-8">
-        {/* 56px: acima do limiar de detalhe, então aqui a marca aparece com a
-            faixa central e o pin de anel. É a única tela onde ela é o elemento
+        {/* Com placa e em 56px: é a única tela onde a marca é o elemento
             principal, e não um selo ao lado da navegação. */}
-        <span className="flex items-center gap-3 text-[1.125rem] font-semibold tracking-[0.18em] text-ink uppercase">
+        <span className="flex items-center gap-3 text-lead font-semibold tracking-[0.18em] text-ink uppercase">
           <Logo size={56} plate />
           Rastro
         </span>
 
-        <h1 className="mt-6 text-lg leading-tight font-medium text-ink">
+        <h1 className="mt-6 text-title font-medium text-ink">
           O mapa da sua vida sobre duas rodas
         </h1>
 
-        <p className="mt-2 text-[1rem] leading-relaxed text-ink-muted">
+        <p className="mt-2 text-base leading-relaxed text-ink-muted">
           Onde você já esteve, o que ainda quer conhecer, e as histórias que
           ficaram dessas viagens.
         </p>
@@ -51,7 +50,7 @@ export default async function EntrarPage({
             </Button>
           </form>
         ) : (
-          <p className="mt-8 border-t border-line pt-4 text-[0.9375rem] leading-relaxed text-ink-muted">
+          <p className="mt-8 border-t border-line pt-4 text-small leading-relaxed text-ink-muted">
             O banco de dados não está configurado. Defina{' '}
             <span className="instrument-value">NEXT_PUBLIC_SUPABASE_URL</span> e{' '}
             <span className="instrument-value">NEXT_PUBLIC_SUPABASE_ANON_KEY</span>{' '}
@@ -63,13 +62,13 @@ export default async function EntrarPage({
         {erro ? (
           <div className="mt-6 border-t border-line pt-4">
             <span className="instrument-label">Não foi possível entrar</span>
-            <p className="mt-2 text-[0.9375rem] leading-relaxed text-ink-muted">
+            <p className="mt-2 text-small leading-relaxed text-ink-muted">
               {ERROR_MESSAGES[erro] ?? 'A entrada falhou.'}
             </p>
             {/* Mesma decisão do MapLoadError: a mensagem técnica fica visível.
                 Escondê-la trocaria uma causa conhecida por uma tela genérica. */}
             {detalhe ? (
-              <p className="mt-3 text-[0.9375rem] leading-relaxed text-ink-faint">
+              <p className="mt-3 text-small leading-relaxed text-ink-faint">
                 <code className="instrument-value">{detalhe}</code>
               </p>
             ) : null}

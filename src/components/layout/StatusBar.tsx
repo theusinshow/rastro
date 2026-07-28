@@ -24,7 +24,7 @@ export function StatusBar() {
     >
       <span
         className={cn(
-          'instrument-value text-[0.75rem] whitespace-nowrap',
+          'instrument-value text-micro whitespace-nowrap',
           picking ? 'text-accent' : 'text-ink-faint',
         )}
       >
@@ -36,7 +36,7 @@ export function StatusBar() {
       {/* Abaixo de 768px a barra tem 36px de altura fixa e quatro campos a fazem
           quebrar em duas linhas. Coordenada e contagem ficam; zoom e origem são
           os dois que menos mudam durante o uso. */}
-      <span className="instrument-value hidden text-[0.75rem] text-ink-faint md:inline">
+      <span className="instrument-value hidden text-micro text-ink-faint md:inline">
         Z{view ? view.zoom.toFixed(1) : '—'}
       </span>
       {count !== null ? (
@@ -44,7 +44,7 @@ export function StatusBar() {
           // `key` remonta o nó e reinicia o realce a cada valor novo. Sem ele o
           // número muda a 10px num canto e ninguém percebe.
           key={count}
-          className="value-changed instrument-value px-1 text-[0.75rem]
+          className="value-changed instrument-value px-1 text-micro
                      whitespace-nowrap text-ink-faint"
         >
           ● {count} {count === 1 ? 'lugar' : 'lugares'}
@@ -53,7 +53,7 @@ export function StatusBar() {
       {/* Sem origem definida o campo some, em vez de mostrar um lugar que não é
           o seu. É o mesmo princípio do resto: não inventar dado. */}
       {originLabel ? (
-        <span className="ml-auto instrument-value hidden text-[0.75rem] text-ink-faint md:inline">
+        <span className="ml-auto instrument-value hidden text-micro text-ink-faint md:inline">
           ⌂ {originLabel}
         </span>
       ) : null}

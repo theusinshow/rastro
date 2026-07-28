@@ -29,7 +29,7 @@ export function TopBar() {
     >
       <Link
         href="/"
-        className="flex shrink-0 items-center gap-2 text-[1rem] font-semibold
+        className="flex shrink-0 items-center gap-2 text-base font-semibold
                    tracking-[0.18em] text-ink uppercase"
       >
         <Logo size={26} />
@@ -51,7 +51,7 @@ export function TopBar() {
                   href={item.href}
                   aria-current={active ? 'page' : undefined}
                   className={cn(
-                    'block px-2 py-2.5 text-[0.9375rem] whitespace-nowrap uppercase',
+                    'block px-2 py-2.5 text-small whitespace-nowrap uppercase',
                     'tracking-[0.12em] transition-colors md:px-3',
                     active
                       ? 'text-accent'
@@ -71,7 +71,7 @@ export function TopBar() {
           todo, e ambas competiriam com a navegação se tivessem mais peso. */}
       <Link
         href="/lugar/novo"
-        className="ml-auto shrink-0 px-2 py-2.5 text-[0.9375rem] tracking-[0.12em]
+        className="ml-auto shrink-0 px-2 py-2.5 text-small tracking-[0.12em]
                    whitespace-nowrap text-ink-faint uppercase transition-colors
                    hover:text-ink-muted"
       >
@@ -81,7 +81,7 @@ export function TopBar() {
       <form action={signOutAction} className="shrink-0">
         <button
           type="submit"
-          className="px-2 py-2.5 text-[0.9375rem] tracking-[0.12em] whitespace-nowrap
+          className="px-2 py-2.5 text-small tracking-[0.12em] whitespace-nowrap
                      text-ink-faint uppercase transition-colors hover:text-ink-muted"
         >
           Sair

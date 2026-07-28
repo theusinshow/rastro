@@ -18,7 +18,7 @@ export function VisitStatusBadge({ status }: { status: VisitStatus }) {
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 text-[0.75rem] uppercase',
+        'inline-flex items-center gap-1.5 text-micro uppercase',
         'tracking-[0.14em] before:h-1.5 before:w-1.5 before:rounded-full',
         'before:content-[""]',
         STATUS_CLASS[status],

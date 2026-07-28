@@ -7,7 +7,7 @@ export function DataFallback() {
     <div className="pointer-events-auto absolute inset-0 flex items-center justify-center bg-void px-6">
       <div className="max-w-md border-t border-line pt-4">
         <span className="instrument-label">Banco não configurado</span>
-        <p className="mt-2 text-[1rem] leading-relaxed text-ink-muted">
+        <p className="mt-2 text-base leading-relaxed text-ink-muted">
           Defina <span className="instrument-value">NEXT_PUBLIC_SUPABASE_URL</span>{' '}
           e{' '}
           <span className="instrument-value">NEXT_PUBLIC_SUPABASE_ANON_KEY</span>{' '}

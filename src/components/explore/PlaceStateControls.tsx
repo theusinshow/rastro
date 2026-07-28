@@ -10,7 +10,7 @@ import { InlineMessage } from '@/components/ui/InlineMessage'
 import { cn } from '@/lib/utils/cn'
 
 const BASE_CLASS =
-  'press inline-flex h-10 items-center rounded-full border px-4 text-[1rem]'
+  'press inline-flex h-10 items-center rounded-full border px-4 text-base'
 const INACTIVE_CLASS =
   'border-line-strong text-ink-muted hover:bg-overlay hover:text-ink'
 
@@ -85,7 +85,7 @@ export function PlaceStateControls({ place }: { place: ExplorePlace }) {
       {/* Uma visita registrada vence o interesse na leitura do pin. Dizer isso
           evita que o botão pareça quebrado em lugar já visitado. */}
       {place.visitStatus === 'visitado' && wanted ? (
-        <p className="mt-3 text-[0.9375rem] leading-relaxed text-ink-faint">
+        <p className="mt-3 text-small leading-relaxed text-ink-faint">
           Você já esteve aqui, então o pin mostra visitado.
         </p>
       ) : null}

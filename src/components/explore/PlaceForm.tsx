@@ -91,13 +91,13 @@ export function PlaceForm({
           <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-5 py-4">
             <div className="flex flex-col gap-2">
               <SectionHeader label="Coordenada" />
-              <p className="instrument-value text-[1.125rem] text-ink">
+              <p className="instrument-value text-lead text-ink">
                 {point
                   ? `${formatCoordinate(point.latitude)} ${formatCoordinate(point.longitude)}`
                   : 'clique no mapa'}
               </p>
               {picking ? (
-                <p className="text-[0.9375rem] leading-relaxed text-ink-faint">
+                <p className="text-small leading-relaxed text-ink-faint">
                   A barra de status mostra a coordenada sob o cursor.
                 </p>
               ) : null}
