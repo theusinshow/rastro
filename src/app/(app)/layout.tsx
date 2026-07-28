@@ -6,6 +6,7 @@ import { StatusBar } from '@/components/layout/StatusBar'
 import { TopBar } from '@/components/layout/TopBar'
 import { MapCanvas } from '@/components/map/MapCanvas'
 import { MapProvider } from '@/components/map/map-context'
+import { PickerProvider } from '@/components/map/picker-context'
 
 export default async function AppLayout({
   children,
@@ -22,7 +23,8 @@ export default async function AppLayout({
       label={profile?.homeLabel ?? null}
     >
       <MapProvider>
-        <VisiblePlacesProvider>
+        <PickerProvider>
+          <VisiblePlacesProvider>
           <div className="flex h-screen flex-col overflow-hidden bg-void">
             <TopBar />
 
@@ -44,7 +46,8 @@ export default async function AppLayout({
 
             <StatusBar />
           </div>
-        </VisiblePlacesProvider>
+          </VisiblePlacesProvider>
+        </PickerProvider>
       </MapProvider>
     </OriginProvider>
   )

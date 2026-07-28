@@ -20,6 +20,9 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 - Perfil criado automaticamente no primeiro login, sem origem definida: a origem
   é escolhida por você, e inventar uma faria o produto mentir sobre distâncias
   na primeira sessão
+- Escolher uma coordenada passa a ser um clique no mapa, e a coordenada ao vivo
+  da barra de status — que até aqui era só mostrador — vira a mira: o número que
+  você lê é o que vai ser gravado
 - Entrada pelo Google, em um toque e sem senha — o produto é usado na estrada, e
   digitar senha de luva não é um requisito razoável
 - A tela de entrada diz em texto quando o banco não está configurado, em vez de
