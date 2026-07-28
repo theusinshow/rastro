@@ -20,6 +20,10 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 - Perfil criado automaticamente no primeiro login, sem origem definida: a origem
   é escolhida por você, e inventar uma faria o produto mentir sobre distâncias
   na primeira sessão
+- Criar um lugar: clicar no mapa define onde é, e o formulário pede nome,
+  categoria, município e descrição. O mapa deixa de ser um catálogo que alguém
+  escolheu por você e passa a ser o seu
+- Lugares criados por você nascem privados
 - "Quero conhecer" passa a gravar, e o pin muda de cor no mapa
 - Histórico de visitas por lugar: registrar uma visita acrescenta uma data ao
   seu histórico em vez de acender uma chave, e voltar ao mesmo lugar acrescenta

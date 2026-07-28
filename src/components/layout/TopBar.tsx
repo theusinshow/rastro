@@ -66,8 +66,18 @@ export function TopBar() {
       </nav>
 
       {/* Texto, não ícone: o produto não tem conjunto de ícones e é melhor por
-          isso. Peso terciário — sair não é uma ação que se procura. */}
-      <form action={signOutAction} className="ml-auto shrink-0">
+          isso. Peso terciário — nenhuma das duas é ação que se procura o tempo
+          todo, e ambas competiriam com a navegação se tivessem mais peso. */}
+      <Link
+        href="/lugar/novo"
+        className="ml-auto shrink-0 px-2 py-2.5 text-[11px] tracking-[0.12em]
+                   whitespace-nowrap text-ink-faint uppercase transition-colors
+                   hover:text-ink-muted"
+      >
+        Novo lugar
+      </Link>
+
+      <form action={signOutAction} className="shrink-0">
         <button
           type="submit"
           className="px-2 py-2.5 text-[11px] tracking-[0.12em] whitespace-nowrap

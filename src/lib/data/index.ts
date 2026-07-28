@@ -1,7 +1,9 @@
 import { createServerSupabaseClient } from '@/lib/supabase/server'
+import type { PlaceCatalogRepository } from './place-catalog-repository'
 import type { PlaceRepository } from './place-repository'
 import type { PlaceStateRepository } from './place-state-repository'
 import type { ProfileRepository } from './profile-repository'
+import { createSupabasePlaceCatalogRepository } from './supabase/supabase-place-catalog-repository'
 import { createSupabasePlaceRepository } from './supabase/supabase-place-repository'
 import { createSupabasePlaceStateRepository } from './supabase/supabase-place-state-repository'
 import { createSupabaseProfileRepository } from './supabase/supabase-profile-repository'
@@ -45,4 +47,14 @@ export async function getProfileRepository(): Promise<ProfileRepository> {
   return createSupabaseProfileRepository(supabase, userId)
 }
 
-export type { PlaceRepository, PlaceStateRepository, ProfileRepository }
+export async function getPlaceCatalogRepository(): Promise<PlaceCatalogRepository> {
+  const { supabase, userId } = await sessionContext()
+  return createSupabasePlaceCatalogRepository(supabase, userId)
+}
+
+export type {
+  PlaceCatalogRepository,
+  PlaceRepository,
+  PlaceStateRepository,
+  ProfileRepository,
+}
