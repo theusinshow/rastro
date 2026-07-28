@@ -1,34 +1,26 @@
 /**
  * Marca do Rastro: um R cuja perna é uma estrada terminando num destino.
  *
- * A geometria da letra e da estrada é a mesma de `src/app/icon.svg` — ao mexer
- * numa, mexa na outra. O Next exige um arquivo estático para o favicon, então os
- * dois não podem compartilhar código.
+ * A geometria é a mesma de `src/app/icon.svg` — ao mexer numa, mexa na outra. O
+ * Next exige um arquivo estático para o favicon, então as duas não podem
+ * compartilhar código.
  *
- * O desenho muda por faixa de tamanho, e isso é decisão, não conveniência:
- *
- * - **Abaixo de 48px** a estrada é um traço liso e o destino é um ponto cheio. O
- *   tracejado vira borrão e o anel rouba âmbar de um desenho que já tem pouco.
- * - **De 48px para cima** entram a faixa central — o sinal mais direto de
- *   "estrada" que existe — e o pin de anel, que ecoa a linguagem dos pins do
- *   mapa (miolo colorido, anel externo; ver ADR 0005). Aí a marca passa a ser
- *   literalmente um lugar no mapa no fim de uma estrada.
+ * A faixa central tracejada é o que faz a estrada ler como estrada: sem ela, o
+ * traço âmbar tem a mesma espessura e a mesma ponta do talo, e o olho vê um
+ * segundo traço da letra. O tracejado é desenhado na cor do fundo — é asfalto
+ * cortado, não uma linha por cima.
  */
-const DETAIL_FROM = 48
+const ROAD = 'M26 32c1 10 13 7 17 15'
 
 interface LogoProps {
-  /** Lado do quadrado, em px. Decide qual das duas versões é desenhada. */
+  /** Lado do quadrado, em px. */
   size?: number
   /** Placa de fundo arredondada. Ícone de app usa; dentro da interface, não. */
   plate?: boolean
   className?: string
 }
 
-const ROAD_PATH = 'M30 33q4 10 11 15'
-
 export function Logo({ size = 24, plate = false, className }: LogoProps) {
-  const detailed = size >= DETAIL_FROM
-
   return (
     <svg
       viewBox="0 0 64 64"
@@ -44,49 +36,23 @@ export function Logo({ size = 24, plate = false, className }: LogoProps) {
         <rect width="64" height="64" rx="14" fill="var(--color-base)" />
       ) : null}
 
-      <path
-        d="M19 52V12h12a10 10 0 0 1 0 20H19"
-        fill="none"
-        stroke="var(--color-ink)"
-        strokeWidth={7}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-
-      <path
-        d={ROAD_PATH}
-        fill="none"
-        stroke="var(--color-accent)"
-        strokeWidth={detailed ? 7 : 6}
-        strokeLinecap="round"
-      />
-
-      {detailed ? (
+      <g fill="none" strokeWidth={7} strokeLinecap="round" strokeLinejoin="round">
+        <path d="M17 53V11h14a9.5 9.5 0 0 1 0 19H17" stroke="var(--color-ink)" />
+        <path d={ROAD} stroke="var(--color-accent)" />
         <path
-          d={ROAD_PATH}
-          fill="none"
+          d={ROAD}
           stroke={plate ? 'var(--color-base)' : 'var(--color-void)'}
-          strokeWidth={1.6}
+          strokeWidth={1.7}
           strokeDasharray="2.2 3.4"
-          strokeLinecap="round"
         />
-      ) : null}
-
-      {detailed ? (
-        <>
-          <circle
-            cx="45.5"
-            cy="51"
-            r="5.4"
-            fill="none"
-            stroke="var(--color-ink)"
-            strokeWidth={2}
-          />
-          <circle cx="45.5" cy="51" r="2.6" fill="var(--color-accent)" />
-        </>
-      ) : (
-        <circle cx="45.5" cy="51" r="4" fill="var(--color-accent)" />
-      )}
+        <circle
+          cx="48.5"
+          cy="54.5"
+          r="3.4"
+          fill="var(--color-accent)"
+          stroke="none"
+        />
+      </g>
     </svg>
   )
 }

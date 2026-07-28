@@ -291,39 +291,38 @@ cerca de doze cabeçalhos montados à mão. `Divider` é o hairline nomeado.
 Um **R cuja perna é uma estrada terminando num destino**. É a pergunta central do
 produto — *para onde eu vou?* — desenhada.
 
-Regras de construção:
+**Um desenho só, em todos os tamanhos.** A faixa central tracejada é o que faz a
+estrada ler como estrada: sem ela o traço âmbar tem a mesma espessura e a mesma
+ponta do talo, e o olho vê um segundo traço da letra em vez de uma estrada.
 
-- **A perna nasce na junção talo–barriga e desce até a mesma linha de base do
-  talo.** Sem isso o desenho lê "P com rabo" abaixo de 32px. Foi o defeito da
-  primeira versão.
-- **A estrada é um grau mais fina que a letra.** Mesma espessura faria o olho ler
-  dois traços do mesmo material, não letra e estrada.
-- **Talo, fim da estrada e destino compartilham a linha de base.**
-- Cores: `--color-base` na placa, `--color-ink` na letra, `--color-accent` na
-  estrada. Raio da placa: `--radius-md`.
+O tracejado é desenhado **na cor do fundo**, não em osso — é asfalto cortado, não
+uma linha por cima. Ele sobrevive legível até 24px.
 
-### Duas versões, por faixa de tamanho
+Cores: `base` na placa, `ink` na letra, `accent` na estrada e no destino. Raio da
+placa: `radius-md`.
 
-| Faixa | Versão | Onde |
-|---|---|---|
-| **< 48px** | Estrada lisa, destino como ponto cheio | `src/app/icon.svg` (favicon), `TopBar` |
-| **≥ 48px** | Estrada com faixa central tracejada, destino como pin de anel | `src/app/apple-icon.png`, tela `/entrar` |
+### Onde ela aparece
 
-Não é meio-termo: abaixo de 48px o tracejado vira borrão e o anel rouba âmbar de
-um desenho que já tem pouco. Acima, o tracejado é o sinal mais direto de
-"estrada" que existe, e o **pin de anel ecoa a linguagem dos pins do mapa**
-(miolo colorido, anel externo — [ADR 0005](./decisions/0005-pins-como-camadas-data-driven.md)).
-Nessa faixa a marca é literalmente um lugar no mapa no fim de uma estrada.
-
-`Logo` (`src/components/ui/Logo.tsx`) escolhe a versão pelo `size`:
+| Arquivo | Uso |
+|---|---|
+| `src/app/icon.svg` | Favicon e aba do navegador |
+| `src/app/apple-icon.png` | 180px, ícone na tela inicial do celular |
+| `src/components/ui/Logo.tsx` | Dentro da interface — `TopBar` e tela `/entrar` |
 
 ```tsx
-<Logo size={26} />            // TopBar — versão simples, sem placa
-<Logo size={56} plate />      // /entrar — versão detalhada, com placa
+<Logo size={26} />          // TopBar — sem placa, sobre a barra
+<Logo size={56} plate />    // /entrar — com placa, como elemento principal
 ```
 
-**A geometria vive em dois arquivos** — o componente e `src/app/icon.svg` — porque
-o Next exige arquivo estático para o favicon. Ao mexer num, mexa no outro.
+**A geometria vive em dois arquivos** — o componente e `src/app/icon.svg` —
+porque o Next exige arquivo estático para o favicon. Ao mexer num, mexa no outro.
+
+> **Armadilha do `icon.svg`:** comentário XML não pode conter dois hifens
+> seguidos. Escrever o nome de um token com o prefixo de variável CSS dentro do
+> comentário torna o arquivo inválido, e o navegador simplesmente **para de
+> desenhar o ícone** — sem erro no console, sem aviso no build, e com a tag
+> `<link rel="icon">` ainda presente no `<head>`. Aconteceu, e só apareceu ao
+> renderizar o arquivo de verdade.
 
 A marca é sempre `aria-hidden`: onde ela aparece, a palavra "Rastro" aparece
 junto, e anunciá-la seria repetir.

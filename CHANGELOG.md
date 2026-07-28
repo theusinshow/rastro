@@ -61,10 +61,8 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   destino. Ela aparece na barra superior, na tela de entrada, na aba do navegador
   e como ícone quando o app é salvo na tela inicial do celular — no lugar do
   ícone padrão do framework, que era o que estava lá
-- Em tamanho grande a marca mostra a faixa central da estrada e o destino como
-  pin de anel, o mesmo desenho que o mapa usa para marcar um lugar. Em tamanho
-  pequeno os dois somem, porque virariam borrão: são duas versões, não uma
-  encolhida
+- A estrada da marca ganha faixa central tracejada, que é o que a faz ler como
+  estrada e não como um segundo traço da letra
 - Campos de formulário, mensagens de estado e cabeçalhos de seção viram peças do
   sistema em vez de serem remontados a cada tela — a mesma marcação estava colada
   à mão em onze lugares, e um deles esquecia a ligação entre rótulo e campo que

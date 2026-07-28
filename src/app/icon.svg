@@ -1,33 +1,32 @@
 <!--
-  Marca do Rastro — faixa de favicon (16–32px).
+  Marca do Rastro: um R cuja perna é uma estrada terminando num destino.
 
-  Um R cuja perna é uma estrada terminando num destino. A perna nasce na junção
-  talo-barriga e desce até a mesma linha de base do talo: sem isso o desenho lê
-  "P com rabo" nos tamanhos pequenos.
+  A faixa central tracejada é o que faz a estrada ler como estrada. Sem ela o
+  traço âmbar tem a mesma espessura e a mesma ponta do talo, e o olho vê um
+  segundo traço da letra. O tracejado é desenhado na cor da placa, não em osso:
+  é asfalto cortado, não uma linha por cima.
 
-  Esta é a versão SIMPLES de propósito. A faixa central tracejada e o pin de anel
-  ficam na versão de exibição (`src/components/ui/Logo.tsx`), porque abaixo de
-  48px os dois viram borrão e o âmbar perde presença. A geometria da letra e da
-  estrada é a mesma nos dois arquivos — ao mexer aqui, mexa lá.
+  Cores e raio vêm dos tokens de globals.css (base, ink, accent, radius-md),
+  repetidos aqui como literal porque um favicon não lê variável CSS.
 
-  Cores: --color-base, --color-ink, --color-accent. Raio 14 = --radius-md.
+  ATENÇÃO: comentário XML não pode conter dois hifens seguidos. Escrever o nome
+  de um token com o prefixo de variável CSS aqui torna o arquivo inválido e o
+  navegador para de desenhar o ícone, sem erro visível em lugar nenhum.
+
+  A mesma geometria vive em src/components/ui/Logo.tsx, porque o Next exige um
+  arquivo estático para o favicon. Ao mexer aqui, mexa lá.
 -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
   <rect width="64" height="64" rx="14" fill="#1C1712" />
-  <path
-    d="M19 52V12h12a10 10 0 0 1 0 20H19"
-    fill="none"
-    stroke="#F0E4D2"
-    stroke-width="7"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-  />
-  <path
-    d="M30 33q4 10 11 15"
-    fill="none"
-    stroke="#E0A02E"
-    stroke-width="6"
-    stroke-linecap="round"
-  />
-  <circle cx="45.5" cy="51" r="4" fill="#E0A02E" />
+  <g fill="none" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M17 53V11h14a9.5 9.5 0 0 1 0 19H17" stroke="#F0E4D2" />
+    <path d="M26 32c1 10 13 7 17 15" stroke="#E0A02E" />
+    <path
+      d="M26 32c1 10 13 7 17 15"
+      stroke="#1C1712"
+      stroke-width="1.7"
+      stroke-dasharray="2.2 3.4"
+    />
+    <circle cx="48.5" cy="54.5" r="3.4" fill="#E0A02E" stroke="none" />
+  </g>
 </svg>
