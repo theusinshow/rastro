@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { signOutAction } from '@/app/entrar/actions'
+import { Logo } from '@/components/ui/Logo'
 import { cn } from '@/lib/utils/cn'
 
 const NAV_ITEMS = [
@@ -31,7 +32,7 @@ export function TopBar() {
         className="flex shrink-0 items-center gap-2 text-[1rem] font-semibold
                    tracking-[0.18em] text-ink uppercase"
       >
-        <span aria-hidden className="h-3.5 w-0.5 bg-accent" />
+        <Logo size={26} />
         Rastro
       </Link>
 

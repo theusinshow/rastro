@@ -1,5 +1,6 @@
 import { isSupabaseConfigured } from '@/lib/supabase/server'
 import { Button } from '@/components/ui/Button'
+import { Logo } from '@/components/ui/Logo'
 import { signInWithGoogleAction } from './actions'
 
 const ERROR_MESSAGES: Record<string, string> = {
@@ -25,8 +26,11 @@ export default async function EntrarPage({
   return (
     <main className="flex h-screen flex-col items-center justify-center bg-void px-6">
       <div className="w-full max-w-sm border-t border-line pt-8">
-        <span className="flex items-center gap-2 text-[1rem] font-semibold tracking-[0.18em] text-ink uppercase">
-          <span aria-hidden className="h-3.5 w-0.5 bg-accent" />
+        {/* 56px: acima do limiar de detalhe, então aqui a marca aparece com a
+            faixa central e o pin de anel. É a única tela onde ela é o elemento
+            principal, e não um selo ao lado da navegação. */}
+        <span className="flex items-center gap-3 text-[1.125rem] font-semibold tracking-[0.18em] text-ink uppercase">
+          <Logo size={56} plate />
           Rastro
         </span>
 

@@ -1,0 +1,33 @@
+<!--
+  Marca do Rastro — faixa de favicon (16–32px).
+
+  Um R cuja perna é uma estrada terminando num destino. A perna nasce na junção
+  talo-barriga e desce até a mesma linha de base do talo: sem isso o desenho lê
+  "P com rabo" nos tamanhos pequenos.
+
+  Esta é a versão SIMPLES de propósito. A faixa central tracejada e o pin de anel
+  ficam na versão de exibição (`src/components/ui/Logo.tsx`), porque abaixo de
+  48px os dois viram borrão e o âmbar perde presença. A geometria da letra e da
+  estrada é a mesma nos dois arquivos — ao mexer aqui, mexa lá.
+
+  Cores: --color-base, --color-ink, --color-accent. Raio 14 = --radius-md.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <rect width="64" height="64" rx="14" fill="#1C1712" />
+  <path
+    d="M19 52V12h12a10 10 0 0 1 0 20H19"
+    fill="none"
+    stroke="#F0E4D2"
+    stroke-width="7"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <path
+    d="M30 33q4 10 11 15"
+    fill="none"
+    stroke="#E0A02E"
+    stroke-width="6"
+    stroke-linecap="round"
+  />
+  <circle cx="45.5" cy="51" r="4" fill="#E0A02E" />
+</svg>
