@@ -14,6 +14,11 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Adicionado
 
+- Um lugar passa a carregar o histórico de visitas e a informação de quem o
+  criou — as duas coisas que o painel precisa para deixar de ser só leitura
+- Validação de lugar como função pura e testada: nome, coordenada e categoria
+  são recusados em português antes de qualquer ida ao servidor, espelhando as
+  mesmas faixas que o banco impõe
 - Conexão com o Supabase, criada por requisição e apenas no servidor: nenhum
   quilobyte de cliente de banco entra no navegador, num produto cujo peso de
   JavaScript já é quase todo mapa

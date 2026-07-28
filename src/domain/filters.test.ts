@@ -24,6 +24,8 @@ function place(overrides: Partial<ExplorePlace>): ExplorePlace {
     source: 'mock',
     visitStatus: 'nao-visitado',
     isFavorite: false,
+    visits: [],
+    isOwn: false,
     photoCount: 0,
     lastVisitedAt: null,
     ...overrides,

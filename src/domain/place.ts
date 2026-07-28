@@ -54,6 +54,74 @@ export interface Place {
   source: PlaceSource
 }
 
+/** Uma passagem registrada por um lugar. */
+export interface PlaceVisit {
+  id: string
+  /** Data civil, `YYYY-MM-DD`. Sem hora: a memória é do dia, não do instante. */
+  visitedAt: string
+  notes: string | null
+  rating: number | null
+}
+
+/** Campos que o usuário informa ao criar ou editar um lugar. */
+export interface NewPlace {
+  name: string
+  description: string
+  latitude: number
+  longitude: number
+  municipality: string
+  category: PlaceCategory
+  tags: string[]
+}
+
+export type PlaceValidationError =
+  | 'name-required'
+  | 'name-too-long'
+  | 'latitude-out-of-range'
+  | 'longitude-out-of-range'
+  | 'invalid-category'
+
+export const PLACE_VALIDATION_MESSAGES: Record<PlaceValidationError, string> = {
+  'name-required': 'Dê um nome ao lugar.',
+  'name-too-long': 'O nome passa de 120 caracteres.',
+  'latitude-out-of-range': 'A latitude está fora da faixa de -90 a 90.',
+  'longitude-out-of-range': 'A longitude está fora da faixa de -180 a 180.',
+  'invalid-category': 'Escolha uma categoria da lista.',
+}
+
+const MAX_NAME_LENGTH = 120
+
+/**
+ * Erros de um lugar informado pelo usuário. Lista vazia significa válido.
+ *
+ * Acumula em vez de parar no primeiro: corrigir um campo por vez, com uma ida ao
+ * servidor entre cada, é o tipo de formulário que este produto não quer ser.
+ *
+ * As faixas de coordenada espelham de propósito as constraints
+ * `places_latitude_range` e `places_longitude_range` da migration 0001 — o banco
+ * continua sendo a autoridade, e isto existe para que a recusa chegue em PT-BR
+ * antes da ida ao servidor.
+ */
+export function validateNewPlace(input: NewPlace): PlaceValidationError[] {
+  const errors: PlaceValidationError[] = []
+
+  const name = input.name.trim()
+  if (name.length === 0) errors.push('name-required')
+  else if (name.length > MAX_NAME_LENGTH) errors.push('name-too-long')
+
+  if (!Number.isFinite(input.latitude) || Math.abs(input.latitude) > 90) {
+    errors.push('latitude-out-of-range')
+  }
+  if (!Number.isFinite(input.longitude) || Math.abs(input.longitude) > 180) {
+    errors.push('longitude-out-of-range')
+  }
+  if (!PLACE_CATEGORIES.includes(input.category)) {
+    errors.push('invalid-category')
+  }
+
+  return errors
+}
+
 /** Vínculo entre um usuário e um lugar. */
 export interface PlaceUserState {
   placeId: string
@@ -109,11 +177,28 @@ export interface ExplorePlace extends Place {
   isFavorite: boolean
   photoCount: number
   lastVisitedAt: string | null
+  /**
+   * Histórico completo, do mais recente ao mais antigo.
+   *
+   * Vive no modelo de lista, e não numa busca separada quando o painel abre,
+   * porque o produto é pessoal: dezenas de lugares, poucas visitas cada. O embed
+   * custa quase nada; uma busca sob demanda custaria um mecanismo de fetch no
+   * cliente que não compra nada hoje.
+   *
+   * Gatilho para reconsiderar, no espírito do ADR 0004: catálogo passando de
+   * alguns milhares de lugares, ou histórico de um lugar passando de algumas
+   * dezenas de visitas.
+   */
+  visits: PlaceVisit[]
+  /** Lugar criado por este usuário — o único que ele pode editar ou apagar. */
+  isOwn: boolean
 }
 
 export function toExplorePlace(
   place: Place,
   userState: PlaceUserState,
+  visits: PlaceVisit[] = [],
+  isOwn = false,
 ): ExplorePlace {
   return {
     ...place,
@@ -121,5 +206,7 @@ export function toExplorePlace(
     isFavorite: userState.isFavorite,
     photoCount: userState.photoCount,
     lastVisitedAt: userState.lastVisitedAt,
+    visits,
+    isOwn,
   }
 }
