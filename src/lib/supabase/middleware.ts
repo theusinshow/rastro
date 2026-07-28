@@ -5,7 +5,19 @@ import { readSupabaseConfig } from './config'
 /** Rotas alcançáveis sem sessão. */
 const PUBLIC_PATHS = ['/entrar', '/auth/callback']
 
+/**
+ * A entrada por senha de desenvolvimento precisa ser alcançável sem sessão —
+ * é ela que cria a sessão. Some em produção junto com a própria rota, que
+ * devolve 404 lá. Ver `src/app/entrar-dev/route.ts`.
+ */
 function isPublic(pathname: string): boolean {
+  if (
+    process.env.NODE_ENV !== 'production' &&
+    process.env.RASTRO_DEV_LOGIN_EMAIL &&
+    pathname.startsWith('/entrar-dev')
+  ) {
+    return true
+  }
   return PUBLIC_PATHS.some((path) => pathname.startsWith(path))
 }
 
