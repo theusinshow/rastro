@@ -166,6 +166,9 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Alterado
 
+- Os lugares passam a vir do banco, e não mais de um arquivo em memória. Sem
+  configuração de banco a aplicação diz isso em texto, em vez de mostrar dados de
+  exemplo e dar a impressão de que gravaria alguma coisa
 - Texto terciário mais claro (`#7b8884` no lugar de `#5e6b66`): a statusbar, a
   contagem do recorte e os rótulos de instrumento estavam abaixo do mínimo de
   contraste da WCAG AA e agora passam
