@@ -14,6 +14,9 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Adicionado
 
+- Plano de implementação da segunda fase em catorze tarefas, com código, testes,
+  passos manuais de infraestrutura e critérios de verificação por passo
+  (`docs/superpowers/plans/2026-07-27-rastro-persistencia-e-identidade.md`)
 - Documento de design da segunda fase — persistência e identidade — definindo
   como o Rastro deixa de ser demonstração e passa a guardar o que é seu: conta
   própria, favoritos e visitas que duram, e lugares criados por você
