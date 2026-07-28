@@ -162,8 +162,11 @@
 
     /* Larguras de painel. Estavam espalhadas como literais em quatro arquivos,
        e o `padding` da câmera do mapa precisa bater com elas. */
-    --panel-narrow: 232px;
-    --panel-base: 340px;
+    /* 280px, e não 232: a trilha foi calibrada quando o texto tinha 10px. Com o
+       piso de 17px do ADR 0009, "QUERO CONHECER" quebrava em duas linhas e os
+       nomes truncavam no meio, deixando a lista com alturas irregulares. */
+    --panel-narrow: 280px;
+    --panel-base: 380px;
     --panel-wide: 420px;
 
     /* Empilhamento. Estava só num comentário, e sem os controles do MapLibre

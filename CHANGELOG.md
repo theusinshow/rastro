@@ -208,6 +208,17 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Alterado
 
+- A navegação principal marca onde você está com um traço âmbar, e não só com a
+  cor do texto — quem não distingue os dois tons continuava sem saber em que
+  tela estava
+- "Novo lugar" deixa de ser um item de navegação e vira ação com contorno, com
+  uma hairline separando "Sair". As duas ficavam coladas e com o mesmo peso:
+  errar o alvo custava a sessão
+- "Para onde vamos?" passa a ser centralizado na área de mapa, e não na página.
+  A trilha da esquerda empurrava o centro óptico e o botão ficava visivelmente
+  torto em relação ao mapa que ele comanda
+- O enquadramento inicial do mapa mostra mais continente e menos Atlântico. O
+  oceano continua lá, mas deixa de ser o protagonista de um app sobre estradas
 - A trilha da esquerda abre mostrando os **lugares**, não os filtros. Antes eles
   ocupavam mais espaço do que a coluna tinha: a seção "Situação" ficava cortada
   ao meio e seus quatro controles não apareciam na tela, e a lista sobrava com um
@@ -300,6 +311,11 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Corrigido
 
+- **Os pins não apareciam no mapa.** A mudança que fez o pin crescer com o número
+  de visitas montou a escala de tamanho de um jeito que a biblioteca de mapa
+  rejeita, e ela descartava a camada inteira em silêncio — sem erro no console,
+  sem falha no carregamento, e com todos os testes passando. O mapa ficou sem
+  nenhum dos catorze pins até isto ser visto na tela
 - A tela de entrada dizia "a volta do Google veio sem o código de autorização"
   quando o Google tinha autorizado normalmente e a falha era outra, na troca do
   código por sessão. A explicação real vinha na resposta e era descartada; agora

@@ -15,15 +15,19 @@ import { useSelectedPlace } from './use-selected-place'
 import { useSetVisiblePlaceCount } from './visible-places-context'
 
 /**
- * Espaço tomado pelos painéis desta rota: 232px de trilha à esquerda, 380px de
- * painel de lugar à direita. Constante de módulo porque um literal novo a cada
- * render remontaria o efeito de câmera.
+ * Espaço tomado pelos painéis desta rota. Precisa bater com `--panel-narrow` e
+ * `--panel-base` de `globals.css`: a câmera do MapLibre roda em JavaScript e não
+ * lê variável CSS, então os dois números são espelhados à mão. Divergir faz o
+ * pin selecionado terminar embaixo de um painel.
+ *
+ * Constante de módulo porque um literal novo a cada render remontaria o efeito
+ * de câmera.
  */
 const CAMERA_PADDING: PaddingOptions = {
   top: 60,
   right: 380,
   bottom: 40,
-  left: 232,
+  left: 280,
 }
 
 /**

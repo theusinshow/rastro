@@ -175,12 +175,22 @@ function weightFactor(): ExpressionSpecification {
  *
  * Os anéis externos usam o mesmo par para crescerem junto: se só o miolo
  * crescesse, o anel de favorito descolaria e o pin leria como dois objetos.
+ *
+ * **A interpolação por `zoom` precisa ser a expressão mais externa.** Aninhá-la
+ * dentro do `*` é inválido na especificação de estilo, e o MapLibre rejeita a
+ * camada inteira em silêncio: os catorze pins simplesmente não desenhavam, sem
+ * erro no console e sem falha no `load`. Por isso o peso multiplica cada parada
+ * da escala, em vez de multiplicar a escala inteira.
  */
 function weightedRadius(near: number, far: number): ExpressionSpecification {
   return [
-    '*',
-    ['interpolate', ['linear'], ['zoom'], 6, near, 12, far],
-    weightFactor(),
+    'interpolate',
+    ['linear'],
+    ['zoom'],
+    6,
+    ['*', near, weightFactor()],
+    12,
+    ['*', far, weightFactor()],
   ]
 }
 

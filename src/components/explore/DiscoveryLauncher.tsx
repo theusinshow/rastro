@@ -13,16 +13,23 @@ import Link from 'next/link'
  * (`src/app/globals.css`), a mesma variável que `.overlay-panel` usa como
  * `max-height`: mudar a altura da folha num lugar só move o botão junto, em
  * vez de os dois números divergirem em silêncio.
+ *
+ * A partir de 768px ele centraliza **na área de mapa**, não na viewport: a
+ * trilha de 232px empurra o centro óptico 116px para a direita, e centralizar na
+ * página deixava o botão visivelmente à esquerda do mapa que ele comanda. O
+ * deslocamento lê `--panel-narrow`, então mudar a largura da trilha move o botão
+ * junto.
  */
 export function DiscoveryLauncher() {
   return (
     <Link
       href="/descobrir"
       className="press pointer-events-auto absolute bottom-[calc(var(--sheet-height)+12px)]
-                 left-1/2 flex -translate-x-1/2 items-center gap-3 border
-                 border-accent bg-base px-5 py-2.5 text-small font-semibold
-                 tracking-[0.16em] whitespace-nowrap text-accent uppercase
-                 hover:bg-accent/10 md:bottom-5"
+                 left-1/2 flex -translate-x-1/2 items-center gap-3 rounded-sm
+                 border border-accent bg-base px-5 py-2.5 text-small
+                 font-semibold tracking-[0.16em] whitespace-nowrap text-accent
+                 uppercase hover:bg-accent/10 md:bottom-5 md:left-(--panel-narrow)
+                 md:right-0 md:mx-auto md:w-fit md:translate-x-0"
     >
       Para onde vamos?
       <span aria-hidden>→</span>

@@ -2,7 +2,13 @@ import { cn } from '@/lib/utils/cn'
 
 interface OverlayPanelProps {
   side: 'left' | 'right'
-  /** Largura em pixels a partir de 768px. Padrão: 380 à direita, 232 à esquerda. */
+  /**
+   * Largura em pixels a partir de 768px.
+   *
+   * Sem valor, cada lado usa o seu token: `--panel-base` à direita e
+   * `--panel-narrow` à esquerda. Os números estavam literais aqui e nos tokens
+   * ao mesmo tempo, e mudar a trilha exigia lembrar dos dois.
+   */
   width?: number
   /**
    * Altura da folha inferior abaixo de 768px. Padrão: 45vh.
@@ -42,7 +48,11 @@ export function OverlayPanel({
       data-exiting={exiting}
       style={
         {
-          '--panel-width': `${width ?? (side === 'right' ? 380 : 232)}px`,
+          '--panel-width': width
+            ? `${width}px`
+            : side === 'right'
+              ? 'var(--panel-base)'
+              : 'var(--panel-narrow)',
           ...(sheetHeight ? { '--sheet-height': sheetHeight } : {}),
         } as React.CSSProperties
       }
