@@ -20,6 +20,8 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 - Perfil criado automaticamente no primeiro login, sem origem definida: a origem
   é escolhida por você, e inventar uma faria o produto mentir sobre distâncias
   na primeira sessão
+- Você define seu ponto de partida clicando no mapa, e todas as distâncias do
+  produto passam a ser medidas de onde suas viagens realmente começam
 - Escolher uma coordenada passa a ser um clique no mapa, e a coordenada ao vivo
   da barra de status — que até aqui era só mostrador — vira a mira: o número que
   você lê é o que vai ser gravado
