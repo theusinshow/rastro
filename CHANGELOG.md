@@ -20,6 +20,13 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 - Perfil criado automaticamente no primeiro login, sem origem definida: a origem
   é escolhida por você, e inventar uma faria o produto mentir sobre distâncias
   na primeira sessão
+- "Quero conhecer" passa a gravar, e o pin muda de cor no mapa
+- Histórico de visitas por lugar: registrar uma visita acrescenta uma data ao
+  seu histórico em vez de acender uma chave, e voltar ao mesmo lugar acrescenta
+  outra. A data começa em hoje e pode ser corrigida
+- "Visitado" continua sendo consequência de ter registrado uma visita, e não um
+  botão: um controle que oferecesse desmarcar só poderia fazê-lo apagando
+  memória
 - Favoritar um lugar passa a gravar de verdade, e o anel do pin responde no
   quadro seguinte ao toque — não depois de uma ida ao servidor. Se a gravação
   falhar, o estado volta e o painel diz o motivo
@@ -174,6 +181,9 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Alterado
 
+- Das quatro ações que ficavam sob "Em breve" no painel de lugar, três passaram
+  a funcionar e mudaram de lugar: vivem agora junto do dado que alteram, e não
+  num rodapé. Sobrou "Criar viagem", que é a etapa seguinte
 - A origem das distâncias passa a ser sua, lida do seu perfil, em vez de uma
   constante fixa em Palhoça
 - Sem origem definida, o raio e a descoberta dizem que precisam de uma e
