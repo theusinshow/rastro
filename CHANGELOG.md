@@ -14,6 +14,10 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Adicionado
 
+- Documento de design da segunda fase — persistência e identidade — definindo
+  como o Rastro deixa de ser demonstração e passa a guardar o que é seu: conta
+  própria, favoritos e visitas que duram, e lugares criados por você
+  (`docs/superpowers/specs/2026-07-27-rastro-persistencia-e-identidade-design.md`)
 - Auditoria de design da fundação em `docs/2026-07-27-auditoria-de-design.md`,
   com o plano de movimento completo e o backlog de polimento ainda não
   implementado
