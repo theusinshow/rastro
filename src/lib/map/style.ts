@@ -34,24 +34,31 @@ export function buildRastroStyle(key: string): StyleSpecification {
     },
     layers: [
       {
+        // Um degrau abaixo do `void` da interface. Na altura do `void` o marrom
+        // fica "acordado" e vira lavagem sépia; abaixo dele lê como chão escuro
+        // e as estradas saltam.
         id: 'background',
         type: 'background',
-        paint: { 'background-color': '#14100c' },
+        paint: { 'background-color': '#100d09' },
       },
       {
+        // Vegetação é o único lugar do mapa onde o MATIZ carrega significado, e
+        // por isso é o único que não seguiu a família quente: floresta marrom
+        // não lê como floresta. O oliva vem de `--color-visited`, muito
+        // escurecido — a variação de matiz amarra à paleta em vez de brigar.
         id: 'landcover-wood',
         type: 'fill',
         source: 'basemap',
         'source-layer': 'landcover',
         filter: ['==', ['get', 'class'], 'wood'],
-        paint: { 'fill-color': '#191309', 'fill-opacity': 0.75 },
+        paint: { 'fill-color': '#141a0c', 'fill-opacity': 0.75 },
       },
       {
         id: 'park',
         type: 'fill',
         source: 'basemap',
         'source-layer': 'park',
-        paint: { 'fill-color': '#1c1610', 'fill-opacity': 0.6 },
+        paint: { 'fill-color': '#18200f', 'fill-opacity': 0.6 },
       },
       {
         id: 'water',
@@ -81,8 +88,11 @@ export function buildRastroStyle(key: string): StyleSpecification {
         paint: {
           'hillshade-exaggeration': 0.38,
           'hillshade-shadow-color': '#000000',
-          'hillshade-highlight-color': '#4a3d2c',
-          'hillshade-accent-color': '#1b140c',
+          // Cinza quente neutro, não laranja. O hillshade cobre a tela inteira:
+          // qualquer saturação aqui vira o banho de cor que domina o mapa, e era
+          // daí que vinha a leitura de "marrom demais".
+          'hillshade-highlight-color': '#3f3a30',
+          'hillshade-accent-color': '#16150e',
         },
       },
       {

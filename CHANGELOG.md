@@ -208,6 +208,10 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Alterado
 
+- O mapa deixa de ser uma lavagem marrom só. A vegetação volta a ser verde —
+  floresta marrom não lê como floresta — e o relevo perde a saturação laranja que
+  dominava a tela inteira. Agora dá para distinguir a mata do litoral do planalto
+  aberto, que é informação que estava se perdendo
 - **Nova direção visual: couro e instrumento.** A superfície deixa de ser carvão
   frio e passa a couro queimado, o acento vira amarelo queimado, e a tipografia
   troca para Archivo com JetBrains Mono. O mapa foi refeito junto — ele desenha
