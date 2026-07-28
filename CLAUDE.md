@@ -123,12 +123,20 @@ função pura e testável.
 
 Este produto não pode parecer template SaaS genérico nem "AI slop".
 
-**Proibido:** excesso de cards, gradientes aleatórios, glassmorphism decorativo,
-arredondamento universal, ícones sem função, dashboards de widgets, sombras difusas.
+A direção é **couro e instrumento**, registrada no
+[ADR 0009](./docs/decisions/0009-direcao-visual-couro-e-instrumento.md).
 
-**Obrigatório:** raio máximo 2px, separação por hairlines de 1px, mapa como
-estrutura (nunca dentro de um card pequeno), todo dado numérico em fonte mono,
-acento âmbar de instrumento.
+**Proibido:** card com conteúdo primário, gradientes, glassmorphism decorativo,
+ícones sem função, dashboards de widgets, sombras difusas, grade de botões de
+peso idêntico, toast, tooltip só de hover, skeleton, modal.
+
+**Obrigatório:** separação por hairlines de 1px, raio escolhido na escala e
+proporcional ao elemento, mapa como estrutura (nunca dentro de um card), todo
+dado numérico em fonte mono, acento âmbar de instrumento, piso de corpo de 17px.
+
+**O mapa não lê variável CSS.** MapLibre desenha em WebGL: as cores de
+`src/lib/map/style.ts` e `layers.ts` são hex literal e espelham a paleta à mão.
+Mudar uma sem a outra faz a interface e o mapa divergirem.
 
 Detalhes em `docs/DESIGN-SYSTEM.md`. Antes de trabalho visual relevante, leia
 `docs/skills/README.md` — há briefings prontos para invocar as skills de design com

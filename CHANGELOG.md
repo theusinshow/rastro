@@ -57,6 +57,13 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 - Conexão com o Supabase, criada por requisição e apenas no servidor: nenhum
   quilobyte de cliente de banco entra no navegador, num produto cujo peso de
   JavaScript já é quase todo mapa
+- Campos de formulário, mensagens de estado e cabeçalhos de seção viram peças do
+  sistema em vez de serem remontados a cada tela — a mesma marcação estava colada
+  à mão em onze lugares, e um deles esquecia a ligação entre rótulo e campo que
+  leitores de tela precisam
+- ADR 0009 registrando a nova direção visual e substituindo as decisões de
+  paleta, raio e tipografia — inclusive o que foi deliberadamente preservado da
+  versão anterior, e o que custou refazer o mapa junto
 - ADR 0007 registrando as duas dependências do Supabase e o critério que as
   aprovou, num projeto que recusa dependência por padrão
 - ADR 0008 registrando a RLS como fronteira de autorização, em vez de um
@@ -195,6 +202,20 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Alterado
 
+- **Nova direção visual: couro e instrumento.** A superfície deixa de ser carvão
+  frio e passa a couro queimado, o acento vira amarelo queimado, e a tipografia
+  troca para Archivo com JetBrains Mono. O mapa foi refeito junto — ele desenha
+  em WebGL e não acompanharia sozinho, e uma interface quente sobre um mapa frio
+  brigaria a tela inteira
+- O texto do produto ficou maior: piso de 17px no corpo e 12px nos rótulos de
+  instrumento. O produto é lido parado no acostamento, com luva e sol na tela, e
+  a auditoria já tinha flagrado o texto pequeno demais
+- Alvos de toque maiores: botões de 48px, chips de 40px, caixas de seleção com
+  44px de área. Alvo de luva não se acerta em 14px
+- Mensagens de erro deixam de parecer legenda. Ganharam cor própria, moldura e um
+  rótulo que diz o que aconteceu antes de dizer o quê
+- Apagar um lugar deixa de usar o mesmo botão de uma ação comum: contorno
+  vermelho em repouso, preenchimento só quando o cursor está em cima
 - Das quatro ações que ficavam sob "Em breve" no painel de lugar, três passaram
   a funcionar e mudaram de lugar: vivem agora junto do dado que alteram, e não
   num rodapé. Sobrou "Criar viagem", que é a etapa seguinte
