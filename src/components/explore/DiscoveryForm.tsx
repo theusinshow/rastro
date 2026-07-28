@@ -7,13 +7,14 @@ import {
   type TimeBudget,
 } from '@/domain/discovery'
 import { RADIUS_OPTIONS_KM } from '@/domain/filters'
+import Link from 'next/link'
 import {
   CATEGORY_LABELS,
   PLACE_CATEGORIES,
   type PlaceCategory,
 } from '@/domain/place'
-import { DEFAULT_ORIGIN_LABEL } from '@/mocks/user'
 import { OverlayPanel } from '@/components/layout/OverlayPanel'
+import { useOrigin } from '@/components/layout/origin-context'
 import { Button } from '@/components/ui/Button'
 import { Chip } from '@/components/ui/Chip'
 import { Toggle } from '@/components/ui/Toggle'
@@ -27,6 +28,8 @@ interface DiscoveryFormProps {
 }
 
 export function DiscoveryForm({ query, onChange, onSubmit }: DiscoveryFormProps) {
+  const { label: originLabel } = useOrigin()
+
   return (
     <OverlayPanel side="left" width={272}>
       <form
@@ -40,11 +43,15 @@ export function DiscoveryForm({ query, onChange, onSubmit }: DiscoveryFormProps)
           <section className="border-b border-line px-4 py-4">
             <span className="instrument-label">Partida</span>
             <p className="instrument-value mt-1.5 text-sm text-ink">
-              {DEFAULT_ORIGIN_LABEL}
+              {originLabel ?? '—'}
             </p>
-            <p className="mt-1 text-[10px] text-ink-faint">
-              Escolher outra origem entra numa próxima etapa.
-            </p>
+            <Link
+              href="/perfil/origem"
+              className="mt-1 inline-block text-[10px] text-ink-faint
+                         transition-colors hover:text-ink-muted"
+            >
+              Mudar ponto de partida
+            </Link>
           </section>
 
           <section className="border-b border-line px-4 py-4">

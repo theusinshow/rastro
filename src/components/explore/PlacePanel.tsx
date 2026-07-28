@@ -8,8 +8,8 @@ import {
   haversineKm,
 } from '@/domain/geo'
 import { CATEGORY_LABELS, type ExplorePlace } from '@/domain/place'
-import { DEFAULT_ORIGIN, DEFAULT_ORIGIN_LABEL } from '@/mocks/user'
 import { OverlayPanel } from '@/components/layout/OverlayPanel'
+import { useOrigin } from '@/components/layout/origin-context'
 import { Stat } from '@/components/ui/Stat'
 import { PlaceActions } from './PlaceActions'
 import { VisitStatusBadge } from './VisitStatusBadge'
@@ -21,8 +21,11 @@ interface PlacePanelProps {
 }
 
 export function PlacePanel({ place, onClose, exiting }: PlacePanelProps) {
-  const roadKm = estimateRoadKm(haversineKm(DEFAULT_ORIGIN, place))
-  const minutes = estimateRidingMinutes(roadKm)
+  const { origin, label: originLabel } = useOrigin()
+  // Sem origem não há distância nem tempo a mostrar. O resto do painel — nome,
+  // categoria, descrição, situação — não depende de onde você mora.
+  const roadKm = origin ? estimateRoadKm(haversineKm(origin, place)) : null
+  const minutes = roadKm === null ? null : estimateRidingMinutes(roadKm)
 
   return (
     <OverlayPanel side="right" exiting={exiting}>
@@ -78,14 +81,12 @@ export function PlacePanel({ place, onClose, exiting }: PlacePanelProps) {
           </div>
         )}
 
-        <div className="flex gap-8 border-b border-line px-5 py-4">
-          <Stat
-            label="Distância"
-            value={formatDistanceKm(roadKm)}
-            unit="km"
-          />
-          <Stat label="Tempo" value={formatDurationMinutes(minutes)} />
-        </div>
+        {roadKm !== null && minutes !== null ? (
+          <div className="flex gap-8 border-b border-line px-5 py-4">
+            <Stat label="Distância" value={formatDistanceKm(roadKm)} unit="km" />
+            <Stat label="Tempo" value={formatDurationMinutes(minutes)} />
+          </div>
+        ) : null}
 
         <div className="flex items-center gap-4 border-b border-line px-5 py-3">
           <VisitStatusBadge status={place.visitStatus} />
@@ -116,11 +117,13 @@ export function PlacePanel({ place, onClose, exiting }: PlacePanelProps) {
           </ul>
         ) : null}
 
-        <p className="px-5 pb-4 text-[10px] leading-relaxed text-ink-faint">
-          Distância e tempo são estimativas em linha reta a partir de{' '}
-          {DEFAULT_ORIGIN_LABEL}, corrigidas por um fator de estrada. Não
-          substituem um roteador.
-        </p>
+        {originLabel ? (
+          <p className="px-5 pb-4 text-[10px] leading-relaxed text-ink-faint">
+            Distância e tempo são estimativas em linha reta a partir de{' '}
+            {originLabel}, corrigidas por um fator de estrada. Não substituem um
+            roteador.
+          </p>
+        ) : null}
       </div>
 
       <PlaceActions place={place} />

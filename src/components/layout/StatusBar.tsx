@@ -3,11 +3,12 @@
 import { formatCoordinate } from '@/domain/geo'
 import { useVisiblePlaceCount } from '@/components/explore/visible-places-context'
 import { useMapView } from '@/components/map/map-context'
-import { DEFAULT_ORIGIN_LABEL } from '@/mocks/user'
+import { useOrigin } from './origin-context'
 
 export function StatusBar() {
   const view = useMapView()
   const count = useVisiblePlaceCount()
+  const { label: originLabel } = useOrigin()
 
   return (
     <footer
@@ -37,9 +38,13 @@ export function StatusBar() {
           ● {count} {count === 1 ? 'lugar' : 'lugares'}
         </span>
       ) : null}
-      <span className="ml-auto instrument-value hidden text-[10px] text-ink-faint md:inline">
-        ⌂ {DEFAULT_ORIGIN_LABEL}
-      </span>
+      {/* Sem origem definida o campo some, em vez de mostrar um lugar que não é
+          o seu. É o mesmo princípio do resto: não inventar dado. */}
+      {originLabel ? (
+        <span className="ml-auto instrument-value hidden text-[10px] text-ink-faint md:inline">
+          ⌂ {originLabel}
+        </span>
+      ) : null}
     </footer>
   )
 }

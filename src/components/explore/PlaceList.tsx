@@ -8,7 +8,7 @@ import {
 } from '@/domain/filters'
 import { formatDistanceKm, haversineKm } from '@/domain/geo'
 import { CATEGORY_LABELS, type ExplorePlace } from '@/domain/place'
-import { DEFAULT_ORIGIN } from '@/mocks/user'
+import { useOrigin } from '@/components/layout/origin-context'
 import { Button } from '@/components/ui/Button'
 import { cn } from '@/lib/utils/cn'
 import { VisitStatusBadge } from './VisitStatusBadge'
@@ -51,6 +51,9 @@ export function PlaceList({
   onReset,
   className,
 }: PlaceListProps) {
+  // Sem origem a coluna de distância some. Um número medido a partir de lugar
+  // nenhum é pior que número nenhum.
+  const { origin } = useOrigin()
   const criterionLabel = relaxation
     ? FILTER_CRITERION_LABELS[relaxation.criterion]
     : null
@@ -132,12 +135,14 @@ export function PlaceList({
                     {/* Distância corrigida por estrada, a mesma do painel e da
                         descoberta: a linha e o painel ficam visíveis ao mesmo
                         tempo e não podem discordar sobre o mesmo lugar. */}
-                    <span className="instrument-value shrink-0 text-[10px] text-ink-faint">
-                      {formatDistanceKm(
-                        estimateRoadKm(haversineKm(DEFAULT_ORIGIN, place)),
-                      )}{' '}
-                      km
-                    </span>
+                    {origin ? (
+                      <span className="instrument-value shrink-0 text-[10px] text-ink-faint">
+                        {formatDistanceKm(
+                          estimateRoadKm(haversineKm(origin, place)),
+                        )}{' '}
+                        km
+                      </span>
+                    ) : null}
                   </div>
                   <div className="mt-1 flex items-center gap-3">
                     <span className="text-[10px] tracking-[0.1em] text-ink-faint uppercase">

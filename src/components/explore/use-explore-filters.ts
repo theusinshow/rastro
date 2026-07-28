@@ -28,7 +28,15 @@ function parseRadius(raw: string | null): number | null {
   return Number.isFinite(value) && value > 0 ? value : null
 }
 
-export function useExploreFilters() {
+/**
+ * `hasOrigin` decide se o parâmetro `raio` da URL vale.
+ *
+ * O ADR 0006 mantém a URL como fonte do estado de exploração — mas ela deixa de
+ * poder afirmar um recorte que o perfil não sustenta. Sem origem, um raio de
+ * 50 km seria medido a partir de lugar nenhum, então é ignorado em vez de
+ * aplicado sobre um ponto inventado.
+ */
+export function useExploreFilters(hasOrigin: boolean) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -39,14 +47,14 @@ export function useExploreFilters() {
         searchParams.get('cat'),
         PLACE_CATEGORIES,
       ),
-      radiusKm: parseRadius(searchParams.get('raio')),
+      radiusKm: hasOrigin ? parseRadius(searchParams.get('raio')) : null,
       visitStatus: parseList<VisitStatus>(
         searchParams.get('status'),
         VISIT_STATUSES,
       ),
       favoritesOnly: searchParams.get('fav') === '1',
     }),
-    [searchParams],
+    [searchParams, hasOrigin],
   )
 
   const setFilters = useCallback(

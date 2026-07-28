@@ -4,7 +4,7 @@ import { Suspense, useEffect, useMemo, useState } from 'react'
 import type { PaddingOptions } from 'maplibre-gl'
 import { filterPlaces, mostRestrictiveCriterion } from '@/domain/filters'
 import type { ExplorePlace } from '@/domain/place'
-import { DEFAULT_ORIGIN } from '@/mocks/user'
+import { useOrigin } from '@/components/layout/origin-context'
 import { useExitTransition } from '@/lib/motion/use-exit-transition'
 import { PlacesLayer } from '@/components/map/PlacesLayer'
 import { DiscoveryLauncher } from './DiscoveryLauncher'
@@ -26,19 +26,36 @@ const CAMERA_PADDING: PaddingOptions = {
   left: 232,
 }
 
+/**
+ * Ponto de referência inerte para quando não há origem.
+ *
+ * `filterPlaces` exige `Coordinates`, mas só o critério de raio a consulta — e
+ * sem origem o raio já vem nulo. Constante de módulo para não recriar o objeto
+ * a cada render e invalidar os memos à toa.
+ */
+const NO_ORIGIN = { latitude: 0, longitude: 0 }
+
 interface ExploreViewProps {
   places: ExplorePlace[]
 }
 
 function ExploreContent({ places }: ExploreViewProps) {
-  const { filters, setFilters, reset, isDefault } = useExploreFilters()
+  const { origin } = useOrigin()
+  const { filters, setFilters, reset, isDefault } = useExploreFilters(
+    origin !== null,
+  )
   const { slug, select } = useSelectedPlace()
   const setVisibleCount = useSetVisiblePlaceCount()
   const [hoveredSlug, setHoveredSlug] = useState<string | null>(null)
 
+  // Sem origem, `useExploreFilters` já devolve `radiusKm: null` — e o raio é o
+  // único critério que consulta a origem. Os outros três não a tocam, então
+  // este ponto de referência nunca chega a ser usado para nada.
+  const effectiveOrigin = origin ?? NO_ORIGIN
+
   const visible = useMemo(
-    () => filterPlaces(places, filters, DEFAULT_ORIGIN),
-    [places, filters],
+    () => filterPlaces(places, filters, effectiveOrigin),
+    [places, filters, effectiveOrigin],
   )
 
   // Qual restrição está eliminando mais lugares. O domínio já filtrou, então
@@ -46,9 +63,9 @@ function ExploreContent({ places }: ExploreViewProps) {
   const relaxation = useMemo(
     () =>
       visible.length === 0
-        ? mostRestrictiveCriterion(places, filters, DEFAULT_ORIGIN)
+        ? mostRestrictiveCriterion(places, filters, effectiveOrigin)
         : null,
-    [places, filters, visible.length],
+    [places, filters, visible.length, effectiveOrigin],
   )
 
   useEffect(() => {
@@ -90,6 +107,7 @@ function ExploreContent({ places }: ExploreViewProps) {
         onSelectPlace={select}
         onHoverPlace={setHoveredSlug}
         relaxation={relaxation}
+        hasOrigin={origin !== null}
       />
 
       {panelPlace ? (

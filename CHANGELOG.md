@@ -166,6 +166,12 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Alterado
 
+- A origem das distâncias passa a ser sua, lida do seu perfil, em vez de uma
+  constante fixa em Palhoça
+- Sem origem definida, o raio e a descoberta dizem que precisam de uma e
+  oferecem o caminho, em vez de calcular distâncias a partir de um ponto que não
+  é o seu. A distância também some do painel e da lista, em vez de mostrar um
+  número medido de lugar nenhum
 - Os lugares passam a vir do banco, e não mais de um arquivo em memória. Sem
   configuração de banco a aplicação diz isso em texto, em vez de mostrar dados de
   exemplo e dar a impressão de que gravaria alguma coisa
@@ -248,5 +254,7 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Removido
 
+- O usuário fixo de desenvolvimento, substituído pela conta autenticada de
+  verdade. `src/mocks/user.ts` some junto: nada mais o importava
 - Etapa de build que copiava o worker do `maplibre-gl` para `public/maplibre/`,
   desnecessária na v5

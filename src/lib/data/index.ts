@@ -1,19 +1,21 @@
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import type { PlaceRepository } from './place-repository'
+import type { ProfileRepository } from './profile-repository'
 import { createSupabasePlaceRepository } from './supabase/supabase-place-repository'
+import { createSupabaseProfileRepository } from './supabase/supabase-profile-repository'
 
 /**
- * Repositório de leitura desta requisição.
+ * Cliente e usuário desta requisição.
  *
- * Função, e não constante, porque o adapter carrega a sessão da requisição. Um
- * singleton de módulo compartilharia sessão entre usuários.
+ * Os repositórios são funções, e não constantes, porque carregam a sessão da
+ * requisição. Um singleton de módulo compartilharia sessão entre usuários.
  *
  * O adapter em memória deixou de ser alcançável em tempo de execução: ele existe
  * só como fixture dos testes de domínio. Cair nele quando o Supabase não está
  * configurado esconderia exatamente o defeito que importa enxergar — uma
  * aplicação que aceita "Marcar visitado" e não grava nada.
  */
-export async function getPlaceRepository(): Promise<PlaceRepository> {
+async function sessionContext() {
   const supabase = await createServerSupabaseClient()
   const {
     data: { user },
@@ -23,7 +25,17 @@ export async function getPlaceRepository(): Promise<PlaceRepository> {
     throw new Error('sem sessão: o middleware deveria ter redirecionado')
   }
 
-  return createSupabasePlaceRepository(supabase, user.id)
+  return { supabase, userId: user.id }
 }
 
-export type { PlaceRepository }
+export async function getPlaceRepository(): Promise<PlaceRepository> {
+  const { supabase, userId } = await sessionContext()
+  return createSupabasePlaceRepository(supabase, userId)
+}
+
+export async function getProfileRepository(): Promise<ProfileRepository> {
+  const { supabase, userId } = await sessionContext()
+  return createSupabaseProfileRepository(supabase, userId)
+}
+
+export type { PlaceRepository, ProfileRepository }

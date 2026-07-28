@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import type { ExploreFilters, FilterRelaxation } from '@/domain/filters'
 import { RADIUS_OPTIONS_KM } from '@/domain/filters'
 import {
@@ -38,6 +39,8 @@ interface FilterRailProps {
   onSelectPlace: (slug: string) => void
   onHoverPlace: (slug: string | null) => void
   relaxation: FilterRelaxation | null
+  /** Sem origem no perfil não há de onde medir raio. */
+  hasOrigin: boolean
 }
 
 export function FilterRail({
@@ -51,6 +54,7 @@ export function FilterRail({
   onSelectPlace,
   onHoverPlace,
   relaxation,
+  hasOrigin,
 }: FilterRailProps) {
   return (
     <OverlayPanel side="left">
@@ -81,22 +85,34 @@ export function FilterRail({
 
         <section className="border-b border-line px-4 py-4">
           <span className="instrument-label">Raio em linha reta</span>
-          <div className="mt-2.5 flex flex-wrap gap-1">
-            {RADIUS_OPTIONS_KM.map((radius) => (
-              <Chip
-                key={radius}
-                active={filters.radiusKm === radius}
-                onClick={() =>
-                  setFilters({
-                    ...filters,
-                    radiusKm: filters.radiusKm === radius ? null : radius,
-                  })
-                }
-              >
-                {radius} km
-              </Chip>
-            ))}
-          </div>
+          {/* Indisponível com a razão dita, e não desabilitado em silêncio: sem
+              origem no perfil não existe ponto de onde medir. */}
+          {hasOrigin ? (
+            <div className="mt-2.5 flex flex-wrap gap-1">
+              {RADIUS_OPTIONS_KM.map((radius) => (
+                <Chip
+                  key={radius}
+                  active={filters.radiusKm === radius}
+                  onClick={() =>
+                    setFilters({
+                      ...filters,
+                      radiusKm: filters.radiusKm === radius ? null : radius,
+                    })
+                  }
+                >
+                  {radius} km
+                </Chip>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-2 text-[11px] leading-relaxed text-ink-muted">
+              O raio precisa de uma origem.{' '}
+              <Link href="/perfil/origem" className="text-accent">
+                Defina a sua
+              </Link>
+              .
+            </p>
+          )}
         </section>
 
         <section className="px-4 py-4">

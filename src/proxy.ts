@@ -1,7 +1,11 @@
 import type { NextRequest } from 'next/server'
 import { updateSession } from '@/lib/supabase/middleware'
 
-export async function middleware(request: NextRequest) {
+/**
+ * `proxy.ts` e não `middleware.ts`: o Next 16 deprecou a convenção antiga, que
+ * emitia aviso a cada requisição em desenvolvimento.
+ */
+export async function proxy(request: NextRequest) {
   return updateSession(request)
 }
 
