@@ -208,6 +208,14 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Alterado
 
+- A trilha da esquerda abre mostrando os **lugares**, não os filtros. Antes eles
+  ocupavam mais espaço do que a coluna tinha: a seção "Situação" ficava cortada
+  ao meio e seus quatro controles não apareciam na tela, e a lista sobrava com um
+  terço do espaço mostrando 4 lugares de 14. Agora aparecem 13, e o recorte
+  ativo fica descrito em palavras no topo — dá para saber o que está escondendo
+  lugares sem abrir nada
+- Os filtros abrem por cima quando você quer mexer, com o conjunto inteiro
+  visível de uma vez e um botão que diz quantos lugares sobraram antes de fechar
 - A tela de entrada passa a mostrar o mapa. Ela usa a mesma estrutura do
   aplicativo — mapa como superfície, painel ancorado por cima —, então o produto
   já se apresenta antes de você entrar, em vez de um formulário centralizado num

@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import {
   DEFAULT_EXPLORE_FILTERS,
+  countActiveCriteria,
+  describeFilters,
   filterPlaces,
   mostRestrictiveCriterion,
 } from './filters'
-import type { ExplorePlace } from './place'
+import { CATEGORY_LABELS, type ExplorePlace } from './place'
 
 const ORIGIN = { latitude: -27.6455, longitude: -48.67 }
 
@@ -162,5 +164,64 @@ describe('mostRestrictiveCriterion', () => {
     )
 
     expect(relaxation).toBeNull()
+  })
+})
+
+describe('countActiveCriteria', () => {
+  it('não conta nada no recorte padrão', () => {
+    expect(countActiveCriteria(DEFAULT_EXPLORE_FILTERS)).toBe(0)
+  })
+
+  // Conta critérios, não valores: três categorias marcadas continuam sendo uma
+  // restrição de categoria. É o número que a trilha mostra recolhida.
+  it('conta o critério uma vez, por mais valores que ele tenha', () => {
+    expect(
+      countActiveCriteria({
+        ...DEFAULT_EXPLORE_FILTERS,
+        categories: ['praia', 'serra', 'mirante'],
+      }),
+    ).toBe(1)
+  })
+
+  it('soma critérios de naturezas diferentes', () => {
+    expect(
+      countActiveCriteria({
+        categories: ['praia'],
+        radiusKm: 100,
+        visitStatus: ['visitado'],
+        favoritesOnly: true,
+      }),
+    ).toBe(4)
+  })
+})
+
+describe('describeFilters', () => {
+  it('devolve lista vazia sem restrição nenhuma', () => {
+    expect(describeFilters(DEFAULT_EXPLORE_FILTERS, CATEGORY_LABELS)).toEqual([])
+  })
+
+  // A ordem é categoria, distância, situação, favoritos — a ordem em que a
+  // pessoa pensa a viagem, não a ordem do objeto.
+  it('descreve na ordem em que a viagem é pensada', () => {
+    expect(
+      describeFilters(
+        {
+          favoritesOnly: true,
+          visitStatus: ['nao-visitado'],
+          radiusKm: 150,
+          categories: ['cachoeira'],
+        },
+        CATEGORY_LABELS,
+      ),
+    ).toEqual(['Cachoeira', 'até 150 km', 'Não visitados', 'Favoritos'])
+  })
+
+  it('usa os rótulos de interface das categorias', () => {
+    expect(
+      describeFilters(
+        { ...DEFAULT_EXPLORE_FILTERS, categories: ['ponto_turistico'] },
+        CATEGORY_LABELS,
+      ),
+    ).toEqual(['Ponto turístico'])
   })
 })

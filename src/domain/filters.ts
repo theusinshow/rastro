@@ -25,6 +25,58 @@ export const DEFAULT_EXPLORE_FILTERS: ExploreFilters = {
   favoritesOnly: false,
 }
 
+/** Rótulos de situação, no vocabulário da interface. */
+const VISIT_STATUS_LABELS: Record<VisitStatus, string> = {
+  'nao-visitado': 'Não visitados',
+  'quero-conhecer': 'Quero conhecer',
+  visitado: 'Já visitados',
+}
+
+/**
+ * Quantos critérios estão restringindo o recorte.
+ *
+ * Conta critérios, não valores: três categorias marcadas são **uma** restrição
+ * de categoria. É o número que a trilha mostra quando os filtros estão
+ * recolhidos, e ele responde "quanto do mapa está escondido de mim?".
+ */
+export function countActiveCriteria(filters: ExploreFilters): number {
+  let total = 0
+  if (filters.categories.length > 0) total += 1
+  if (filters.radiusKm !== null) total += 1
+  if (filters.visitStatus.length > 0) total += 1
+  if (filters.favoritesOnly) total += 1
+  return total
+}
+
+/**
+ * O recorte atual em palavras, para ser lido sem abrir os filtros.
+ *
+ * Vive no domínio porque é tradução de estado para linguagem, não desenho — e
+ * porque a ordem importa: categoria, distância, situação, favoritos é a ordem em
+ * que a pessoa pensa a viagem.
+ */
+export function describeFilters(
+  filters: ExploreFilters,
+  categoryLabels: Record<PlaceCategory, string>,
+): string[] {
+  const partes: string[] = []
+
+  for (const category of filters.categories) {
+    partes.push(categoryLabels[category])
+  }
+  if (filters.radiusKm !== null) {
+    partes.push(`até ${filters.radiusKm} km`)
+  }
+  for (const status of filters.visitStatus) {
+    partes.push(VISIT_STATUS_LABELS[status])
+  }
+  if (filters.favoritesOnly) {
+    partes.push('Favoritos')
+  }
+
+  return partes
+}
+
 /** Critérios que o usuário pode relaxar quando o recorte esvazia. */
 export type FilterCriterion =
   | 'categories'
