@@ -14,6 +14,15 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Adicionado
 
+- Os catorze lugares passam a viver num banco de verdade, como catálogo
+  compartilhado — e continuam marcados como dado de desenvolvimento não
+  verificado, porque é o que são
+- Perfil criado automaticamente no primeiro login, sem origem definida: a origem
+  é escolhida por você, e inventar uma faria o produto mentir sobre distâncias
+  na primeira sessão
+- As telas do aplicativo passam a exigir sessão, e uma sessão que expira no meio
+  de uma tarefa devolve você ao ponto onde estava depois de entrar, em vez de
+  jogar na tela inicial
 - Um lugar passa a carregar o histórico de visitas e a informação de quem o
   criou — as duas coisas que o painel precisa para deixar de ser só leitura
 - Validação de lugar como função pura e testada: nome, coordenada e categoria
