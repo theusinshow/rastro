@@ -1,22 +1,28 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { readCallbackParams } from './outcome'
+
+function backToLogin(origin: string, reason: string, detail?: string | null) {
+  const url = new URL('/entrar', origin)
+  url.searchParams.set('erro', reason)
+  if (detail) url.searchParams.set('detalhe', detail)
+  return NextResponse.redirect(url)
+}
 
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = request.nextUrl
-  const code = searchParams.get('code')
-  const next = searchParams.get('proximo')
-  const destination = next && next.startsWith('/') ? next : '/'
+  const outcome = readCallbackParams(searchParams)
 
-  if (!code) {
-    return NextResponse.redirect(`${origin}/entrar?erro=sem-codigo`)
+  if (outcome.kind === 'failed') {
+    return backToLogin(origin, outcome.reason, outcome.detail)
   }
 
   const supabase = await createServerSupabaseClient()
-  const { error } = await supabase.auth.exchangeCodeForSession(code)
+  const { error } = await supabase.auth.exchangeCodeForSession(outcome.code)
 
   if (error) {
-    return NextResponse.redirect(`${origin}/entrar?erro=troca`)
+    return backToLogin(origin, 'troca', error.message)
   }
 
-  return NextResponse.redirect(`${origin}${destination}`)
+  return NextResponse.redirect(new URL(outcome.destination, origin))
 }

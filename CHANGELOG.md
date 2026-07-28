@@ -247,6 +247,14 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Corrigido
 
+- A tela de entrada dizia "a volta do Google veio sem o código de autorização"
+  quando o Google tinha autorizado normalmente e a falha era outra, na troca do
+  código por sessão. A explicação real vinha na resposta e era descartada; agora
+  a tela nomeia a etapa que falhou e mostra a mensagem técnica, como o estado de
+  falha do mapa já fazia
+- Redirecionamento aberto na volta do login: um destino começando com `//` sai
+  do site e passava pela verificação de "começa com barra", o que mandaria a
+  pessoa para fora logo depois de entrar, com a sessão recém-criada
 - A lista do recorte e o painel do lugar mostravam distâncias diferentes para o
   mesmo lugar — 119 km na lista e 161 km no painel para a Serra do Rio do
   Rastro, ambos rotulados "km", com os dois visíveis ao mesmo tempo. A lista

@@ -3,7 +3,13 @@ import { Button } from '@/components/ui/Button'
 import { signInWithGoogleAction } from './actions'
 
 const ERROR_MESSAGES: Record<string, string> = {
-  oauth: 'O Google não respondeu. Tente novamente.',
+  oauth: 'Não foi possível iniciar a entrada pelo Google.',
+  // O Google autorizou e devolveu um código, mas o Supabase não conseguiu
+  // trocá-lo por uma sessão. Nomear a etapa é o que torna o erro acionável:
+  // quase sempre é o Client Secret do provedor, no painel do Supabase.
+  provedor:
+    'O Google autorizou a entrada, mas a troca do código por uma sessão falhou. ' +
+    'Isso costuma ser o Client Secret do provedor Google no painel do Supabase.',
   'sem-codigo': 'A volta do Google veio sem o código de autorização.',
   troca: 'O código de autorização não foi aceito. Tente entrar de novo.',
 }
@@ -11,9 +17,9 @@ const ERROR_MESSAGES: Record<string, string> = {
 export default async function EntrarPage({
   searchParams,
 }: {
-  searchParams: Promise<{ proximo?: string; erro?: string }>
+  searchParams: Promise<{ proximo?: string; erro?: string; detalhe?: string }>
 }) {
-  const { proximo, erro } = await searchParams
+  const { proximo, erro, detalhe } = await searchParams
   const configured = isSupabaseConfigured()
 
   return (
@@ -51,9 +57,19 @@ export default async function EntrarPage({
         )}
 
         {erro ? (
-          <p className="mt-4 text-xs leading-relaxed text-ink-muted">
-            {ERROR_MESSAGES[erro] ?? 'Não foi possível entrar.'}
-          </p>
+          <div className="mt-6 border-t border-line pt-4">
+            <span className="instrument-label">Não foi possível entrar</span>
+            <p className="mt-2 text-xs leading-relaxed text-ink-muted">
+              {ERROR_MESSAGES[erro] ?? 'A entrada falhou.'}
+            </p>
+            {/* Mesma decisão do MapLoadError: a mensagem técnica fica visível.
+                Escondê-la trocaria uma causa conhecida por uma tela genérica. */}
+            {detalhe ? (
+              <p className="mt-3 text-[11px] leading-relaxed text-ink-faint">
+                <code className="instrument-value">{detalhe}</code>
+              </p>
+            ) : null}
+          </div>
         ) : null}
       </div>
     </main>
