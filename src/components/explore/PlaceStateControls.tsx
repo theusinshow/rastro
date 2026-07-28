@@ -6,13 +6,8 @@ import {
   setFavoriteAction,
   setWantsToVisitAction,
 } from '@/app/actions/place-state-actions'
+import { Chip } from '@/components/ui/Chip'
 import { InlineMessage } from '@/components/ui/InlineMessage'
-import { cn } from '@/lib/utils/cn'
-
-const BASE_CLASS =
-  'press inline-flex h-10 items-center rounded-full border px-4 text-base'
-const INACTIVE_CLASS =
-  'border-line-strong text-ink-muted hover:bg-overlay hover:text-ink'
 
 /**
  * As duas chaves do vínculo com um lugar, no vocabulário do mapa.
@@ -54,32 +49,24 @@ export function PlaceStateControls({ place }: { place: ExplorePlace }) {
 
   return (
     <div className="border-b border-line px-5 py-3">
+      {/* `Chip` e não botão próprio: estes dois eram o primitivo reescrito à
+          mão, com `border-wanted` e `border-accent` — que são o mesmo hex. O
+          âmbar do estado ativo é o mesmo âmbar do pin, e é isso que faz o painel
+          contar a mesma história que o mapa. */}
       <div className="flex flex-wrap gap-2">
-        <button
-          type="button"
+        <Chip
+          active={favorite}
           onClick={() => toggle(favorite, setFavorite, setFavoriteAction)}
-          aria-pressed={favorite}
-          className={cn(
-            BASE_CLASS,
-            favorite
-              ? 'border-accent bg-accent-dim/45 text-accent'
-              : INACTIVE_CLASS,
-          )}
         >
           Favorito
-        </button>
+        </Chip>
 
-        <button
-          type="button"
+        <Chip
+          active={wanted}
           onClick={() => toggle(wanted, setWanted, setWantsToVisitAction)}
-          aria-pressed={wanted}
-          className={cn(
-            BASE_CLASS,
-            wanted ? 'border-wanted bg-accent-dim/45 text-wanted' : INACTIVE_CLASS,
-          )}
         >
           Quero conhecer
-        </button>
+        </Chip>
       </div>
 
       {/* Uma visita registrada vence o interesse na leitura do pin. Dizer isso

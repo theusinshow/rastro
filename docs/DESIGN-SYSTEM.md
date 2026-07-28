@@ -81,7 +81,7 @@ amanhã sem que nada avise. Ver ADR 0009.
 |---|---|---|
 | `text-micro` | 12px / 1 | Rótulo de instrumento, statusbar, contagem |
 | `text-small` | 15px / 1.5 | Dica de campo, legenda, texto terciário |
-| `text-base` | **17px** / 1.55 | **Piso do corpo.** Nenhum texto corrido desce daqui |
+| `text-body` | **17px** / 1.55 | **Piso do corpo.** Nenhum texto corrido desce daqui |
 | `text-lead` | 20px / 1.4 | Primeira linha de um painel, valor em destaque |
 | `text-title` | 24px / 1.2 | Nome de lugar, título de tela |
 | `text-display` | 32px / 1 | Só display |
@@ -297,6 +297,12 @@ faziam. A dica some quando há erro: dois textos de apoio sob o mesmo controle
 competem, e o erro é o que precisa ser lido.
 
 `Input` aceita `numeric`, que liga a mono tabular.
+
+### `CloseButton`
+
+Glifo pequeno, **alvo de 44px**. É a única saída de um painel e era o controle
+mais difícil de acertar da interface (P2.6 da auditoria: 14×18px). O `×` é o caso
+em que a regra "ícone só quando substitui texto" permite o glifo.
 
 ### `InlineMessage`
 

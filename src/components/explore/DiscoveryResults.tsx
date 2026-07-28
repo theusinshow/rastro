@@ -55,7 +55,7 @@ export function DiscoveryResults({
 
       {results.length === 0 ? (
         <div className="empty-state flex flex-1 flex-col justify-center gap-3 px-5">
-          <p className="text-base leading-relaxed text-ink-muted">
+          <p className="text-body leading-relaxed text-ink-muted">
             Nenhum destino cabe nesses limites.
           </p>
           {suggestion ? (
@@ -101,7 +101,7 @@ export function DiscoveryResults({
                            transition-colors hover:bg-overlay"
               >
                 <div className="flex items-baseline justify-between gap-3">
-                  <span className="text-base text-ink">{result.place.name}</span>
+                  <span className="text-body text-ink">{result.place.name}</span>
                   <span className="instrument-value shrink-0 text-small text-accent">
                     {formatDistanceKm(result.estimatedRoadKm)} km
                   </span>

@@ -42,7 +42,7 @@ export function DiscoveryForm({ query, onChange, onSubmit }: DiscoveryFormProps)
         <div className="min-h-0 flex-1 overflow-y-auto">
           <section className="border-b border-line px-4 py-4">
             <span className="instrument-label">Partida</span>
-            <p className="instrument-value mt-1.5 text-base text-ink">
+            <p className="instrument-value mt-1.5 text-body text-ink">
               {originLabel ?? '—'}
             </p>
             <Link

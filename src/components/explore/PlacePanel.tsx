@@ -10,6 +10,7 @@ import {
 import { CATEGORY_LABELS, type ExplorePlace } from '@/domain/place'
 import { OverlayPanel } from '@/components/layout/OverlayPanel'
 import { useOrigin } from '@/components/layout/origin-context'
+import { CloseButton } from '@/components/ui/CloseButton'
 import { Stat } from '@/components/ui/Stat'
 import { PlaceActions } from './PlaceActions'
 import { PlaceStateControls } from './PlaceStateControls'
@@ -46,18 +47,11 @@ export function PlacePanel({ place, onClose, exiting }: PlacePanelProps) {
           </p>
         </div>
 
-        {/* O glifo continua com o mesmo tamanho; o alvo é que sobe para 32×32.
-            É a única saída do painel e era o alvo mais difícil da interface. */}
-        <button
-          type="button"
+        <CloseButton
           onClick={onClose}
-          aria-label="Fechar painel"
-          className="-mt-1 -mr-2 flex h-8 w-8 shrink-0 items-center justify-center
-                     text-lead leading-none text-ink-faint transition-colors
-                     hover:text-ink"
-        >
-          ×
-        </button>
+          label={`Fechar o painel de ${place.name}`}
+          className="-mt-1 -mr-2"
+        />
       </header>
 
       <div className="min-h-0 flex-1 overflow-y-auto">
@@ -103,7 +97,7 @@ export function PlacePanel({ place, onClose, exiting }: PlacePanelProps) {
         <PlaceVisits place={place} />
 
         {place.description ? (
-          <p className="px-5 py-4 text-base leading-relaxed text-ink-muted">
+          <p className="px-5 py-4 text-body leading-relaxed text-ink-muted">
             {place.description}
           </p>
         ) : null}

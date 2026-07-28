@@ -58,8 +58,12 @@
   --text-micro--line-height: 1;
   --text-small: 0.9375rem; /* 15px — dica de campo, legenda, texto terciário */
   --text-small--line-height: 1.5;
-  --text-base: 1.0625rem; /* 17px — piso do corpo */
-  --text-base--line-height: 1.55;
+  /* `body`, e não `base`: já existe `--color-base` (superfície), e o Tailwind
+     geraria a utilitária `text-base` para os dois. A colisão renderizava certo
+     por sorte da ordem de resolução, mas deixava `text-base` significando duas
+     coisas — o editor acusou, e com razão. */
+  --text-body: 1.0625rem; /* 17px — piso do corpo */
+  --text-body--line-height: 1.55;
   --text-lead: 1.25rem; /* 20px — primeira linha de um painel */
   --text-lead--line-height: 1.4;
   --text-title: 1.5rem; /* 24px — nome de lugar, título de tela */

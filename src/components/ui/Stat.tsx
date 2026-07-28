@@ -12,7 +12,7 @@ export function Stat({ label, value, unit }: StatProps) {
       <span className="instrument-value text-title leading-none text-ink">
         {value}
         {unit ? (
-          <span className="ml-1.5 text-base text-ink-faint">{unit}</span>
+          <span className="ml-1.5 text-body text-ink-faint">{unit}</span>
         ) : null}
       </span>
     </div>

@@ -6,7 +6,7 @@ export default function MemoriasPage() {
       <h1 className="sr-only">Memórias de viagem</h1>
       <div className="flex flex-1 flex-col justify-center gap-3 px-5">
         <span className="instrument-label">Memórias</span>
-        <p className="text-base leading-relaxed text-ink-muted">
+        <p className="text-body leading-relaxed text-ink-muted">
           As memórias aparecem aqui quando houver viagens concluídas, organizadas
           por ano e mês.
         </p>

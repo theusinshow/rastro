@@ -37,7 +37,7 @@ export default async function EntrarPage({
           O mapa da sua vida sobre duas rodas
         </h1>
 
-        <p className="mt-2 text-base leading-relaxed text-ink-muted">
+        <p className="mt-2 text-body leading-relaxed text-ink-muted">
           Onde você já esteve, o que ainda quer conhecer, e as histórias que
           ficaram dessas viagens.
         </p>

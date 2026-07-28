@@ -13,6 +13,11 @@ const NAV_ITEMS = [
   { href: '/memorias', label: 'Memórias' },
 ] as const
 
+/** Ação terciária da barra: "Novo lugar" e "Sair" são o mesmo controle. */
+const BAR_ACTION =
+  'press rounded-sm px-2 py-2.5 text-small tracking-[0.12em] whitespace-nowrap ' +
+  'text-ink-faint uppercase hover:bg-overlay hover:text-ink-muted'
+
 function isActive(pathname: string, href: string): boolean {
   if (href === '/') return pathname === '/'
   return pathname.startsWith(href)
@@ -29,7 +34,7 @@ export function TopBar() {
     >
       <Link
         href="/"
-        className="flex shrink-0 items-center gap-2 text-base font-semibold
+        className="flex shrink-0 items-center gap-2 text-body font-semibold
                    tracking-[0.18em] text-ink uppercase"
       >
         <Logo size={26} />
@@ -68,22 +73,17 @@ export function TopBar() {
 
       {/* Texto, não ícone: o produto não tem conjunto de ícones e é melhor por
           isso. Peso terciário — nenhuma das duas é ação que se procura o tempo
-          todo, e ambas competiriam com a navegação se tivessem mais peso. */}
-      <Link
-        href="/lugar/novo"
-        className="ml-auto shrink-0 px-2 py-2.5 text-small tracking-[0.12em]
-                   whitespace-nowrap text-ink-faint uppercase transition-colors
-                   hover:text-ink-muted"
-      >
+          todo, e ambas competiriam com a navegação se tivessem mais peso.
+
+          A classe é compartilhada porque as duas SÃO o mesmo controle; uma é
+          link e a outra precisa ser `submit` de um formulário de Server Action,
+          e essa é a única diferença. */}
+      <Link href="/lugar/novo" className={cn(BAR_ACTION, 'ml-auto shrink-0')}>
         Novo lugar
       </Link>
 
       <form action={signOutAction} className="shrink-0">
-        <button
-          type="submit"
-          className="px-2 py-2.5 text-small tracking-[0.12em] whitespace-nowrap
-                     text-ink-faint uppercase transition-colors hover:text-ink-muted"
-        >
+        <button type="submit" className={BAR_ACTION}>
           Sair
         </button>
       </form>

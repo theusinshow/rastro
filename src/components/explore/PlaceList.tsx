@@ -79,7 +79,7 @@ export function PlaceList({
 
       {places.length === 0 ? (
         <div className="empty-state flex flex-1 flex-col items-start gap-3 px-4 py-5">
-          <p className="text-base leading-relaxed text-ink-muted">
+          <p className="text-body leading-relaxed text-ink-muted">
             Nenhum lugar cabe nesse recorte.
           </p>
           {relaxation && criterionLabel ? (

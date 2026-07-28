@@ -21,7 +21,7 @@ export function Toggle({ label, checked, onChange }: ToggleProps) {
                    border-line-strong transition-colors checked:border-accent
                    checked:bg-accent"
       />
-      <span className="text-base text-ink-muted">{label}</span>
+      <span className="text-body text-ink-muted">{label}</span>
     </label>
   )
 }

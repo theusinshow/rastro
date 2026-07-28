@@ -43,7 +43,7 @@ export function OriginSetup() {
         <div className="flex flex-1 flex-col gap-4 overflow-y-auto px-5 py-4">
           <div>
             <span className="instrument-label">Ponto de partida</span>
-            <p className="mt-1.5 text-base leading-relaxed text-ink-muted">
+            <p className="mt-1.5 text-body leading-relaxed text-ink-muted">
               Clique no mapa onde suas viagens começam. Toda distância e todo
               cálculo de tempo do Rastro partem daqui.
             </p>

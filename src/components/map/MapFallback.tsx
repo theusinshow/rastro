@@ -20,7 +20,7 @@ function MapNotice({
 export function MapFallback() {
   return (
     <MapNotice title="Mapa indisponível">
-      <p className="mt-3 text-base leading-relaxed text-ink-muted">
+      <p className="mt-3 text-body leading-relaxed text-ink-muted">
         A chave do MapTiler não foi configurada. Defina{' '}
         <code className="instrument-value text-ink">
           NEXT_PUBLIC_MAPTILER_KEY
@@ -43,7 +43,7 @@ export function MapFallback() {
 export function MapLoadError({ detail }: Readonly<{ detail: string }>) {
   return (
     <MapNotice title="Falha ao carregar o mapa">
-      <p className="mt-3 text-base leading-relaxed text-ink-muted">
+      <p className="mt-3 text-body leading-relaxed text-ink-muted">
         O mapa não terminou de carregar. Verifique a conexão e se a chave do
         MapTiler continua válida em cloud.maptiler.com, em Account → Keys.
       </p>
