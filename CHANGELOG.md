@@ -14,6 +14,9 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Adicionado
 
+- Conexão com o Supabase, criada por requisição e apenas no servidor: nenhum
+  quilobyte de cliente de banco entra no navegador, num produto cujo peso de
+  JavaScript já é quase todo mapa
 - Plano de implementação da segunda fase em catorze tarefas, com código, testes,
   passos manuais de infraestrutura e critérios de verificação por passo
   (`docs/superpowers/plans/2026-07-27-rastro-persistencia-e-identidade.md`)
