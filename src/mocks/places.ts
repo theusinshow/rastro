@@ -6,8 +6,13 @@
  * Nenhum valor aqui deve ser apresentado ao usuário como fato, nem usado para
  * decidir uma viagem real.
  *
- * Quando houver dados verificados, substitua este arquivo e troque `source`
- * de `'mock'` para `'manual'` ou `'imported'`.
+ * A partir da fase de persistência este arquivo é FIXTURE DE TESTE do domínio,
+ * não fonte de dados da aplicação. O catálogo real vive em `places` no Supabase,
+ * semeado por `supabase/seeds/0001_places.sql`.
+ *
+ * Os dois PODEM divergir de propósito: o seed é o catálogo do produto, este
+ * arquivo é o conjunto mínimo que os testes de filtro e descoberta precisam.
+ * Mudar um não obriga a mudar o outro.
  *
  * Catálogo e estado pessoal ficam separados de propósito, espelhando as tabelas
  * `places` e `place_user_states`. Ver ADR 0003.
