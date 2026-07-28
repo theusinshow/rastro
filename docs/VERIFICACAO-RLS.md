@@ -1,0 +1,168 @@
+# Verificação de RLS
+
+O [ADR 0008](./decisions/0008-rls-como-fronteira-de-autorizacao.md) coloca a RLS
+como **a** fronteira de autorização: os repositórios não repetem
+`.eq('user_id', …)`, e nenhum teste de unidade cobre política de banco.
+
+Isso torna as políticas a garantia mais importante do produto e a menos coberta
+por automação. **"Confiei na política" não é verificação.** Este documento é o
+roteiro que a substitui.
+
+Rode-o inteiro: depois de aplicar qualquer migration que toque em RLS, e antes de
+considerar concluída qualquer fase que acrescente tabela ou política.
+
+---
+
+## Como rodar
+
+No **SQL Editor** do painel do Supabase. Cada bloco é auto-contido e termina em
+`rollback` — nenhum deles altera dado.
+
+O editor roda como `postgres`, que **ignora RLS**. Por isso todo bloco começa com
+`set local role authenticated`: sem essa linha o teste passa sempre e não prova
+nada.
+
+Antes de começar, pegue dois identificadores:
+
+```sql
+-- Seu id de usuário. Anote como <MEU_ID>.
+select id, email from auth.users;
+
+-- Um id que não existe, para representar "outro usuário".
+-- Use este literal: 00000000-0000-4000-8000-000000000009
+```
+
+Nos blocos abaixo, substitua `<MEU_ID>` pelo primeiro. `<OUTRO_ID>` já está
+preenchido com o literal acima.
+
+---
+
+## 1. `places_read` — o catálogo é público, o lugar privado não
+
+```sql
+begin;
+set local role authenticated;
+set local request.jwt.claims = '{"sub":"00000000-0000-4000-8000-000000000009"}';
+select count(*) from places where is_public;         -- esperado: 14
+select count(*) from places where not is_public;     -- esperado: 0
+rollback;
+```
+
+> Se você já criou lugares próprios, o segundo `count` continua **0** para o
+> outro usuário — é exatamente o que a política precisa garantir. Rodando o mesmo
+> bloco com `<MEU_ID>`, ele deve mostrar quantos você criou.
+
+## 2. `places_insert` — ninguém cria lugar em nome de outro
+
+```sql
+begin;
+set local role authenticated;
+set local request.jwt.claims = '{"sub":"00000000-0000-4000-8000-000000000009"}';
+-- Esperado: ERRO 42501 (new row violates row-level security policy)
+insert into places (slug, name, latitude, longitude, category, created_by)
+values ('teste-rls', 'Teste', 0, 0, 'serra', '<MEU_ID>');
+rollback;
+```
+
+## 3. `places_update` e `places_delete` — o catálogo curado é intocável
+
+```sql
+begin;
+set local role authenticated;
+set local request.jwt.claims = '{"sub":"<MEU_ID>"}';
+-- Esperado nos dois: UPDATE 0 / DELETE 0. `created_by` é null no catálogo.
+update places set name = 'Sequestrado' where slug = 'morro-da-igreja';
+delete from places where slug = 'morro-da-igreja';
+rollback;
+```
+
+## 4. `place_user_states_own` — favorito é privado
+
+```sql
+begin;
+set local role authenticated;
+set local request.jwt.claims = '{"sub":"00000000-0000-4000-8000-000000000009"}';
+select count(*) from place_user_states;   -- esperado: 0
+-- Esperado: ERRO 42501
+insert into place_user_states (user_id, place_id, is_favorite)
+select '<MEU_ID>', id, true from places limit 1;
+rollback;
+```
+
+## 5. `place_visits_own` — a memória é privada
+
+```sql
+begin;
+set local role authenticated;
+set local request.jwt.claims = '{"sub":"00000000-0000-4000-8000-000000000009"}';
+select count(*) from place_visits;        -- esperado: 0
+-- Esperado: ERRO 42501
+insert into place_visits (user_id, place_id, visited_at)
+select '<MEU_ID>', id, current_date from places limit 1;
+rollback;
+```
+
+## 6. `profiles_own` — o perfil alheio é invisível e imutável
+
+```sql
+begin;
+set local role authenticated;
+set local request.jwt.claims = '{"sub":"00000000-0000-4000-8000-000000000009"}';
+select count(*) from profiles;            -- esperado: 0
+update profiles set home_label = 'invadido';  -- esperado: UPDATE 0
+rollback;
+```
+
+## 7. `motorcycles_own`
+
+```sql
+begin;
+set local role authenticated;
+set local request.jwt.claims = '{"sub":"00000000-0000-4000-8000-000000000009"}';
+select count(*) from motorcycles;         -- esperado: 0
+rollback;
+```
+
+## 8. `trips_own`, `trip_photos_own`, `trip_stops_via_trip`
+
+Ainda sem dado — a fase de viagens não chegou. Os blocos existem para quando
+chegar, e devem ser rodados **antes** de a primeira viagem ser gravada.
+
+```sql
+begin;
+set local role authenticated;
+set local request.jwt.claims = '{"sub":"00000000-0000-4000-8000-000000000009"}';
+select count(*) from trips;               -- esperado: 0
+select count(*) from trip_photos;         -- esperado: 0
+-- trip_stops não tem user_id: a posse é herdada da viagem.
+select count(*) from trip_stops;          -- esperado: 0
+rollback;
+```
+
+---
+
+## Verificação sem sessão (automatizável)
+
+Complementar aos blocos acima: com a chave `anon` e **nenhuma** sessão, toda
+escrita deve ser recusada. Isto foi verificado na fase de persistência e o
+resultado registrado no commit `d72d8a0`:
+
+| Tentativa | Resultado |
+|---|---|
+| `place_user_states` insert | recusado, `42501` |
+| `place_visits` insert | recusado, `42501` |
+| `places` insert | recusado, `42501` |
+| `places` update | recusado, nenhuma linha afetada |
+| `places` delete | recusado, nenhuma linha afetada |
+| `profiles` update | recusado, nenhuma linha afetada |
+
+O catálogo seguiu com 14 lugares intactos depois de todas elas.
+
+---
+
+## Se algum bloco falhar
+
+Um resultado diferente do esperado é uma **falha de segurança real**, não um
+detalhe de configuração. Corrija a política por **migration nova** — nunca
+editando a `0001`, que já aplicou — e rode o roteiro inteiro de novo antes de
+seguir.

@@ -57,6 +57,13 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 - Conexão com o Supabase, criada por requisição e apenas no servidor: nenhum
   quilobyte de cliente de banco entra no navegador, num produto cujo peso de
   JavaScript já é quase todo mapa
+- ADR 0007 registrando as duas dependências do Supabase e o critério que as
+  aprovou, num projeto que recusa dependência por padrão
+- ADR 0008 registrando a RLS como fronteira de autorização, em vez de um
+  parâmetro de usuário que alguém pode esquecer de passar
+- Roteiro de verificação manual das políticas de acesso em
+  `docs/VERIFICACAO-RLS.md`, bloco por bloco e com o resultado esperado de cada
+  um: nenhum teste automático cobre política de banco
 - Plano de implementação da segunda fase em catorze tarefas, com código, testes,
   passos manuais de infraestrutura e critérios de verificação por passo
   (`docs/superpowers/plans/2026-07-27-rastro-persistencia-e-identidade.md`)

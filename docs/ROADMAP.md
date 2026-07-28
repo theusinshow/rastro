@@ -12,31 +12,22 @@ ficaram dessas viagens?".
 
 ---
 
+## Concluído — fase de persistência e identidade
+
+- Migration `0001` aplicada contra um Postgres real. As oito tabelas existem.
+- Supabase conectado, com os catorze lugares vindos do banco.
+- Autenticação pelo Google; `DEV_USER_ID` não existe mais.
+- Origem por usuário, escolhida clicando no mapa (`profiles.home_*`).
+- Ações de escrita do painel: favorito, quero conhecer e histórico de visitas.
+- Criar, editar e apagar lugares próprios.
+
 ## Próximo
 
-- **Executar a migration `supabase/migrations/0001_initial_schema.sql` contra
-  um Postgres real.** Verificação pendente: o Docker não está disponível
-  neste ambiente de desenvolvimento, então o schema foi validado apenas por
-  leitura estática do SQL, nunca rodado de fato. Este é o primeiro passo
-  necessário antes de conectar o Supabase abaixo — se o schema tiver um erro
-  de sintaxe ou uma referência inválida, é aqui que aparece.
-- **Conectar o Supabase**, substituindo apenas `src/lib/data/index.ts` — o
-  único ponto que decide qual adapter de `PlaceRepository` está ativo. Nenhum
-  componente deveria precisar mudar.
-- **Autenticação**, substituindo o `DEV_USER_ID` fixo (`src/mocks/user.ts`)
-  por um usuário real autenticado. O schema já foi desenhado multiusuário
-  desde a primeira migração (RLS por `user_id` em toda tabela de dado
-  pessoal), então isto é uma questão de autenticação, não de migração de
-  dados.
-- **Ações de escrita do painel de lugar** — hoje `PlaceActions`
-  (`src/components/explore/PlaceActions.tsx`) mostra os botões "Salvar",
-  "Quero conhecer", "Marcar visitado" e "Criar viagem" como `disabled`,
-  deliberadamente visíveis mas indisponíveis. Ligá-los a
-  `place_user_states.is_favorite`/`wants_to_visit` e a uma nova linha em
-  `place_visits`.
 - **Registro de viagens com paradas** — criar `trips` e `trip_stops` a partir
   de uma viagem real, incluindo múltiplas paradas ordenadas
-  (`trip_stops.order_index`).
+  (`trip_stops.order_index`). É a quarta pergunta do produto — "quais histórias
+  ficaram dessas viagens?" — e a única das quatro que ainda não tem resposta.
+  `PlaceActions` mantém "Criar viagem" visível sob "Em breve" à espera disto.
 - **Upload de fotos no Supabase Storage**, associadas a `trip_photos`, com o
   caminho gravado em `storage_path`.
 
@@ -71,8 +62,11 @@ ficaram dessas viagens?".
   [ADR 0004](./decisions/0004-sem-postgis-nesta-fase.md): o catálogo passar
   de alguns milhares de lugares, ou surgir necessidade de consulta por
   polígono que haversine não resolve.
-- **Importação de lugares de fontes externas**, para além dos 14 lugares
-  mockados hoje em `src/mocks/places.ts`.
+- **Importação de lugares de fontes externas**, para além dos 14 do catálogo
+  curado — que continuam marcados `source = 'mock'` no banco, porque continuam
+  não verificados. Menos urgente desde que criar lugar próprio existe.
+- **Notas pessoais e avaliação por lugar** — `place_user_states.personal_notes`
+  e `rating` existem no schema e não são escritos por nenhuma tela.
 - **Múltiplas motos com estatísticas comparadas** — o schema já suporta
   várias `motorcycles` por usuário; falta a leitura comparativa (km por
   moto).

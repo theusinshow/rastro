@@ -2,8 +2,9 @@
 
 Este documento descreve como o código se organiza em camadas, o que cada
 camada pode e não pode importar, o fluxo completo de uma requisição do
-Explore, o padrão de "componente sem DOM" usado na integração com o mapa, os
-contextos React existentes e o índice das decisões arquiteturais registradas.
+Explore, o fluxo de uma escrita, o padrão de "componente sem DOM" usado na
+integração com o mapa, os contextos React existentes e o índice das decisões
+arquiteturais registradas.
 
 Para a linguagem visual, ver `docs/DESIGN-SYSTEM.md`. Para o schema do banco,
 `docs/DATA-MODEL.md`. Para a estratégia do mapa, `docs/MAP-STRATEGY.md`.
@@ -13,13 +14,18 @@ Para a linguagem visual, ver `docs/DESIGN-SYSTEM.md`. Para o schema do banco,
 ## Camadas
 
 ```
+src/lib/supabase/          (conexão e sessão — não conhece o domínio)
+      │
+      ▼
 src/domain/                (tipos e funções puras)
       │
-      ├──▶ src/lib/data/   (repositório de dados)
+      ├──▶ src/lib/data/   (repositórios: leitura e escrita)
       └──▶ src/lib/map/    (integração com MapLibre)
                   │
+                  ├──▶ src/app/actions/   (Server Actions: fronteira de escrita)
                   ▼
-         src/components/   (React: primitivos de UI, mapa, explore, layout)
+         src/components/   (React: primitivos de UI, mapa, explore, layout,
+                            onboarding)
                   │
                   ▼
          src/app/          (rotas do Next.js — App Router)
@@ -31,8 +37,10 @@ duas pastas de apoio de `src/lib/` explicitadas):
 | Camada | Pode importar | Nunca importa |
 |---|---|---|
 | `src/domain/` | nada do projeto além de `domain` | React, Next, componentes, dados |
-| `src/lib/data/` | `domain` | componentes |
+| `src/lib/supabase/` | nada do projeto | `domain`, componentes |
+| `src/lib/data/` | `domain`, `lib/supabase` | componentes |
 | `src/lib/map/` | `domain` | componentes de página |
+| `src/app/actions/` | `domain`, `lib` | componentes |
 | `src/lib/motion/` | React | `domain`, `lib/data`, `lib/map`, componentes |
 | `src/lib/utils/` | nada do projeto | qualquer coisa do projeto |
 | `src/components/` | `domain`, `lib` | outros repositórios diretamente |
@@ -112,11 +120,15 @@ câmera via URL) estão em
 Do primeiro byte servido até o pin aparecer no mapa:
 
 1. **`src/app/(app)/page.tsx`** é um Server Component. Ele chama
-   `await placeRepository.listExplorePlaces()` — `placeRepository` vem de
-   `src/lib/data`, que hoje aponta para `mockPlaceRepository`
-   (`src/lib/data/mock/mock-place-repository.ts`). O retorno é
-   `ExplorePlace[]`: o catálogo já combinado com o estado pessoal do usuário
-   (`toExplorePlace(place, userState)` de `src/domain/place.ts`).
+   `await getPlaceRepository()` — uma **função**, e não uma constante, porque o
+   adapter carrega a sessão daquela requisição. O adapter
+   (`src/lib/data/supabase/supabase-place-repository.ts`) roda uma consulta com
+   dois embeds e mapeia cada linha por `toExplorePlaceFromRow`, função pura em
+   `place-row.ts`. O retorno é `ExplorePlace[]`: o catálogo já combinado com o
+   estado pessoal e o histórico de visitas.
+
+   **Nenhum `userId` é passado.** A RLS filtra os embeds por `auth.uid()` — ver
+   [ADR 0008](./decisions/0008-rls-como-fronteira-de-autorizacao.md).
 2. A página passa essa lista como prop para
    **`<ExploreView places={places} />`** (`src/components/explore/ExploreView.tsx`),
    o primeiro componente de cliente do caminho.
@@ -127,7 +139,11 @@ Do primeiro byte servido até o pin aparecer no mapa:
    (`src/components/explore/use-explore-filters.ts`), que lê os parâmetros
    `cat`, `raio`, `status` e `fav` da URL via `useSearchParams` e monta um
    objeto `ExploreFilters` (`src/domain/filters.ts`).
-5. `ExploreContent` aplica **`filterPlaces(places, filters, DEFAULT_ORIGIN)`**
+5. `ExploreContent` lê a origem do usuário via `useOrigin()`
+   (`src/components/layout/origin-context.tsx`), alimentado pelo layout de
+   `(app)` a partir de `profiles`. Sem origem definida o raio é ignorado e a
+   distância some da interface — nada é medido a partir de um ponto inventado.
+   Então aplica **`filterPlaces(places, filters, origin)`**
    — função pura de `src/domain/filters.ts` — obtendo `visible: ExplorePlace[]`,
    a lista já recortada por categoria, raio, situação de visita e favoritos
    (todos os critérios combinados com E).
@@ -164,18 +180,41 @@ O mesmo caminho, com `findDestinations` no lugar de `filterPlaces`, é usado
 por `DiscoveryView`/`DiscoveryContent` na rota `/descobrir` — que reaproveita
 o mesmo `PlacesLayer`, apenas alimentado por outra lista.
 
-### Nota: hoje `/` e `/descobrir` são pré-renderizadas como estáticas
+---
 
-Apesar de `page.tsx` ser um Server Component com `await`, `next build` marca as
-duas rotas como estáticas. A razão é o adapter ativo: `mockPlaceRepository`
-resolve a partir de um array em memória, sem rede nem banco, então o Next.js
-consegue executar a página em tempo de build e servir HTML pronto.
+## Fluxo de uma escrita
 
-Isso é consequência do mock, não uma propriedade da arquitetura. Quando o
-adapter Supabase entrar (`src/lib/data/index.ts`), a leitura passa a depender
-de requisição e as duas rotas viram dinâmicas — sem que nenhuma linha de
-componente mude. Vale saber disso antes de olhar para a saída de `next build`
-hoje e concluir que o Explore é uma página estática por desenho.
+Ler é um Server Component; escrever é uma Server Action. O caminho completo, de
+um clique em "Favorito" até o pin mudar de cor:
+
+1. **O componente cliente** (`PlaceStateControls`) chama `useOptimistic` e
+   pinta o estado novo **no quadro seguinte ao toque**, antes de qualquer rede.
+   Uma ida ao servidor num toggle devolveria ao produto a inércia que o passe de
+   movimento tirou dele.
+2. Dentro de `startTransition`, chama a **Server Action**
+   (`src/app/actions/place-state-actions.ts`). As actions validam entrada com
+   funções puras do domínio — `validateNewPlace`, checagem de data — e **não**
+   fazem checagem de autorização: isso é da RLS.
+3. A action obtém o repositório de escrita (`getPlaceStateRepository()`), que
+   executa a operação. `place_user_states` usa `upsert`, não `update`: a linha só
+   nasce na primeira interação, e um `update` sobre linha inexistente devolveria
+   sucesso sem gravar nada.
+4. Em caso de erro, a action devolve `ActionResult` — `{ ok: false, message }`,
+   em PT-BR — em vez de deixar a exceção subir. Escrita recusada é informação
+   para o usuário, não falha do aplicativo. O componente reverte o estado
+   otimista e mostra a razão no próprio painel.
+5. Em caso de sucesso, `revalidatePath('/', 'layout')`. O escopo `layout` é
+   necessário porque a origem e a lista de lugares são lidas no layout de
+   `(app)`: revalidar só a rota atual deixaria a `StatusBar` desatualizada.
+6. O Server Component re-executa, o dado verdadeiro chega por props, e o valor
+   otimista é substituído sem piscar.
+
+### Nota: as rotas de `(app)` são dinâmicas
+
+`getPlaceRepository()` lê cookies para montar a sessão, então `next build` não
+consegue pré-renderizar `/` nem `/descobrir` — elas são dinâmicas por
+consequência da autenticação, não por configuração. Antes da persistência elas
+eram estáticas, porque o adapter em memória resolvia sem rede.
 
 ---
 
@@ -202,12 +241,22 @@ componente) funcionou como pretendido.
 
 ## Contextos existentes
 
-Dois contextos React no projeto, cada um com uma única responsabilidade:
+Quatro contextos React no projeto, cada um com uma única responsabilidade:
 
 | Contexto | Arquivo | Quem escreve | Quem lê |
 |---|---|---|---|
 | `MapProvider` | `src/components/map/map-context.tsx` | `MapCanvas` (`registerMap` no evento `load`, `updateView` a cada `move`) | `PlacesLayer` e qualquer componente futuro que precise da instância (`useMapInstance`); `StatusBar` (`useMapView`, para coordenadas e zoom) |
 | `VisiblePlacesProvider` | `src/components/explore/visible-places-context.tsx` | `ExploreContent`, via `useSetVisiblePlaceCount()`, a cada mudança na lista filtrada (e limpa para `null` ao desmontar) | `StatusBar`, via `useVisiblePlaceCount()` |
+| `OriginProvider` | `src/components/layout/origin-context.tsx` | O layout de `(app)`, uma vez por requisição, a partir de `profiles` | `ExploreContent`, `PlaceList`, `PlacePanel`, `DiscoveryView`, `DiscoveryForm`, `StatusBar` (`useOrigin`) |
+| `PickerProvider` | `src/components/map/picker-context.tsx` | `PointPicker`, enquanto o modo de mira está ativo | `StatusBar` (`usePickerState`), que troca a coordenada da câmera pela do cursor |
+
+`OriginProvider` substitui uma constante que era importada por cinco
+componentes. Centralizar a origem num contexto é o que permitiu torná-la por
+usuário sem tocar em cada consumidor a cada mudança.
+
+`PickerProvider` mora no layout, e não dentro do formulário que escolhe o ponto,
+porque a `StatusBar` precisa saber que a mira está ativa — e ela é irmã do mapa,
+não filha do formulário.
 
 `MapProvider` guarda dois pedaços de estado — `map: MapLibreMap | null` e
 `view: MapView | null` — expostos por hooks separados (`useMapInstance`,
@@ -244,3 +293,5 @@ uma decisão registrada em silêncio.
 | [0004](./decisions/0004-sem-postgis-nesta-fase.md) | Sem PostGIS nesta fase | Distância calculada por haversine em `src/domain/geo.ts`, sobre colunas `double precision` simples; PostGIS fica para quando o catálogo crescer ou surgir consulta por polígono. |
 | [0005](./decisions/0005-pins-como-camadas-data-driven.md) | Pins como camadas data-driven | Três canais visuais independentes (miolo, anel de favorito, ponto de foto) desenhados como camadas nativas do MapLibre sobre uma fonte GeoJSON, não como marcadores HTML; o anel de favorito é osso, não âmbar, para não colidir com o miolo "quero conhecer". |
 | [0006](./decisions/0006-estado-de-filtros-na-url.md) | Estado de filtros na URL | Filtros e seleção vivem inteiramente na URL (`useExploreFilters`, `useSelectedPlace`), escritos com `router.replace` — nunca `push` — para não encher o histórico a cada clique; consequência aceita: o botão voltar não desfaz um filtro por vez. |
+| [0007](./decisions/0007-dependencias-do-supabase.md) | Dependências do Supabase | `@supabase/supabase-js` e `@supabase/ssr` entram porque refresh de token, PKCE e cookie de sessão não são "80 linhas próprias" — são a classe de código em que um erro é falha de segurança; o custo no cliente é zero, porque o login é iniciado por Server Action. |
+| [0008](./decisions/0008-rls-como-fronteira-de-autorizacao.md) | RLS como fronteira de autorização | Os repositórios não recebem `userId` nem repetem `.eq('user_id', …)`: o banco filtra por `auth.uid()`. Uma autoridade só, e a verificação das políticas vira roteiro manual em `docs/VERIFICACAO-RLS.md`. |

@@ -60,8 +60,21 @@ tabela de estado, não como mera tabela de junção.
 
 Um por usuário (`id` é a própria FK para `auth.users`, em cascade). Guarda
 preferências de perfil: nome de exibição e uma localização de "casa"
-(`home_label`, `home_latitude`, `home_longitude`) usada como origem padrão para
-distância e descoberta quando o usuário não fornece outra.
+(`home_label`, `home_latitude`, `home_longitude`) usada como origem para
+distância e descoberta.
+
+**A linha nasce por trigger.** `handle_new_user`, na migration `0002`, insere o
+perfil no primeiro login a partir de `auth.users`, tomando o nome de
+`raw_user_meta_data`. Deixar a criação a cargo da aplicação significaria que
+qualquer caminho de entrada novo poderia esquecer de criá-la, e um usuário
+autenticado sem perfil é um estado que nenhuma tela sabe tratar.
+
+**As três colunas de casa nascem nulas, de propósito.** Origem é escolhida pelo
+usuário clicando no mapa (`/perfil/origem`); inventar um padrão faria o produto
+mentir sobre distâncias na primeira sessão. Enquanto forem nulas, o filtro de
+raio e a descoberta ficam indisponíveis com a razão dita em texto, e a distância
+some do painel e da lista. As duas coordenadas andam juntas: meia origem não é
+origem.
 
 ### `motorcycles`
 
@@ -82,8 +95,17 @@ Colunas não óbvias:
 
 - `created_by` **nulo** significa lugar curado, pertencente ao catálogo
   global (não pertence a nenhum usuário específico). Não-nulo significa que
-  aquele usuário cadastrou o lugar.
+  aquele usuário cadastrou o lugar. É o que a interface lê (`ExplorePlace.isOwn`)
+  para decidir se oferece editar e apagar.
 - `is_public` controla se outros usuários podem ler o lugar (ver seção RLS).
+  **O default do schema é `true`, mas lugar criado por usuário grava `false`
+  explicitamente** — o default serve ao catálogo curado; rede social está fora
+  de escopo declarado.
+- **Os catorze lugares do seed têm `source = 'mock'` e isso é deliberado.**
+  Coordenadas e descrições continuam aproximadas depois da migração, e apagar a
+  marca ao entrar no banco seria a forma mais silenciosa de quebrar a regra do
+  `CLAUDE.md` sobre não apresentar dado de desenvolvimento como verificado. Ver
+  `supabase/seeds/0001_places.sql`.
 - Não há coluna de distância nem de tempo estimado até o lugar: ambos
   dependem de qual é a origem de quem consulta, e são calculados em tempo de
   leitura por `src/domain/geo.ts` — nunca persistidos.
@@ -199,6 +221,16 @@ colunas derivadas são um cache que pode, em teoria, ser reconstruído do zero a
 qualquer momento reprocessando `place_visits` — nunca a fonte da informação.
 Consequência prática: nenhum código de aplicação deve fazer `update` direto
 nessas três colunas.
+
+### Invariante conhecida ao depurar
+
+`ExplorePlace.visits.length` e `place_user_states.visit_count` descrevem a mesma
+coisa por caminhos diferentes: o primeiro é o embed real de `place_visits`, o
+segundo é o cache mantido por este trigger. `deriveVisitStatus` lê o **segundo**.
+
+Se um lugar mostrar visitas na lista do painel mas o pin continuar em "não
+visitado", a divergência é do trigger — não da interface. É o primeiro lugar a
+olhar.
 
 ---
 
@@ -351,6 +383,15 @@ migração inicial, mesmo com um único usuário hoje — a política de acesso 
     `created_by = auth.uid()` — só se edita ou apaga o que se criou. Lugares
     curados (`created_by is null`) não são editáveis por ninguém via essas
     políticas.
+
+**A RLS não é uma segunda linha de defesa: é a única.** O [ADR 0008](./decisions/0008-rls-como-fronteira-de-autorizacao.md)
+registra a decisão — os repositórios não recebem `userId` nem repetem
+`.eq('user_id', …)`, e a chave `anon` vai para o navegador por desenho, então o
+que protege o dado é a política, não o segredo da chave.
+
+Consequência: nenhum teste automático cobre isso. Antes de alterar qualquer
+política, execute `docs/VERIFICACAO-RLS.md` — o roteiro manual, bloco por bloco,
+com o resultado esperado de cada um.
 
 ---
 

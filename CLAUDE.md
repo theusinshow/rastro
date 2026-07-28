@@ -89,9 +89,19 @@ Regra verificável por leitura de imports:
 | Camada | Pode importar | Nunca importa |
 |---|---|---|
 | `src/domain/` | nada do projeto além de `domain` | React, Next, componentes, dados |
-| `src/lib/data/` | `domain` | componentes |
+| `src/lib/supabase/` | nada do projeto | `domain`, componentes |
+| `src/lib/data/` | `domain`, `lib/supabase` | componentes |
 | `src/lib/map/` | `domain` | componentes de página |
+| `src/app/actions/` | `domain`, `lib` | componentes |
 | `src/components/` | `domain`, `lib` | outros repositórios diretamente |
+
+**Server Actions são a fronteira de escrita.** Validam com funções puras do
+domínio, chamam os repositórios e revalidam. Nenhuma regra de negócio vive nelas.
+
+**Autorização é responsabilidade do banco.** Os repositórios não recebem
+`userId` nem repetem `.eq('user_id', …)`: a RLS filtra por `auth.uid()`. Ver
+[ADR 0008](./docs/decisions/0008-rls-como-fronteira-de-autorizacao.md) — e
+`docs/VERIFICACAO-RLS.md` antes de alterar qualquer política.
 
 **Componente visual não contém lógica de negócio.** Não calcula distância, não
 filtra, não ordena, não decide elegibilidade. Isso vive em `src/domain/` como
