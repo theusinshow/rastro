@@ -1,9 +1,19 @@
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
+import { Archivo, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
 
-const sans = Geist({ subsets: ['latin'], variable: '--font-sans' })
-const mono = Geist_Mono({ subsets: ['latin'], variable: '--font-mono' })
+/**
+ * Archivo com o eixo de largura exposto: `.type-display` e `.type-title` usam
+ * `font-stretch` para o topo da hierarquia, o que evita carregar uma terceira
+ * família só para títulos. Ver ADR 0009.
+ */
+const sans = Archivo({
+  subsets: ['latin'],
+  variable: '--font-sans',
+  axes: ['wdth'],
+})
+
+const mono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono' })
 
 export const metadata: Metadata = {
   title: 'Rastro',
@@ -15,7 +25,8 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="pt-BR" className={`${sans.variable} ${mono.variable}`}>
-      <body style={{ fontFamily: 'var(--font-sans)' }}>{children}</body>
+      {/* A família vem de `body` em `globals.css`, junto do piso de 17px. */}
+      <body>{children}</body>
     </html>
   )
 }

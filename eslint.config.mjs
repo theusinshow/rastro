@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Material de referência externo: insumo para decidir o que portar, nunca
+    // código do produto. Fora do versionamento e fora das verificações.
+    "_referencia/**",
   ]),
 ]);
 

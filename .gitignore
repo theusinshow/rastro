@@ -32,6 +32,11 @@ Thumbs.db
 !.vscode/extensions.json
 .idea/
 
+# material de referência externo (exports de v0, Figma, etc.)
+# Fica fora do versionamento de propósito: é insumo para decidir o que portar,
+# nunca código do produto. Nada aqui é importado por `src/`.
+_referencia/
+
 # logs
 *.log
 npm-debug.log*

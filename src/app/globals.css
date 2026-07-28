@@ -1,38 +1,59 @@
 @import 'tailwindcss';
 
+/*
+ * Direção visual: couro e instrumento. Ver ADR 0009, que substitui a paleta,
+ * o teto de raio e a tipografia da primeira versão.
+ *
+ * Toda razão de contraste abaixo foi medida sobre `--color-base`, não estimada.
+ */
 @theme {
-  /* Superfícies — carvão levemente frio, referência de carta náutica noturna.
-     Nunca preto puro: preto absoluto achata o mapa e mata a profundidade. */
-  --color-void: #0a0c0b;
-  --color-base: #101413;
-  --color-raised: #171c1a;
-  --color-overlay: #1e2422;
+  /* Superfícies — couro queimado. Nunca preto puro: preto absoluto achata o
+     mapa e mata a profundidade do relevo sombreado. */
+  --color-void: #14100c;
+  --color-base: #1c1712;
+  --color-raised: #251e17;
+  --color-overlay: #302620;
 
-  /* Traços — hairlines fazem a separação estrutural no lugar de sombras */
-  --color-line: rgba(255, 255, 255, 0.07);
-  --color-line-strong: rgba(255, 255, 255, 0.14);
+  /* Traços — hairlines fazem a separação estrutural no lugar de sombras.
+     Tingidos de areia, e não de branco puro, para não esfriar a superfície. */
+  --color-line: rgba(240, 228, 210, 0.1);
+  --color-line-strong: rgba(240, 228, 210, 0.2);
 
-  /* Texto */
-  --color-ink: #e8edea;
-  --color-ink-muted: #9aa5a0;
-  /* 5.04:1 sobre `base`, 4.68:1 sobre `raised`. O tom anterior (#5e6b66) media
-     3.33:1 e era usado a 10px em texto que carrega informação: statusbar,
-     contagem do recorte, categoria de cada resultado. A leitura de instrumento
-     vem do mono, do tracking e da caixa alta, não de o texto estar apagado. */
-  --color-ink-faint: #7b8884;
+  /* Texto — areia. A leitura de instrumento vem do mono, do tracking e da caixa
+     alta, não de o texto estar apagado. */
+  --color-ink: #f0e4d2; /* 14.17:1 */
+  --color-ink-muted: #bfae97; /* 8.23:1 */
+  --color-ink-faint: #9a8973; /* 5.25:1 — passa AA em texto normal */
 
-  /* Acento âmbar de instrumento — painel de moto, farol, GPS outdoor.
-     Deliberadamente o oposto do azul de SaaS. */
-  --color-accent: #f0a32b;
-  --color-accent-dim: #8a5f1a;
+  /* Acento — amarelo queimado de instrumento: painel de moto, farol, GPS
+     outdoor. Deliberadamente o oposto do azul de SaaS. */
+  --color-accent: #e0a02e; /* 7.82:1 */
+  --color-accent-strong: #c9861a; /* hover de ação primária */
+  --color-accent-dim: #6b4b12; /* preenchimento surdo, nunca texto */
+  --color-on-accent: #14100c; /* 8.33:1 sobre o acento */
 
-  /* Estados de visita */
-  --color-visited: #3fbf8f;
-  --color-wanted: #f0a32b;
-  --color-unvisited: #7d8a85;
+  /* Estados de VISITA — nomeiam o dado. Separados dos estados de operação
+     abaixo de propósito: um lugar visitado não é uma operação bem sucedida, e
+     os dois significados podem divergir sem que nada avise. Ver ADR 0009. */
+  --color-visited: #8fa36a; /* 6.45:1 */
+  --color-wanted: #e0a02e; /* mesmo tom do acento — reforça a intenção */
+  --color-unvisited: #9a8973; /* 5.25:1 */
 
-  /* Raio — teto de 2px. Nada aqui é arredondado por decoração. */
-  --radius-xs: 2px;
+  /* Estados de OPERAÇÃO — nomeiam o resultado de uma escrita. Antes disto uma
+     mensagem de erro usava `ink-muted` e era visualmente idêntica a uma
+     legenda. */
+  --color-alert: #d4694a; /* erro — 5.01:1 */
+  --color-warn: #e0a02e; /* aviso */
+  --color-ok: #8fa36a; /* sucesso */
+
+  /* Raio — o teto de 2px caiu no ADR 0009. A escala existe para que o raio seja
+     proporcional ao tamanho do elemento, não para decorar. */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-2xl: 36px;
+  --radius-full: 999px;
 }
 
 /*
@@ -71,6 +92,11 @@
   body {
     background-color: var(--color-void);
     color: var(--color-ink);
+    font-family: var(--font-sans);
+    /* Piso de corpo. O produto é lido parado no acostamento, com luva e sol na
+       tela — a auditoria flagrou o texto pequeno em P1.4 e P2.6. */
+    font-size: 17px;
+    line-height: 1.55;
     -webkit-font-smoothing: antialiased;
   }
 
@@ -89,17 +115,40 @@
        `DiscoveryLauncher`, que precisa ficar acima dela: um valor só impede que
        mudar a altura da folha faça o CTA sobrepor silenciosamente o painel. */
     --sheet-height: 45vh;
+
+    /* Foco — um token só, aplicado a 100% dos controles. Estava hardcoded na
+       regra `:focus-visible` e não dava para referenciar em lugar nenhum. */
+    --focus-width: 2px;
+    --focus-offset: 3px;
+
+    /* Opacidade de indisponível. Mantém o rótulo legível: ação não implementada
+       fica visivelmente presente e explicitamente indisponível. */
+    --disabled-opacity: 0.45;
+
+    /* Larguras de painel. Estavam espalhadas como literais em quatro arquivos,
+       e o `padding` da câmera do mapa precisa bater com elas. */
+    --panel-narrow: 232px;
+    --panel-base: 340px;
+    --panel-wide: 420px;
+
+    /* Empilhamento. Estava só num comentário, e sem os controles do MapLibre
+       (`z-index: 2` de fábrica) desenhavam por cima dos painéis. */
+    --z-map: 0;
+    --z-map-chrome: 10;
+    --z-panel: 20;
+    --z-bar: 30;
   }
 
   /* Foco visível e consistente. Nenhum controle perde o anel. */
   :focus-visible {
-    outline: 1px solid var(--color-accent);
-    outline-offset: 2px;
+    outline: var(--focus-width) solid var(--color-accent);
+    outline-offset: var(--focus-offset);
+    border-radius: var(--radius-sm);
   }
 
   ::selection {
-    background-color: var(--color-accent-dim);
-    color: var(--color-ink);
+    background-color: var(--color-accent);
+    color: var(--color-on-accent);
   }
 
   /*
@@ -139,8 +188,11 @@
      Esta regra carrega boa parte do caráter técnico do produto. */
   .instrument-label {
     font-family: var(--font-mono);
-    font-size: 10px;
-    letter-spacing: 0.14em;
+    /* 12px, não 10px: a 10px o rótulo carregava informação abaixo do que se lê
+       na estrada. Ver ADR 0009. */
+    font-size: 0.75rem;
+    line-height: 1;
+    letter-spacing: 0.16em;
     text-transform: uppercase;
     color: var(--color-ink-faint);
   }
@@ -150,6 +202,25 @@
     font-family: var(--font-mono);
     font-variant-numeric: tabular-nums;
     letter-spacing: 0.02em;
+  }
+
+  /* Grotesca larga, só em display e títulos. O eixo de largura do Archivo
+     evita carregar uma terceira família só para o topo da hierarquia. */
+  .type-display {
+    font-family: var(--font-sans);
+    font-stretch: 125%;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 0.94;
+    text-transform: uppercase;
+  }
+
+  .type-title {
+    font-family: var(--font-sans);
+    font-stretch: 115%;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.1;
   }
 
   /*
@@ -329,7 +400,7 @@
 .maplibregl-map .maplibregl-ctrl-top-right,
 .maplibregl-map .maplibregl-ctrl-bottom-left,
 .maplibregl-map .maplibregl-ctrl-bottom-right {
-  z-index: 10;
+  z-index: var(--z-map-chrome);
 }
 
 /* A atribuição é obrigação de licença e continua legível. O que sai é o estilo

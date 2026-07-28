@@ -15,6 +15,11 @@ import type { StyleSpecification } from 'maplibre-gl'
  *
  * Nenhuma cor aqui usa o âmbar do produto: o âmbar é reservado aos pins e à
  * interface, para que sempre se destaque contra a base.
+ *
+ * As cores são hex literal, e não tokens: o MapLibre desenha em WebGL e não lê
+ * variável CSS. Elas espelham à mão a paleta de `globals.css` — mudar uma sem a
+ * outra faz a interface e o mapa divergirem, que foi exatamente o risco levantado
+ * ao adotar o ADR 0009.
  */
 export function buildRastroStyle(key: string): StyleSpecification {
   const tiles = `https://api.maptiler.com/tiles/v3/tiles.json?key=${key}`
@@ -31,7 +36,7 @@ export function buildRastroStyle(key: string): StyleSpecification {
       {
         id: 'background',
         type: 'background',
-        paint: { 'background-color': '#0a0c0b' },
+        paint: { 'background-color': '#14100c' },
       },
       {
         id: 'landcover-wood',
@@ -39,21 +44,23 @@ export function buildRastroStyle(key: string): StyleSpecification {
         source: 'basemap',
         'source-layer': 'landcover',
         filter: ['==', ['get', 'class'], 'wood'],
-        paint: { 'fill-color': '#0e1512', 'fill-opacity': 0.75 },
+        paint: { 'fill-color': '#191309', 'fill-opacity': 0.75 },
       },
       {
         id: 'park',
         type: 'fill',
         source: 'basemap',
         'source-layer': 'park',
-        paint: { 'fill-color': '#0f1714', 'fill-opacity': 0.6 },
+        paint: { 'fill-color': '#1c1610', 'fill-opacity': 0.6 },
       },
       {
         id: 'water',
         type: 'fill',
         source: 'basemap',
         'source-layer': 'water',
-        paint: { 'fill-color': '#060b0e' },
+        // Única cor que continua fria numa base quente, e de propósito: água
+        // marrom lê como terra. O frio aqui é o que a separa do continente.
+        paint: { 'fill-color': '#080a0f' },
       },
       {
         id: 'waterway',
@@ -61,7 +68,7 @@ export function buildRastroStyle(key: string): StyleSpecification {
         source: 'basemap',
         'source-layer': 'waterway',
         paint: {
-          'line-color': '#0d1519',
+          'line-color': '#0e1420',
           'line-width': ['interpolate', ['linear'], ['zoom'], 8, 0.4, 14, 1.6],
         },
       },
@@ -74,8 +81,8 @@ export function buildRastroStyle(key: string): StyleSpecification {
         paint: {
           'hillshade-exaggeration': 0.38,
           'hillshade-shadow-color': '#000000',
-          'hillshade-highlight-color': '#3d4d46',
-          'hillshade-accent-color': '#121a17',
+          'hillshade-highlight-color': '#4a3d2c',
+          'hillshade-accent-color': '#1b140c',
         },
       },
       {
@@ -87,7 +94,7 @@ export function buildRastroStyle(key: string): StyleSpecification {
         filter: ['in', ['get', 'class'], ['literal', ['minor', 'service']]],
         layout: { 'line-cap': 'round', 'line-join': 'round' },
         paint: {
-          'line-color': '#3f3d38',
+          'line-color': '#3a3229',
           'line-width': ['interpolate', ['linear'], ['zoom'], 10, 0.4, 16, 3],
         },
       },
@@ -99,7 +106,7 @@ export function buildRastroStyle(key: string): StyleSpecification {
         filter: ['in', ['get', 'class'], ['literal', ['tertiary', 'secondary']]],
         layout: { 'line-cap': 'round', 'line-join': 'round' },
         paint: {
-          'line-color': '#6a655c',
+          'line-color': '#6b5e4b',
           'line-width': ['interpolate', ['linear'], ['zoom'], 7, 0.5, 16, 5],
         },
       },
@@ -111,7 +118,7 @@ export function buildRastroStyle(key: string): StyleSpecification {
         filter: ['in', ['get', 'class'], ['literal', ['primary', 'trunk']]],
         layout: { 'line-cap': 'round', 'line-join': 'round' },
         paint: {
-          'line-color': '#948b7c',
+          'line-color': '#9c8c74',
           'line-width': ['interpolate', ['linear'], ['zoom'], 6, 0.6, 16, 7],
         },
       },
@@ -123,7 +130,7 @@ export function buildRastroStyle(key: string): StyleSpecification {
         filter: ['==', ['get', 'class'], 'motorway'],
         layout: { 'line-cap': 'round', 'line-join': 'round' },
         paint: {
-          'line-color': '#bcb09a',
+          'line-color': '#cbbb9e',
           'line-width': ['interpolate', ['linear'], ['zoom'], 5, 0.8, 16, 9],
         },
       },
@@ -134,7 +141,7 @@ export function buildRastroStyle(key: string): StyleSpecification {
         'source-layer': 'boundary',
         filter: ['<=', ['get', 'admin_level'], 4],
         paint: {
-          'line-color': '#2b322f',
+          'line-color': '#332a1f',
           'line-width': 0.7,
           'line-dasharray': [3, 2],
         },
@@ -153,14 +160,15 @@ export function buildRastroStyle(key: string): StyleSpecification {
           'text-letter-spacing': 0.08,
         },
         paint: {
-          'text-color': '#9aa5a0',
-          'text-halo-color': '#0a0c0b',
+          'text-color': '#bfae97',
+          'text-halo-color': '#14100c',
           'text-halo-width': 1.2,
         },
       },
       {
         // Caixa alta e tracking largo: é daqui que vem a leitura cartográfica,
-        // já que a família não pode ser Geist Mono.
+        // já que a família não pode ser a mono do produto — o MapTiler só serve
+        // glyphs de famílias que ele hospeda.
         id: 'place-label',
         type: 'symbol',
         source: 'basemap',
@@ -179,8 +187,8 @@ export function buildRastroStyle(key: string): StyleSpecification {
           'text-max-width': 8,
         },
         paint: {
-          'text-color': '#c3ccc8',
-          'text-halo-color': '#0a0c0b',
+          'text-color': '#e0d3bd',
+          'text-halo-color': '#14100c',
           'text-halo-width': 1.4,
         },
       },

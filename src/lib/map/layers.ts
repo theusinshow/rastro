@@ -85,11 +85,11 @@ export function buildPlacesGeoJson(
 
 // Cores duplicadas dos tokens CSS de propósito: o MapLibre desenha em WebGL e
 // não enxerga variáveis CSS. Ao alterar um token, altere aqui também.
-const VISITED = '#3fbf8f'
-const WANTED = '#f0a32b'
-const UNVISITED = '#7d8a85'
-const HOLLOW = '#141a18'
-const BONE = '#e8edea'
+const VISITED = '#8fa36a'
+const WANTED = '#e0a02e'
+const UNVISITED = '#9a8973'
+const HOLLOW = '#1c1712'
+const BONE = '#f0e4d2'
 
 type CirclePaint = NonNullable<CircleLayerSpecification['paint']>
 type CircleOpacity = NonNullable<CirclePaint['circle-opacity']>
