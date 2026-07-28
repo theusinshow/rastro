@@ -45,7 +45,10 @@ export default async function EntrarPage({
         {configured ? (
           <form action={signInWithGoogleAction} className="mt-8">
             <input type="hidden" name="proximo" value={proximo ?? '/'} />
-            <Button type="submit" variant="outline" className="w-full">
+            {/* `solid`: é a única ação da tela. Estava `outline`, que o sistema
+                reserva para ação secundária — a tela existe para uma coisa e
+                essa coisa vinha vestida de segunda opção. */}
+            <Button type="submit" variant="solid" size="lg" className="w-full">
               Entrar com o Google
             </Button>
           </form>
