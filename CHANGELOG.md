@@ -24,6 +24,9 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   categoria, município e descrição. O mapa deixa de ser um catálogo que alguém
   escolheu por você e passa a ser o seu
 - Lugares criados por você nascem privados
+- Editar e apagar um lugar que você criou. Lugares do catálogo compartilhado não
+  oferecem nem uma coisa nem outra — sobre eles você tem opinião, não posse
+- Apagar um lugar diz antes quantas visitas registradas vão junto, porque vão
 - "Quero conhecer" passa a gravar, e o pin muda de cor no mapa
 - Histórico de visitas por lugar: registrar uma visita acrescenta uma data ao
   seu histórico em vez de acender uma chave, e voltar ao mesmo lugar acrescenta

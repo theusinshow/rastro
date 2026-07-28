@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import type { ExplorePlace } from '@/domain/place'
 import { Button } from '@/components/ui/Button'
 
@@ -23,6 +24,18 @@ export function PlaceActions({ place }: { place: ExplorePlace }) {
           Abrir rota
         </Button>
       </a>
+
+      {/* Só em lugar próprio. Sobre o catálogo compartilhado você tem opinião,
+          não posse — e a RLS recusaria a escrita de qualquer forma. */}
+      {place.isOwn ? (
+        <Link
+          href={`/lugar/${place.slug}/editar`}
+          className="mt-3 block text-[10px] tracking-[0.14em] text-ink-faint
+                     uppercase transition-colors hover:text-ink-muted"
+        >
+          Editar lugar
+        </Link>
+      ) : null}
 
       <div className="mt-4">
         <span className="instrument-label">Em breve</span>

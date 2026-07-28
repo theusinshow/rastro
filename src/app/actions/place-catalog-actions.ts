@@ -35,3 +35,35 @@ export async function createPlaceAction(
     return { ok: false, message: 'Não foi possível criar o lugar.' }
   }
 }
+
+export async function updatePlaceAction(
+  id: string,
+  input: NewPlace,
+): Promise<ActionResult> {
+  const [firstError] = validateNewPlace(input)
+  if (firstError) {
+    return { ok: false, message: PLACE_VALIDATION_MESSAGES[firstError] }
+  }
+
+  try {
+    const repository = await getPlaceCatalogRepository()
+    await repository.updatePlace(id, input)
+  } catch {
+    return { ok: false, message: 'Não foi possível salvar as alterações.' }
+  }
+
+  revalidatePath('/', 'layout')
+  return { ok: true }
+}
+
+export async function deletePlaceAction(id: string): Promise<ActionResult> {
+  try {
+    const repository = await getPlaceCatalogRepository()
+    await repository.deletePlace(id)
+  } catch {
+    return { ok: false, message: 'Não foi possível apagar o lugar.' }
+  }
+
+  revalidatePath('/', 'layout')
+  return { ok: true }
+}
