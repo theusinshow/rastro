@@ -12,6 +12,7 @@ import { OverlayPanel } from '@/components/layout/OverlayPanel'
 import { useOrigin } from '@/components/layout/origin-context'
 import { Stat } from '@/components/ui/Stat'
 import { PlaceActions } from './PlaceActions'
+import { PlaceStateControls } from './PlaceStateControls'
 import { VisitStatusBadge } from './VisitStatusBadge'
 
 interface PlacePanelProps {
@@ -96,6 +97,8 @@ export function PlacePanel({ place, onClose, exiting }: PlacePanelProps) {
             </span>
           ) : null}
         </div>
+
+        <PlaceStateControls place={place} />
 
         {place.description ? (
           <p className="px-5 py-4 text-sm leading-relaxed text-ink-muted">

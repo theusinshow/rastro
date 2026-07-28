@@ -20,6 +20,9 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 - Perfil criado automaticamente no primeiro login, sem origem definida: a origem
   é escolhida por você, e inventar uma faria o produto mentir sobre distâncias
   na primeira sessão
+- Favoritar um lugar passa a gravar de verdade, e o anel do pin responde no
+  quadro seguinte ao toque — não depois de uma ida ao servidor. Se a gravação
+  falhar, o estado volta e o painel diz o motivo
 - Você define seu ponto de partida clicando no mapa, e todas as distâncias do
   produto passam a ser medidas de onde suas viagens realmente começam
 - Escolher uma coordenada passa a ser um clique no mapa, e a coordenada ao vivo
