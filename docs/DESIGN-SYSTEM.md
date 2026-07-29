@@ -6,11 +6,19 @@ produto — inclusive o mapa que a sustenta — é construída sobre esta base.
 
 A direção atual é **couro e instrumento**, registrada no
 [ADR 0009](./decisions/0009-direcao-visual-couro-e-instrumento.md), que
-substituiu a paleta, o teto de raio e a tipografia da primeira versão.
+substituiu a paleta, o teto de raio e a tipografia da primeira versão, e
+corrigida pelo [ADR 0012](./decisions/0012-o-calor-mora-sobre-a-superficie.md),
+que ajustou a dosagem.
 
 O Rastro não pode parecer template SaaS genérico nem "AI slop". Separação vem de
 hairlines, não de sombra. Cor vem de instrumento, não de gradiente. Números vêm
 de mono, sempre.
+
+> **A regra da paleta, antes de qualquer hex:** *o que é fundo perde quase toda
+> a saturação; o que é conteúdo mantém a sua.* Saturação é multiplicada pela
+> área — o mesmo tom que dá caráter numa etiqueta vira banho de cor cobrindo a
+> tela inteira. Cor nova entra respondendo "isto é fundo ou é conteúdo?", e a
+> resposta define a saturação. Ver ADR 0012.
 
 ---
 
@@ -26,31 +34,39 @@ as utilities `bg-*`, `text-*` e `border-*`; cada `--radius-*` gera `rounded-*`.
 
 | Token | Valor | Uso |
 |---|---|---|
-| `--color-void` | `#14100c` | Fundo de página. Couro queimado, nunca preto puro — preto absoluto achata o mapa e mata a profundidade do relevo. |
-| `--color-base` | `#1c1712` | Fundo de painéis e barras estruturais. |
-| `--color-raised` | `#251e17` | Um nível acima do base. |
-| `--color-overlay` | `#302620` | Hover/ativo de superfície interativa neutra. |
+Matiz 30° em todas, saturação baixa: são **área**, e é onde saturação custa mais
+caro. Continuam quentes ao toque; deixam de ser marrom.
+
+| Token | Valor | Uso |
+|---|---|---|
+| `--color-void` | `#11100f` | Fundo de página. Couro escurecido, nunca preto puro — preto absoluto achata o mapa e mata a profundidade do relevo. |
+| `--color-base` | `#181716` | Fundo de painéis e barras estruturais. |
+| `--color-raised` | `#201e1c` | Um nível acima do base. |
+| `--color-overlay` | `#2a2726` | Hover/ativo de superfície interativa neutra. |
 
 ### Traços
 
 | Token | Valor | Uso |
 |---|---|---|
-| `--color-line` | `rgba(240,228,210,0.1)` | Hairline padrão, no lugar de sombra. Tingido de areia, não de branco puro, para não esfriar a superfície. |
-| `--color-line-strong` | `rgba(240,228,210,0.2)` | Hairline de controle interativo. |
+| `--color-line` | `rgba(234,227,216,0.1)` | Hairline padrão, no lugar de sombra. Tingido de areia, não de branco puro, para não esfriar a superfície. |
+| `--color-line-strong` | `rgba(234,227,216,0.2)` | Hairline de controle interativo. |
 
 ### Texto
 
+Aqui a areia **fica**. Texto é traço, não área: a mesma saturação que vira banho
+numa tela inteira é o que dá caráter numa linha fina.
+
 | Token | Valor | Contraste | Uso |
 |---|---|---|---|
-| `--color-ink` | `#f0e4d2` | 14.17:1 | Primário. |
-| `--color-ink-muted` | `#bfae97` | 8.23:1 | Secundário. |
-| `--color-ink-faint` | `#9a8973` | 5.25:1 | Terciário — `.instrument-label`, statusbar. |
+| `--color-ink` | `#eae3d8` | 14.05:1 | Primário. |
+| `--color-ink-muted` | `#b7ad9f` | 8.09:1 | Secundário. |
+| `--color-ink-faint` | `#93887a` | 5.15:1 | Terciário — `.instrument-label`, statusbar. |
 
 ### Acento
 
 | Token | Valor | Contraste | Uso |
 |---|---|---|---|
-| `--color-accent` | `#e0a02e` | 7.82:1 | Amarelo queimado de instrumento. Botão `solid`, anel de foco, estado ativo. |
+| `--color-accent` | `#e0a02e` | 7.87:1 | Amarelo queimado de instrumento. Botão `solid`, anel de foco, estado ativo. **Não mudou no ADR 0012** — ficou mais forte só por passar a ter fundo contra o qual contrastar. |
 | `--color-accent-strong` | `#c9861a` | — | Hover de ação primária. |
 | `--color-accent-dim` | `#6b4b12` | — | Preenchimento surdo de estado ativo. **Nunca texto.** |
 | `--color-on-accent` | `#14100c` | 8.33:1 sobre o acento | Texto sobre âmbar. |
@@ -59,15 +75,15 @@ as utilities `bg-*`, `text-*` e `border-*`; cada `--radius-*` gera `rounded-*`.
 
 | Token | Valor | Contraste |
 |---|---|---|
-| `--color-visited` | `#8fa36a` | 6.45:1 |
-| `--color-wanted` | `#e0a02e` | 7.82:1 |
-| `--color-unvisited` | `#9a8973` | 5.25:1 |
+| `--color-visited` | `#8fa36a` | 6.49:1 |
+| `--color-wanted` | `#e0a02e` | 7.87:1 |
+| `--color-unvisited` | `#93887a` | 5.15:1 |
 
 ### Estados de operação — nomeiam o **resultado de uma escrita**
 
 | Token | Valor | Contraste |
 |---|---|---|
-| `--color-alert` | `#d4694a` | 5.01:1 |
+| `--color-alert` | `#d4694a` | 5.05:1 |
 | `--color-warn` | `#e0a02e` | 7.82:1 |
 | `--color-ok` | `#8fa36a` | 6.45:1 |
 

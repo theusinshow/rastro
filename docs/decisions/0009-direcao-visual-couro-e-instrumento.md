@@ -3,6 +3,12 @@
 **Substitui** as decisões de paleta, teto de raio e tipografia registradas em
 `docs/DESIGN-SYSTEM.md` e no bloco "Direção visual" do `CLAUDE.md`.
 
+> **Corrigido pelo [ADR 0012](./0012-o-calor-mora-sobre-a-superficie.md).** A
+> direção continua valendo inteira; os valores de superfície e de tinta desta
+> página não. O 0009 acertou o matiz e errou a dosagem: aplicou a intensidade de
+> um detalhe a uma área de tela inteira, e 65% da tela acabou num matiz só. Leia
+> os hex daqui como histórico.
+
 ## Contexto
 
 A primeira direção visual do Rastro era **carvão frio verde-esverdeado**

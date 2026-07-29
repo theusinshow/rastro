@@ -91,9 +91,9 @@ export function buildPlacesGeoJson(
 // não enxerga variáveis CSS. Ao alterar um token, altere aqui também.
 const VISITED = '#8fa36a'
 const WANTED = '#e0a02e'
-const UNVISITED = '#9a8973'
-const HOLLOW = '#1c1712'
-const BONE = '#f0e4d2'
+const UNVISITED = '#93887a'
+const HOLLOW = '#181716'
+const BONE = '#eae3d8'
 
 type CirclePaint = NonNullable<CircleLayerSpecification['paint']>
 type CircleOpacity = NonNullable<CirclePaint['circle-opacity']>

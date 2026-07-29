@@ -7,10 +7,14 @@ import type { StyleSpecification } from 'maplibre-gl'
  * Três princípios:
  *
  * 1. A estrada é o conteúdo. Num app de moto a malha viária recebe o maior
- *    contraste do mapa, acima de qualquer outro elemento de base.
- * 2. O fundo cede o palco. Água quase preta, vegetação apenas insinuada — o que
- *    precisa ser lido são os pins e as estradas.
- * 3. Relevo importa. O hillshade a partir do terrain-RGB é o que faz as serras
+ *    contraste do mapa, acima de qualquer outro elemento de base — e é o único
+ *    lugar do mapa que continua quente, porque é o que se lê.
+ * 2. O fundo cede o palco, e cede o MATIZ junto. Terreno quase neutro: ele
+ *    cobre a tela inteira, e saturação repetida por essa área vira banho de cor
+ *    em vez de tom. Ver ADR 0012.
+ * 3. Água é água. Ela ocupa um quarto de qualquer vista do litoral catarinense;
+ *    escura demais, vira buraco preto e desperdiça o único frio do mapa.
+ * 4. Relevo importa. O hillshade a partir do terrain-RGB é o que faz as serras
  *    catarinenses existirem visualmente em vez de virarem mancha plana.
  *
  * Nenhuma cor aqui usa o âmbar do produto: o âmbar é reservado aos pins e à
@@ -34,40 +38,42 @@ export function buildRastroStyle(key: string): StyleSpecification {
     },
     layers: [
       {
-        // Um degrau abaixo do `void` da interface. Na altura do `void` o marrom
-        // fica "acordado" e vira lavagem sépia; abaixo dele lê como chão escuro
-        // e as estradas saltam.
+        // Um degrau abaixo do `void` da interface: abaixo dele o chão lê como
+        // chão e as estradas saltam.
         id: 'background',
         type: 'background',
-        paint: { 'background-color': '#100d09' },
+        paint: { 'background-color': '#0d0d0c' },
       },
       {
-        // Vegetação é o único lugar do mapa onde o MATIZ carrega significado, e
-        // por isso é o único que não seguiu a família quente: floresta marrom
-        // não lê como floresta. O oliva vem de `--color-visited`, muito
-        // escurecido — a variação de matiz amarra à paleta em vez de brigar.
+        // Vegetação é um dos dois lugares do mapa onde o MATIZ carrega
+        // significado: floresta marrom não lê como floresta. Com o terreno
+        // neutro em volta, o verde finalmente tem contra o que aparecer — e SC
+        // é floresta, então isso é massa de cor de verdade, não um detalhe.
         id: 'landcover-wood',
         type: 'fill',
         source: 'basemap',
         'source-layer': 'landcover',
         filter: ['==', ['get', 'class'], 'wood'],
-        paint: { 'fill-color': '#141a0c', 'fill-opacity': 0.75 },
+        paint: { 'fill-color': '#131d10', 'fill-opacity': 0.75 },
       },
       {
         id: 'park',
         type: 'fill',
         source: 'basemap',
         'source-layer': 'park',
-        paint: { 'fill-color': '#18200f', 'fill-opacity': 0.6 },
+        paint: { 'fill-color': '#172313', 'fill-opacity': 0.6 },
       },
       {
         id: 'water',
         type: 'fill',
         source: 'basemap',
         'source-layer': 'water',
-        // Única cor que continua fria numa base quente, e de propósito: água
-        // marrom lê como terra. O frio aqui é o que a separa do continente.
-        paint: { 'fill-color': '#080a0f' },
+        // O outro lugar onde o matiz significa. Estava em `#080a0f` — 4,5% de
+        // luminosidade, frio no papel e buraco preto na tela. O Atlântico ocupa
+        // um quarto de qualquer vista do litoral: escondê-lo era jogar fora a
+        // maior massa fria disponível, e era metade do motivo de o mapa inteiro
+        // ler como marrom.
+        paint: { 'fill-color': '#0e1a29' },
       },
       {
         id: 'waterway',
@@ -75,7 +81,7 @@ export function buildRastroStyle(key: string): StyleSpecification {
         source: 'basemap',
         'source-layer': 'waterway',
         paint: {
-          'line-color': '#0e1420',
+          'line-color': '#182b45',
           'line-width': ['interpolate', ['linear'], ['zoom'], 8, 0.4, 14, 1.6],
         },
       },
@@ -88,11 +94,12 @@ export function buildRastroStyle(key: string): StyleSpecification {
         paint: {
           'hillshade-exaggeration': 0.38,
           'hillshade-shadow-color': '#000000',
-          // Cinza quente neutro, não laranja. O hillshade cobre a tela inteira:
-          // qualquer saturação aqui vira o banho de cor que domina o mapa, e era
-          // daí que vinha a leitura de "marrom demais".
-          'hillshade-highlight-color': '#3f3a30',
-          'hillshade-accent-color': '#16150e',
+          // Cinza praticamente neutro. O hillshade cobre a tela INTEIRA — é a
+          // camada onde saturação custa mais caro, porque ela multiplica por
+          // toda a área visível. O que sobrou de quente aqui é lembrança, não
+          // cor.
+          'hillshade-highlight-color': '#3a3835',
+          'hillshade-accent-color': '#131311',
         },
       },
       {
@@ -104,7 +111,7 @@ export function buildRastroStyle(key: string): StyleSpecification {
         filter: ['in', ['get', 'class'], ['literal', ['minor', 'service']]],
         layout: { 'line-cap': 'round', 'line-join': 'round' },
         paint: {
-          'line-color': '#3a3229',
+          'line-color': '#34322f',
           'line-width': ['interpolate', ['linear'], ['zoom'], 10, 0.4, 16, 3],
         },
       },
@@ -116,7 +123,7 @@ export function buildRastroStyle(key: string): StyleSpecification {
         filter: ['in', ['get', 'class'], ['literal', ['tertiary', 'secondary']]],
         layout: { 'line-cap': 'round', 'line-join': 'round' },
         paint: {
-          'line-color': '#6b5e4b',
+          'line-color': '#655d51',
           'line-width': ['interpolate', ['linear'], ['zoom'], 7, 0.5, 16, 5],
         },
       },
@@ -128,7 +135,7 @@ export function buildRastroStyle(key: string): StyleSpecification {
         filter: ['in', ['get', 'class'], ['literal', ['primary', 'trunk']]],
         layout: { 'line-cap': 'round', 'line-join': 'round' },
         paint: {
-          'line-color': '#9c8c74',
+          'line-color': '#948a7c',
           'line-width': ['interpolate', ['linear'], ['zoom'], 6, 0.6, 16, 7],
         },
       },
@@ -140,7 +147,7 @@ export function buildRastroStyle(key: string): StyleSpecification {
         filter: ['==', ['get', 'class'], 'motorway'],
         layout: { 'line-cap': 'round', 'line-join': 'round' },
         paint: {
-          'line-color': '#cbbb9e',
+          'line-color': '#c2b9a7',
           'line-width': ['interpolate', ['linear'], ['zoom'], 5, 0.8, 16, 9],
         },
       },
@@ -151,7 +158,7 @@ export function buildRastroStyle(key: string): StyleSpecification {
         'source-layer': 'boundary',
         filter: ['<=', ['get', 'admin_level'], 4],
         paint: {
-          'line-color': '#332a1f',
+          'line-color': '#2c2926',
           'line-width': 0.7,
           'line-dasharray': [3, 2],
         },
@@ -170,8 +177,8 @@ export function buildRastroStyle(key: string): StyleSpecification {
           'text-letter-spacing': 0.08,
         },
         paint: {
-          'text-color': '#bfae97',
-          'text-halo-color': '#14100c',
+          'text-color': '#b7ad9f',
+          'text-halo-color': '#11100f',
           'text-halo-width': 1.2,
         },
       },
@@ -197,8 +204,8 @@ export function buildRastroStyle(key: string): StyleSpecification {
           'text-max-width': 8,
         },
         paint: {
-          'text-color': '#e0d3bd',
-          'text-halo-color': '#14100c',
+          'text-color': '#d9d1c4',
+          'text-halo-color': '#11100f',
           'text-halo-width': 1.4,
         },
       },

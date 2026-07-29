@@ -208,6 +208,19 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Alterado
 
+- **O produto deixa de ser marrom.** Ele tinha um matiz só: 65% da tela caía na
+  mesma faixa de laranja, e não sobrava nenhuma área neutra para o olho
+  descansar. O couro continua, mas agora mora onde se lê — texto e estrada
+  seguem quentes, o chão fica quase neutro. Medido na tela: a faixa marrom cai
+  de 65% para 30%
+- **O mar passa a existir.** Estava tão escuro que lia como buraco preto, e o
+  Atlântico aparece em qualquer vista do litoral catarinense. Era a maior massa
+  fria disponível, e estava escondida
+- **A mata fica verde.** Com o terreno em volta neutro, a floresta finalmente tem
+  contra o que aparecer — e Santa Catarina é floresta
+- **Os pins ficam mais fortes sem terem mudado de cor.** Âmbar, verde de visitado
+  e vermelho de erro estão exatamente iguais; o que mudou foi passarem a ter
+  fundo contra o qual contrastar
 - **A marca foi reconstruída sobre grade de 100, com um peso de traço só.** A
   perna do R sai de dentro da barriga, desce com um único ponto de inflexão e
   pousa na mesma linha de base da haste — a curva agora lê como serra, e não como

@@ -7,27 +7,35 @@
  * Toda razão de contraste abaixo foi medida sobre `--color-base`, não estimada.
  */
 @theme {
-  /* Superfícies — couro queimado. Nunca preto puro: preto absoluto achata o
-     mapa e mata a profundidade do relevo sombreado. */
-  --color-void: #14100c;
-  --color-base: #1c1712;
-  --color-raised: #251e17;
-  --color-overlay: #302620;
+  /* Superfícies — couro escurecido. Nunca preto puro: preto absoluto achata o
+     mapa e mata a profundidade do relevo sombreado.
+
+     O matiz continua em 30°, mas a saturação é baixa de propósito. Superfície
+     é ÁREA: ela cobre a tela inteira, e cor a 22% de saturação repetida por
+     toda essa área deixa de ser tom e vira banho — foi medido, 65% da tela caía
+     numa única faixa de matiz e não sobrava nada contra o que o âmbar pudesse
+     se destacar. O calor do produto mora no que está EM CIMA da superfície:
+     texto, estrada, acento. Ver ADR 0012. */
+  --color-void: #11100f;
+  --color-base: #181716;
+  --color-raised: #201e1c;
+  --color-overlay: #2a2726;
 
   /* Traços — hairlines fazem a separação estrutural no lugar de sombras.
      Tingidos de areia, e não de branco puro, para não esfriar a superfície. */
-  --color-line: rgba(240, 228, 210, 0.1);
-  --color-line-strong: rgba(240, 228, 210, 0.2);
+  --color-line: rgba(234, 227, 216, 0.1);
+  --color-line-strong: rgba(234, 227, 216, 0.2);
 
-  /* Texto — areia. A leitura de instrumento vem do mono, do tracking e da caixa
-     alta, não de o texto estar apagado. */
-  --color-ink: #f0e4d2; /* 14.17:1 */
-  --color-ink-muted: #bfae97; /* 8.23:1 */
-  --color-ink-faint: #9a8973; /* 5.25:1 — passa AA em texto normal */
+  /* Texto — areia, e aqui a areia FICA. O texto é traço sobre a superfície, não
+     a superfície: a mesma saturação que vira banho numa área de tela inteira é
+     exatamente o que dá caráter numa linha de 1px de espessura óptica. */
+  --color-ink: #eae3d8; /* 14.05:1 */
+  --color-ink-muted: #b7ad9f; /* 8.09:1 */
+  --color-ink-faint: #93887a; /* 5.15:1 — passa AA em texto normal */
 
   /* Acento — amarelo queimado de instrumento: painel de moto, farol, GPS
      outdoor. Deliberadamente o oposto do azul de SaaS. */
-  --color-accent: #e0a02e; /* 7.82:1 */
+  --color-accent: #e0a02e; /* 7.87:1 */
   --color-accent-strong: #c9861a; /* hover de ação primária */
   --color-accent-dim: #6b4b12; /* preenchimento surdo, nunca texto */
   --color-on-accent: #14100c; /* 8.33:1 sobre o acento */
@@ -35,14 +43,14 @@
   /* Estados de VISITA — nomeiam o dado. Separados dos estados de operação
      abaixo de propósito: um lugar visitado não é uma operação bem sucedida, e
      os dois significados podem divergir sem que nada avise. Ver ADR 0009. */
-  --color-visited: #8fa36a; /* 6.45:1 */
+  --color-visited: #8fa36a; /* 6.49:1 */
   --color-wanted: #e0a02e; /* mesmo tom do acento — reforça a intenção */
-  --color-unvisited: #9a8973; /* 5.25:1 */
+  --color-unvisited: #93887a; /* 5.15:1 */
 
   /* Estados de OPERAÇÃO — nomeiam o resultado de uma escrita. Antes disto uma
      mensagem de erro usava `ink-muted` e era visualmente idêntica a uma
      legenda. */
-  --color-alert: #d4694a; /* erro — 5.01:1 */
+  --color-alert: #d4694a; /* erro — 5.05:1 */
   --color-warn: #e0a02e; /* aviso */
   --color-ok: #8fa36a; /* sucesso */
 
