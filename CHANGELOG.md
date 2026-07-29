@@ -208,6 +208,12 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Alterado
 
+- **A navegação principal ganha ícones**, e os rótulos saem da caixa alta. Em
+  caixa alta com espaçamento largo, os quatro destinos não cabiam na barra do
+  celular — e gastavam no menu o vocabulário que o produto reserva para número
+  medido. O ícone de Viagens é a curva da própria marca
+- No celular o rótulo desce para baixo do ícone, e os quatro destinos passam a
+  caber sem rolagem lateral. Antes, "Memórias" ficava fora da tela
 - **O mapa passa a ocupar a tela inteira, e todo o resto flutua sobre ele.**
   Antes ele era o retângulo que sobrava entre as barras — o produto dizia que o
   mapa é a estrutura e desenhava ele como o buraco no meio do enquadramento.

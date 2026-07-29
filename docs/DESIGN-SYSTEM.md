@@ -220,7 +220,11 @@ que é a única evidência de que o recorte mudou.
 - **Todo dado numérico usa `.instrument-value`** — mono com `tabular-nums`.
   Texto comum (nomes, descrições) nunca usa esta classe.
 - **Ícone só quando substitui texto**, nunca decorando um rótulo que já diz a
-  mesma coisa. O produto não tem conjunto de ícones e é melhor por isso.
+  mesma coisa. **Uma exceção, registrada:** a navegação principal usa glifo mais
+  rótulo ([ADR 0011](./decisions/0011-icones-na-navegacao-principal.md)). Os
+  quatro glifos vivem em `src/components/layout/nav-icons.tsx`, desenhados à mão
+  com o traço da marca — nenhuma biblioteca de ícones entra. O de Viagens é a
+  curva da marca, e é a única peça que amarra navegação e identidade.
 - **O raio é proporcional ao elemento**, escolhido na escala — não arbitrário.
 
 ---

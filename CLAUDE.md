@@ -130,6 +130,11 @@ A direção é **couro e instrumento**, registrada no
 ícones sem função, dashboards de widgets, sombras difusas, grade de botões de
 peso idêntico, toast, tooltip só de hover, skeleton, modal.
 
+**Única exceção de ícone:** a navegação principal, sempre com rótulo ao lado, com
+glifos desenhados em `src/components/layout/nav-icons.tsx`. Ver
+[ADR 0011](./docs/decisions/0011-icones-na-navegacao-principal.md). Glifo em
+qualquer outro lugar continua proibido.
+
 **Obrigatório:** separação por hairlines de 1px, raio escolhido na escala e
 proporcional ao elemento, mapa como estrutura (nunca dentro de um card), todo
 dado numérico em fonte mono, acento âmbar de instrumento, piso de corpo de 17px.
