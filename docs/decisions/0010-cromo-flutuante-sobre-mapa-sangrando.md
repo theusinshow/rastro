@@ -38,6 +38,27 @@ Tokens novos, em `:root`:
 - `--bar-height` / `--status-height` — altura das duas barras. Os painéis leem as
   duas para saber onde começar e terminar: sem isso, mudar a altura de uma barra
   faria o painel passar por baixo dela em silêncio.
+- `--shadow-float` — o vinco que separa o cromo do mapa. Ver abaixo.
+
+### Emenda — a única sombra do produto
+
+O [ADR 0009](./0009-direcao-visual-couro-e-instrumento.md) proíbe sombra: a
+separação vem de hairline de 1px. Aquela regra foi escrita para cromo **ancorado**,
+onde a peça vizinha é uma superfície opaca e o hairline tem contra o que
+contrastar.
+
+Sobre mapa isso deixa de valer. O hairline é `rgba(240,228,210,0.1)`, e quando o
+que passa por baixo é relevo escuro ele desaparece: a barra e o mapa viram a mesma
+mancha, e a peça não lê mais como algo que flutua **sobre** outra coisa.
+
+**`--shadow-float: 0 18px 40px -24px rgb(0 0 0 / 0.9)`** é a única sombra do
+produto. Usam-na `TopBar`, `StatusBar` e `.overlay-panel` — e nada mais.
+
+O deslocamento negativo de 24px é o ponto: ele encolhe a sombra para menos que a
+peça, e o que sobra é um **vinco embaixo dela**, não um halo em volta. É o que
+distingue esta sombra da "sombra difusa" que o ADR 0009 recusa — aquela decora
+uma caixa, esta declara qual camada está por cima. Não abre precedente para
+sombra em botão, campo, seção ou card.
 
 ## Motivos
 
@@ -48,8 +69,8 @@ Tokens novos, em `:root`:
   espera que ele continue por baixo do que está por cima, porque isso comunica
   que a superfície é contínua e que o painel é temporário.
 - **Ganha mapa sem perder cromo.** A área de mapa cresce pela altura das duas
-  barras somada, e o cromo continua legível por `backdrop-blur` sobre `base/85`,
-  que o produto já usava na barra superior.
+  barras somada, e o cromo continua legível por `backdrop-blur` sobre `base/92`,
+  parente do `base/85` que o produto já usava na barra superior.
 
 ## Consequências
 
@@ -60,7 +81,7 @@ Tokens novos, em `:root`:
   de painel à mão porque o MapLibre não lê variável CSS; agora espelha também o
   `--chrome-gap`. Divergir faz o pin selecionado terminar embaixo de um painel.
 - **Contraste passa a depender do que está atrás.** O cromo já não tem uma
-  superfície opaca garantida sob ele. `base/85` com `backdrop-blur` é o que
+  superfície opaca garantida sob ele. `base/92` com `backdrop-blur` é o que
   mantém o texto legível sobre relevo sombreado e sobre água quase preta — é
   legibilidade, não efeito, e continua sendo o único uso de blur permitido.
 - A regra **"nenhum card contendo conteúdo primário" continua valendo**. O que

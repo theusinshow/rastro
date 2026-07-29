@@ -214,6 +214,13 @@ que é a única evidência de que o recorte mudou.
 ## Regras de forma não negociáveis
 
 - **Hairline de 1px no lugar de sombra.** Nenhuma sombra difusa separa regiões.
+  **Uma exceção, registrada:** `--shadow-float`
+  (`0 18px 40px -24px rgb(0 0 0 / 0.9)`) é a única sombra do produto, e só o
+  cromo que flutua sobre o mapa a usa — `TopBar`, `StatusBar`, `.overlay-panel`.
+  Difusão curta e deslocamento negativo grande: o resultado é um vinco embaixo
+  da peça, não um halo em volta dela. Sem isso, uma barra escura sobre relevo
+  escuro não tem borda que a separe do que passa por baixo. Ver
+  [ADR 0010](./decisions/0010-cromo-flutuante-sobre-mapa-sangrando.md).
 - **Nenhum card contendo conteúdo primário.** O mapa é estrutura, não um widget
   dentro de uma caixa. O substituto do card é `PanelSection`: seção delimitada
   por hairline dentro de um painel.
@@ -351,18 +358,56 @@ cerca de doze cabeçalhos montados à mão. `Divider` é o hairline nomeado.
 
 ## A marca
 
-Um **R cuja perna é uma estrada terminando num destino**. É a pergunta central do
-produto — *para onde eu vou?* — desenhada.
+Um **R cuja perna é a estrada**. É a pergunta central do produto — *para onde eu
+vou?* — desenhada.
 
-**Um desenho só, em todos os tamanhos.** A faixa central tracejada é o que faz a
-estrada ler como estrada: sem ela o traço âmbar tem a mesma espessura e a mesma
-ponta do talo, e o olho vê um segundo traço da letra em vez de uma estrada.
+Construída sobre **grade de 100**, com **um peso de traço só** na letra inteira.
+Haste e barriga em osso; a perna sai de dentro da barriga, desce com **um único
+ponto de inflexão** e pousa na mesma linha de base da haste. Um ponto de inflexão
+só é o que faz a curva ler como serra em vez de rabisco.
 
-O tracejado é desenhado **na cor do fundo**, não em osso — é asfalto cortado, não
-uma linha por cima. Ele sobrevive legível até 24px.
+```
+haste + barriga   M30 80 V20 H53 A14 14 0 0 1 53 48 H30
+estrada           M45 48 C58 54 51 62 59 67 C64 70 66 73 70 80
+```
 
-Cores: `base` na placa, `ink` na letra, `accent` na estrada e no destino. Raio da
-placa: `radius-md`.
+A faixa central tracejada é o que faz a estrada ler como estrada: sem ela o traço
+âmbar tem a mesma espessura e a mesma ponta do talo, e o olho vê um segundo traço
+da letra. O tracejado é desenhado **na cor do fundo**, não em osso — é asfalto
+cortado, não uma linha por cima.
+
+Cores: `ink` na letra, `accent` na estrada, `base` (ou `void`) na faixa central e
+na placa.
+
+### Escala: compensação óptica, não escala linear
+
+O traço **engorda conforme a marca encolhe**. Reduzir 12 proporcionalmente até
+16px deixaria a letra fina demais para sobreviver ao antialiasing, e o R fecharia
+num borrão.
+
+| Tamanho | Traço | Faixa central |
+|---|---|---|
+| ≥ 64px | 12 | sim |
+| 32px | 13 | sim |
+| 20–24px | 14 | **não** |
+| ≤ 16px | 15 | **não** |
+
+**Abaixo de 32px a faixa sai.** Numa marca de 24px cada tracinho mediria menos de
+um pixel: não lê como faixa, só suja o âmbar. `Logo.tsx` decide isso sozinho a
+partir de `size` — quem usa o componente não escolhe.
+
+Sobre placa, a marca ocupa **74% do quadrado**; o resto é respiro. Raio da placa:
+26% do lado.
+
+### O lockup
+
+Marca + hairline de 1px + a palavra em `.type-wordmark` (Archivo 125% de largura,
+peso 700, caixa alta, tracking `0.06em`). Sempre nessa ordem e sempre igual — é a
+assinatura, e assinatura que muda de tela para tela não é assinatura.
+
+O tracking é `0.06em`, e **não** os `0.16em` de `.instrument-label`: caixa alta
+muito espaçada é o vocabulário do rótulo de instrumento, e emprestá-lo à marca
+faz "RASTRO" ler como legenda de um painel.
 
 ### Onde ela aparece
 
@@ -373,9 +418,17 @@ placa: `radius-md`.
 | `src/components/ui/Logo.tsx` | Dentro da interface — `TopBar` e tela `/entrar` |
 
 ```tsx
-<Logo size={26} />          // TopBar — sem placa, sobre a barra
-<Logo size={56} plate />    // /entrar — com placa, como elemento principal
+<Logo size={24} />   // TopBar — traço 14, sem faixa central
+<Logo size={56} />   // /entrar — traço 13, com faixa central
 ```
+
+**Placa só onde a marca pousa sobre algo que não controlamos** — ícone de app,
+aba do navegador. Dentro do produto ela é da cor do painel: não desenha nada e só
+encolhe a marca para 74%.
+
+O `icon.svg` foge da tabela de propósito: usa traço **14 e nenhuma faixa**, porque
+o navegador desenha aquele arquivo em 16 e 32px. A regra é a mesma; o que muda é
+o tamanho em que a peça é realmente consumida, não o tamanho em que ela é escrita.
 
 **A geometria vive em dois arquivos** — o componente e `src/app/icon.svg` —
 porque o Next exige arquivo estático para o favicon. Ao mexer num, mexa no outro.
@@ -399,7 +452,7 @@ junto, e anunciá-la seria repetir.
 - Glassmorphism decorativo (blur só onde há mapa por trás, para legibilidade)
 - Ícones decorativos
 - Dashboards de widgets
-- Sombras difusas
+- Sombras difusas — `--shadow-float` é a única sombra, e só no cromo flutuante
 - Grade de botões de peso visual idêntico
 - Toast/snackbar — erro aparece no painel
 - Tooltip só de hover — sem equivalente de teclado nem de toque

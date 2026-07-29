@@ -208,6 +208,29 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Alterado
 
+- **A marca foi reconstruída sobre grade de 100, com um peso de traço só.** A
+  perna do R sai de dentro da barriga, desce com um único ponto de inflexão e
+  pousa na mesma linha de base da haste — a curva agora lê como serra, e não como
+  rabisco. O ponto de destino saiu: a estrada termina onde a letra termina
+- **A marca engorda o traço conforme encolhe, e abaixo de 32px a faixa central da
+  estrada some.** Reduzida proporcionalmente, a letra ficava fina demais para
+  sobreviver ao antialiasing; e na marca de 24px da barra cada tracinho da faixa
+  media menos de um pixel, o que não lia como estrada, só sujava o âmbar. Quem
+  usa o componente não escolhe — ele decide pelo tamanho
+- **"Novo lugar" passa a ser bloco de cor cheia, e é o único da tela.** Estava com
+  contorno, o peso que o sistema reserva para ação secundária, e o mapa ficava sem
+  nenhum ponto de entrada evidente
+- Os destinos da navegação passam de pílula a retângulo arredondado. A pílula é a
+  forma do que se aperta; o destino é um lugar onde se está
+- **A palavra "Rastro" fica igual em todas as telas**: mais larga, mais pesada e
+  com o espaçamento fechado. Estava com o espaçamento largo que o produto reserva
+  a rótulo de instrumento, e a assinatura lia como legenda de painel
+- Na tela de entrada, a marca e a palavra passam a ser separadas por um traço de
+  1px, e a marca perde a placa — que era da cor do painel e não desenhava nada
+- **O cromo que flutua sobre o mapa ganha uma sombra**, a única do produto. O
+  traço de 1px que separava as peças desaparece sobre relevo escuro, e barra e
+  mapa viravam a mesma mancha. É um vinco embaixo da peça, não um halo em volta:
+  declara qual camada está por cima, não decora uma caixa
 - **A navegação principal ganha ícones**, e os rótulos saem da caixa alta. Em
   caixa alta com espaçamento largo, os quatro destinos não cabiam na barra do
   celular — e gastavam no menu o vocabulário que o produto reserva para número

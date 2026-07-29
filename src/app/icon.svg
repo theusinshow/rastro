@@ -1,13 +1,19 @@
 <!--
-  Marca do Rastro: um R cuja perna é uma estrada terminando num destino.
+  Marca do Rastro: um R cuja perna é a estrada.
 
-  A faixa central tracejada é o que faz a estrada ler como estrada. Sem ela o
-  traço âmbar tem a mesma espessura e a mesma ponta do talo, e o olho vê um
-  segundo traço da letra. O tracejado é desenhado na cor da placa, não em osso:
-  é asfalto cortado, não uma linha por cima.
+  Construída sobre grade de 100, com um peso de traço só na letra inteira. A
+  perna sai de dentro da barriga, desce com um único ponto de inflexão e pousa
+  na mesma linha de base da haste.
 
-  Cores e raio vêm dos tokens de globals.css (base, ink, accent, radius-md),
-  repetidos aqui como literal porque um favicon não lê variável CSS.
+  Sobre placa, a marca ocupa 74% do quadrado. O resto é respiro.
+
+  O traço é 14, e não os 12 do especímen grande: o navegador desenha este
+  arquivo em 16 e 32px, e nessa faixa a compensação óptica manda engrossar. Pelo
+  mesmo motivo não há faixa central tracejada aqui, cada tracinho mediria menos
+  de um pixel e só sujaria o âmbar.
+
+  Cores e raio vêm dos tokens de globals.css (base, ink, accent), repetidos aqui
+  como literal porque um favicon não lê variável CSS.
 
   ATENÇÃO: comentário XML não pode conter dois hifens seguidos. Escrever o nome
   de um token com o prefixo de variável CSS aqui torna o arquivo inválido e o
@@ -16,17 +22,12 @@
   A mesma geometria vive em src/components/ui/Logo.tsx, porque o Next exige um
   arquivo estático para o favicon. Ao mexer aqui, mexa lá.
 -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <rect width="64" height="64" rx="14" fill="#1C1712" />
-  <g fill="none" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M17 53V11h14a9.5 9.5 0 0 1 0 19H17" stroke="#F0E4D2" />
-    <path d="M26 32c1 10 13 7 17 15" stroke="#E0A02E" />
-    <path
-      d="M26 32c1 10 13 7 17 15"
-      stroke="#1C1712"
-      stroke-width="1.7"
-      stroke-dasharray="2.2 3.4"
-    />
-    <circle cx="48.5" cy="54.5" r="3.4" fill="#E0A02E" stroke="none" />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <rect width="100" height="100" rx="26" fill="#1C1712" />
+  <g transform="translate(50 50) scale(0.74) translate(-50 -50)">
+    <g fill="none" stroke-width="14" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M30 80 V20 H53 A14 14 0 0 1 53 48 H30" stroke="#F0E4D2" />
+      <path d="M45 48 C58 54 51 62 59 67 C64 70 66 73 70 80" stroke="#E0A02E" />
+    </g>
   </g>
 </svg>

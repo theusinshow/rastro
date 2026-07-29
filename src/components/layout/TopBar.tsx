@@ -37,14 +37,15 @@ export function TopBar() {
     <header
       className="absolute inset-x-(--chrome-gap) top-(--chrome-gap) z-(--z-bar)
                  grid h-(--bar-height) grid-cols-[auto_1fr] grid-rows-[auto_1fr]
-                 items-center gap-x-2 rounded-lg border border-line bg-base/85
-                 px-3 backdrop-blur-sm md:flex md:items-stretch md:gap-6 md:px-4"
+                 items-center gap-x-2 rounded-lg border border-line bg-base/92
+                 px-3 shadow-float backdrop-blur-sm md:flex md:items-stretch
+                 md:gap-6 md:px-4"
     >
       <Link
         href="/"
         aria-label="Rastro — ir para o mapa"
-        className="flex shrink-0 items-center gap-2 text-body font-semibold
-                   tracking-[0.18em] text-ink uppercase"
+        className="type-wordmark flex shrink-0 items-center gap-2 text-body
+                   text-ink"
       >
         <Logo size={24} />
         <span className="hidden sm:inline">Rastro</span>
@@ -55,7 +56,7 @@ export function TopBar() {
           linha e o traço não separaria nada. */}
       <span
         aria-hidden
-        className="hidden h-5 w-px shrink-0 self-center bg-line-strong md:block"
+        className="hidden h-6 w-px shrink-0 self-center bg-line-strong md:block"
       />
 
       {/* Abaixo de 768px a navegação desce para a segunda linha da grade e ocupa
@@ -75,22 +76,23 @@ export function TopBar() {
                   href={item.href}
                   aria-current={active ? 'page' : undefined}
                   className={cn(
-                    // `rounded-2xl` no celular: com o rótulo embaixo do glifo o
-                    // item fica quase quadrado, e `rounded-full` o transformaria
-                    // num círculo. O raio é proporcional ao elemento.
-                    'press flex whitespace-nowrap rounded-2xl md:rounded-full',
+                    // Retângulo arredondado, não pílula: a pílula é a forma do
+                    // que se aperta, e o item de navegação é um lugar onde se
+                    // está. No celular o raio abre porque o item fica quase
+                    // quadrado — proporcional ao elemento, como manda a escala.
+                    'press flex whitespace-nowrap rounded-lg md:rounded-md',
                     // No celular o rótulo desce para baixo do glifo. Lado a
                     // lado, os quatro destinos somam 442px numa barra de 340 —
                     // medido, "Memórias" ficava fora da tela. Empilhado, cada
                     // item cabe em ~78px e os quatro entram sem rolagem.
                     'h-14 flex-col items-center justify-center gap-1 px-2',
-                    'text-micro md:h-10 md:flex-row md:gap-2 md:px-3 md:text-small',
+                    'text-micro md:h-9 md:flex-row md:gap-2 md:px-3.5 md:text-small',
                     // Caixa normal, sem tracking: caixa alta e espaçamento largo
                     // são o vocabulário reservado à medição, e gastá-los aqui
                     // enfraquecia a leitura de instrumento onde ela importa.
                     // Ver ADR 0011.
                     active
-                      ? 'bg-accent/14 text-accent'
+                      ? 'bg-accent/14 font-semibold text-accent'
                       : 'text-ink-muted hover:bg-overlay hover:text-ink',
                   )}
                 >
@@ -103,16 +105,17 @@ export function TopBar() {
         </ul>
       </nav>
 
-      {/* Criar lugar é AÇÃO, não destino: sai da gramática da navegação e ganha
-          contorno. Estava com o mesmo peso terciário de "Sair", e as duas
-          ficavam coladas — errar o alvo custava a sessão. */}
+      {/* Criar lugar é AÇÃO, não destino: sai da gramática da navegação e é o
+          único bloco de cor cheia da tela. Estava com contorno, ou seja, com o
+          peso que o sistema reserva para ação secundária — e o mapa ficava sem
+          nenhum ponto de entrada evidente. */}
       <div className="col-start-2 row-start-1 ml-auto flex shrink-0 items-center
                       gap-2 md:col-start-auto md:row-start-auto md:gap-3">
         <Link
           href="/lugar/novo"
-          className="press flex h-10 items-center gap-1.5 rounded-full border
-                     border-line-strong px-3.5 text-small whitespace-nowrap
-                     text-ink hover:border-accent hover:text-accent"
+          className="press flex h-10 items-center gap-1.5 rounded-md bg-accent
+                     px-4 text-small font-bold whitespace-nowrap text-on-accent
+                     hover:bg-accent-strong"
         >
           <span aria-hidden className="text-lead leading-none">
             +
@@ -128,7 +131,7 @@ export function TopBar() {
         <form action={signOutAction} className="flex">
           <button
             type="submit"
-            className="press flex h-10 items-center rounded-full px-3 text-small
+            className="press flex h-9 items-center rounded-md px-3 text-small
                        whitespace-nowrap text-ink-faint hover:bg-overlay
                        hover:text-ink-muted"
           >

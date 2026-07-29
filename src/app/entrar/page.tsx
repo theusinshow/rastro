@@ -51,11 +51,20 @@ export default async function EntrarPage({
                      justify-center overflow-y-auto border-line bg-base px-6
                      py-10 md:w-104 md:border-r md:px-10"
         >
-          {/* Com placa e em 56px: é a única tela onde a marca é o elemento
-              principal, e não um selo ao lado da navegação. */}
-          <span className="flex items-center gap-3 text-lead font-semibold tracking-[0.18em] text-ink uppercase">
-            <Logo size={56} plate />
-            Rastro
+          {/* Lockup: é a única tela onde a marca é o elemento principal, e não
+              um selo ao lado da navegação.
+
+              Sem placa. A placa é da cor do painel — sobre esta tela ela não
+              desenhava nada, só encolhia a marca para 74% do quadrado. Placa é
+              para quando a marca pousa sobre algo que não controlamos: ícone de
+              app, aba do navegador. */}
+          <span className="flex items-center gap-4 text-ink">
+            <Logo size={56} />
+            {/* Hairline do lockup: separa a marca da palavra sem inventar um
+                elemento novo. É a mesma régua de 1px que separa tudo no
+                produto. */}
+            <span aria-hidden className="h-10 w-px bg-line-strong" />
+            <span className="type-wordmark text-title">Rastro</span>
           </span>
 
           <h1 className="mt-8 text-title font-medium text-ink">

@@ -24,8 +24,8 @@ export function StatusBar() {
     <footer
       className="absolute inset-x-(--chrome-gap) bottom-(--chrome-gap)
                  z-(--z-bar) flex h-(--status-height) items-center gap-3
-                 overflow-hidden rounded-lg border border-line bg-base/85 px-4
-                 backdrop-blur-sm md:gap-6"
+                 overflow-hidden rounded-lg border border-line bg-base/92 px-4
+                 shadow-float backdrop-blur-sm md:gap-6"
     >
       <span
         className={cn(
