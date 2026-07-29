@@ -14,6 +14,13 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Adicionado
 
+- Design de **Viagens** em andamento, em
+  `docs/superpowers/specs/2026-07-29-viagens-design.md`. Nada disso funciona
+  ainda: o documento registra as decisões já fechadas — o Rastro escolhe as
+  paradas e deixa o caminho com o Google, a viagem concluída vira visita
+  registrada e pinta o mapa sozinha, e a primeira versão cobre só bate-e-volta de
+  um dia
+
 - Os catorze lugares passam a viver num banco de verdade, como catálogo
   compartilhado — e continuam marcados como dado de desenvolvimento não
   verificado, porque é o que são
