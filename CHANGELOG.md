@@ -22,6 +22,8 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   confirma quais paradas realmente aconteceram, e só essas viram visita
   registrada, para o mapa nunca afirmar que você esteve onde não esteve. A
   primeira versão cobre só o passeio de um dia, saindo e voltando da sua origem
+- Plano de implementação de Viagens em `docs/superpowers/plans/2026-07-30-viagens.md`,
+  em treze etapas, cada uma com teste antes do código e um commit próprio
 
 - Os catorze lugares passam a viver num banco de verdade, como catálogo
   compartilhado — e continuam marcados como dado de desenvolvimento não
