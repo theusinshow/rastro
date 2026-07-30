@@ -34,6 +34,8 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   interessante e recalcula, em vez de desistir. Entre duas igualmente
   interessantes, sai a mais longe. Se nem o destino que você escolheu cabe, ele
   diz isso — nunca devolve uma lista vazia sem explicação
+- Um roteiro montado no Rastro abre no Google Maps com as paradas já na ordem,
+  saindo e voltando da sua origem
 
 - Os catorze lugares passam a viver num banco de verdade, como catálogo
   compartilhado — e continuam marcados como dado de desenvolvimento não
