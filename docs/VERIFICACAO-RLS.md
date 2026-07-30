@@ -160,6 +160,39 @@ O catálogo seguiu com 14 lugares intactos depois de todas elas.
 
 ---
 
+## `complete_trip` — verificada em 30/07/2026
+
+A função da migration 0003 é **`security invoker`** de propósito: a RLS decide
+dentro dela. Com `security definer` ela passaria por cima das políticas e viraria
+o buraco pelo qual um usuário concluiria a viagem de outro.
+
+Prova automatizada, usando **apenas a chave anon**:
+
+```
+node scripts/verificar-complete-trip-rls.mjs <uuid-de-uma-viagem>
+```
+
+Ela confirma duas coisas: o anônimo é recusado ao chamar a função, e não enxerga
+nenhuma linha de `trips`.
+
+**Executada contra 9 uuids reais** extraídos da própria aplicação — a viagem, suas
+paradas e lugares do catálogo. Nenhum foi concluído pelo anônimo, e nenhuma linha
+de `trips` foi lida.
+
+Duas armadilhas que o script trata, e que valem para qualquer verificação futura:
+
+- **Função ausente também dá erro.** Contar isso como "a RLS recusou" faria o
+  teste passar pelo motivo errado — pior que não ter teste. O script distingue os
+  casos e devolve `INCONCLUSIVO` quando a função não existe.
+- **UUID inventado prova menos do que parece.** Com um id inexistente, "zero
+  linhas atualizadas" é ambíguo entre "a RLS bloqueou" e "a viagem não existe".
+  Passe sempre o id de uma viagem real.
+
+Rode isto de novo sempre que alterar a função ou qualquer política de `trips`,
+`trip_stops` ou `place_visits`.
+
+---
+
 ## Se algum bloco falhar
 
 Um resultado diferente do esperado é uma **falha de segurança real**, não um

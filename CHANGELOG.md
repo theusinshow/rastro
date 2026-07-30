@@ -56,6 +56,10 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   vira informação de verdade
 - Abrir uma viagem reenquadra o mapa nela. Antes o mapa continuaria olhando para
   onde você estava
+- **Ao concluir uma viagem você confirma quais paradas realmente aconteceram**, e
+  só essas viram visita registrada — o pin muda de cor sozinho no mapa. O que você
+  desmarcou continua sendo só roteiro, porque o mapa não deve afirmar que você
+  esteve onde não esteve
 
 - Os catorze lugares passam a viver num banco de verdade, como catálogo
   compartilhado — e continuam marcados como dado de desenvolvimento não
