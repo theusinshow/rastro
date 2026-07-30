@@ -30,6 +30,10 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   voltar ao de mês passado
 - A ordem das paradas de um roteiro é calculada, não arrastada: o Rastro
   reorganiza o caminho para ele não cruzar consigo mesmo
+- Quando um roteiro não cabe no tempo que você tem, o Rastro tira a parada menos
+  interessante e recalcula, em vez de desistir. Entre duas igualmente
+  interessantes, sai a mais longe. Se nem o destino que você escolheu cabe, ele
+  diz isso — nunca devolve uma lista vazia sem explicação
 
 - Os catorze lugares passam a viver num banco de verdade, como catálogo
   compartilhado — e continuam marcados como dado de desenvolvimento não

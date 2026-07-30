@@ -1,6 +1,12 @@
-import { estimateRidingMinutes, estimateRoadKm } from './discovery'
+import {
+  MINUTES_PER_STOP,
+  TIME_BUDGET_MINUTES,
+  estimateRidingMinutes,
+  estimateRoadKm,
+  type TimeBudget,
+} from './discovery'
 import { haversineKm, type Coordinates } from './geo'
-import type { ExplorePlace } from './place'
+import type { ExplorePlace, PlaceCategory } from './place'
 
 /**
  * Pontuação de interesse de um lugar como parada de um roteiro.
@@ -222,4 +228,154 @@ export function orderAndMeasure(
     totalRoadKm,
     totalRidingMinutes: estimateRidingMinutes(totalRoadKm),
   }
+}
+
+export interface ItineraryRequest {
+  origin: Coordinates
+  timeBudget: TimeBudget
+  /** Limite de distância rodoviária estimada, só de ida. */
+  maxDistanceKm: number
+  /** Vazio significa qualquer categoria. */
+  categories: PlaceCategory[]
+  /** Parada obrigatória, quando o usuário já sabe o destino. */
+  anchorPlaceId: string | null
+  maxStops: number
+}
+
+/**
+ * As três recusas são distintas e rendem mensagens diferentes.
+ *
+ * Confundi-las devolveria ao usuário o trabalho de descobrir o que deu errado — e
+ * sugerir "aumente o raio" quando o problema é tempo o mandaria para o lado
+ * errado.
+ */
+export type ItineraryRefusal =
+  /** Nada passou pelos filtros de categoria e raio. Nem chegou a medir tempo. */
+  | 'no-candidates'
+  /** Passou pelos filtros, mas nem a parada mais próxima cabe no tempo. */
+  | 'budget-too-small'
+  /** Só a âncora, sozinha, já estoura o orçamento. */
+  | 'anchor-does-not-fit'
+
+export type ItineraryOutcome = Itinerary | { refusal: ItineraryRefusal }
+
+export function isRefusal(
+  outcome: ItineraryOutcome,
+): outcome is { refusal: ItineraryRefusal } {
+  return 'refusal' in outcome
+}
+
+/** Minutos de pilotagem disponíveis, já descontado o tempo parado. */
+function ridingBudgetMinutes(budget: TimeBudget, stopCount: number): number {
+  return TIME_BUDGET_MINUTES[budget] - stopCount * MINUTES_PER_STOP
+}
+
+function fits(itinerary: Itinerary, budget: TimeBudget): boolean {
+  return (
+    itinerary.totalRidingMinutes <=
+    ridingBudgetMinutes(budget, itinerary.stops.length)
+  )
+}
+
+/**
+ * Monta o roteiro: seleciona por interesse, ordena por geometria, e poda até
+ * caber.
+ *
+ * A poda descarta sempre a parada de MENOR pontuação e reordena — nunca a
+ * âncora, que é o destino que o usuário já escolheu. Se só ela não cabe, a recusa
+ * diz isso em vez de devolver uma lista vazia.
+ */
+export function buildItinerary(
+  places: readonly ExplorePlace[],
+  request: ItineraryRequest,
+  today: string,
+): ItineraryOutcome {
+  const anchor = request.anchorPlaceId
+    ? places.find((place) => place.id === request.anchorPlaceId)
+    : undefined
+
+  const candidates = places.filter((place) => {
+    if (place.id === anchor?.id) return false
+    if (
+      request.categories.length > 0 &&
+      !request.categories.includes(place.category)
+    ) {
+      return false
+    }
+    return (
+      estimateRoadKm(haversineKm(request.origin, place)) <= request.maxDistanceKm
+    )
+  })
+
+  if (!anchor && candidates.length === 0) return { refusal: 'no-candidates' }
+
+  if (anchor) {
+    const alone = orderAndMeasure(request.origin, [anchor])
+    if (!fits(alone, request.timeBudget)) {
+      return { refusal: 'anchor-does-not-fit' }
+    }
+  }
+
+  const ranked = [...candidates].sort(
+    (a, b) => scorePlace(b, today) - scorePlace(a, today),
+  )
+
+  const room = anchor ? request.maxStops - 1 : request.maxStops
+  const selected = [
+    ...(anchor ? [anchor] : []),
+    ...ranked.slice(0, Math.max(0, room)),
+  ]
+
+  // Poda: enquanto não couber, sai a de menor pontuação que não seja a âncora.
+  let working = selected
+  while (working.length > 0) {
+    const itinerary = orderAndMeasure(request.origin, working)
+    if (fits(itinerary, request.timeBudget)) return itinerary
+
+    const droppable = working.filter((place) => place.id !== anchor?.id)
+    if (droppable.length === 0) return { refusal: 'anchor-does-not-fit' }
+
+    // Sai a de menor pontuação. Empate desempata pelo CUSTO: entre duas paradas
+    // igualmente interessantes, quem sai é a mais longe.
+    //
+    // Sem esse desempate a poda descartava em ordem de array, e como candidatos
+    // sem visita e sem favorito pontuam igual, ela removia a parada mais próxima
+    // e mantinha as caras — o roteiro encolhia sem nunca passar a caber, e um
+    // passeio perfeitamente possível era recusado.
+    let worst = droppable[0]
+    if (!worst) break
+    let worstScore = scorePlace(worst, today)
+    let worstKm = haversineKm(request.origin, worst)
+
+    for (const place of droppable) {
+      const score = scorePlace(place, today)
+      const km = haversineKm(request.origin, place)
+      if (score < worstScore || (score === worstScore && km > worstKm)) {
+        worst = place
+        worstScore = score
+        worstKm = km
+      }
+    }
+
+    const worstId = worst.id
+    working = working.filter((place) => place.id !== worstId)
+  }
+
+  return { refusal: 'budget-too-small' }
+}
+
+/**
+ * Uma mensagem por recusa, e nunca a mesma para duas.
+ *
+ * Dizer "aumente o raio" quando o problema é tempo mandaria o usuário para o
+ * lado errado — e devolver "nenhum resultado" seco devolveria a ele um trabalho
+ * que a máquina já fez.
+ */
+export const ITINERARY_REFUSAL_MESSAGES: Record<ItineraryRefusal, string> = {
+  'no-candidates':
+    'Nenhum lugar se encaixa nesses filtros. Amplie o raio ou tire uma categoria.',
+  'budget-too-small':
+    'Nada cabe nesse tempo. O problema é o relógio, não a distância — escolha mais horas.',
+  'anchor-does-not-fit':
+    'Esse destino sozinho já passa do tempo que você tem. Escolha mais horas ou outro destino.',
 }
