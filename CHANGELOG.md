@@ -48,6 +48,14 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   existir. Tentar cinco combinações não enche seu histórico de rascunho
 - A tela de Viagens deixa de ser um aviso de "em breve" e passa a listar as suas
   viagens, com quilometragem e duração — e dizendo quando o número é estimativa
+- **O Rastro propõe a volta inteira.** Você diz quanto tempo tem, que tipo de
+  lugar quer ver, e opcionalmente o destino que já tem em mente — ele encadeia as
+  paradas priorizando o que você marcou como quero-conhecer e o que ainda não viu
+- A rota de uma viagem é desenhada no mapa como a própria marca do Rastro: asfalto
+  âmbar com faixa central tracejada. É o único lugar em que o desenho da marca
+  vira informação de verdade
+- Abrir uma viagem reenquadra o mapa nela. Antes o mapa continuaria olhando para
+  onde você estava
 
 - Os catorze lugares passam a viver num banco de verdade, como catálogo
   compartilhado — e continuam marcados como dado de desenvolvimento não

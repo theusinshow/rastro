@@ -9,6 +9,12 @@
  * proteção do dado é a RLS, não o segredo da chave.
  *
  * Uso: node scripts/verificar-complete-trip-rls.mjs <uuid-de-uma-viagem>
+ *
+ * IMPORTANTE — passe o uuid de uma viagem que EXISTE. Com um uuid inventado a
+ * função também recusa, mas por não encontrar a linha, e aí o script prova menos
+ * do que parece: "zero linhas atualizadas" seria ambíguo entre "a RLS bloqueou" e
+ * "a viagem não existe". Só com uma viagem real de outro dono a recusa vira prova
+ * de autorização.
  */
 import { readFileSync } from 'node:fs'
 import { createClient } from '@supabase/supabase-js'
@@ -48,8 +54,18 @@ const { error } = await anon.rpc('complete_trip', {
 if (!error) {
   console.error('FALHOU: anonimo concluiu a viagem. A funcao esta furada.')
   falhou = true
+} else if (/does not exist|could not find the function|PGRST202/i.test(
+  `${error.message} ${error.code ?? ''}`,
+)) {
+  // Distincao que importa: funcao ausente TAMBEM da erro, e contar isso como
+  // "a RLS recusou" faria o teste passar pelo motivo errado -- que e pior que
+  // nao ter teste. A migration 0003 precisa ter sido aplicada.
+  console.error('INCONCLUSIVO: a funcao complete_trip nao existe no banco.')
+  console.error('  ->', error.message)
+  console.error('  aplique supabase/migrations/0003_complete_trip.sql')
+  falhou = true
 } else {
-  console.log('OK: anonimo recusado ->', error.message)
+  console.log('OK: a funcao existe e recusou o anonimo ->', error.message)
 }
 
 const { data, error: readError } = await anon
