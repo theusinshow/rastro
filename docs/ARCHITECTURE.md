@@ -19,8 +19,9 @@ src/lib/supabase/          (conexão e sessão — não conhece o domínio)
       ▼
 src/domain/                (tipos e funções puras)
       │
-      ├──▶ src/lib/data/   (repositórios: leitura e escrita)
-      └──▶ src/lib/map/    (integração com MapLibre)
+      ├──▶ src/lib/data/     (repositórios: leitura e escrita)
+      ├──▶ src/lib/map/      (integração com MapLibre)
+      └──▶ src/lib/routing/  (traçado real da estrada — ADR 0013)
                   │
                   ├──▶ src/app/actions/   (Server Actions: fronteira de escrita)
                   ▼
@@ -40,10 +41,17 @@ duas pastas de apoio de `src/lib/` explicitadas):
 | `src/lib/supabase/` | nada do projeto | `domain`, componentes |
 | `src/lib/data/` | `domain`, `lib/supabase` | componentes |
 | `src/lib/map/` | `domain` | componentes de página |
+| `src/lib/routing/` | `domain` | `lib/data`, `lib/supabase`, componentes |
 | `src/app/actions/` | `domain`, `lib` | componentes |
 | `src/lib/motion/` | React | `domain`, `lib/data`, `lib/map`, componentes |
 | `src/lib/utils/` | nada do projeto | qualquer coisa do projeto |
 | `src/components/` | `domain`, `lib` | outros repositórios diretamente |
+
+`src/lib/routing/` é a única pasta que fala com um serviço externo que não é o
+Supabase nem o MapTiler. Ela expõe **uma função** que devolve `null` como única
+forma de falha, e nunca lança: assim o modo degradado do produto — estimar a
+distância em vez de medi-la — é um `if` no chamador, e não um segundo caminho de
+código. Ver [ADR 0013](./decisions/0013-openrouteservice-para-tracado.md).
 
 `src/lib/motion/` é a única pasta fora de `src/components/` que contém hooks
 React, e isso é deliberado: `useReducedMotion` e `useExitTransition` são

@@ -249,6 +249,12 @@ que é a única evidência de que o recorte mudou.
   com o traço da marca — nenhuma biblioteca de ícones entra. O de Viagens é a
   curva da marca, e é a única peça que amarra navegação e identidade.
 - **O raio é proporcional ao elemento**, escolhido na escala — não arbitrário.
+- **O tracejado da marca aparece num lugar só fora do logo:** a rota de uma viagem
+  no mapa, desenhada como a própria marca — asfalto âmbar com faixa central na cor
+  do fundo (`src/lib/map/trip-route-layers.ts`). É o único ponto do produto em que
+  a geometria da identidade vira informação literal, e resolve de brinde a leitura:
+  as vias do mapa base são osso e os pins são círculos, então a rota não compete
+  com nenhum dos dois. Qualquer outro tracejado continua proibido.
 
 ---
 
