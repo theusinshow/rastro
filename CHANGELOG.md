@@ -14,12 +14,14 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Adicionado
 
-- Design de **Viagens** em andamento, em
+- Spec de **Viagens** fechada, em
   `docs/superpowers/specs/2026-07-29-viagens-design.md`. Nada disso funciona
-  ainda: o documento registra as decisões já fechadas — o Rastro escolhe as
-  paradas e deixa o caminho com o Google, a viagem concluída vira visita
-  registrada e pinta o mapa sozinha, e a primeira versão cobre só bate-e-volta de
-  um dia
+  ainda. O Rastro vai propor a volta escolhendo as paradas — usando o que só ele
+  sabe: o que você marcou como quero-conhecer, o que ainda não visitou e há quanto
+  tempo não volta — e deixa o caminho com o Google. Ao concluir a viagem você
+  confirma quais paradas realmente aconteceram, e só essas viram visita
+  registrada, para o mapa nunca afirmar que você esteve onde não esteve. A
+  primeira versão cobre só o passeio de um dia, saindo e voltando da sua origem
 
 - Os catorze lugares passam a viver num banco de verdade, como catálogo
   compartilhado — e continuam marcados como dado de desenvolvimento não
