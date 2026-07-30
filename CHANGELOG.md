@@ -389,6 +389,10 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Corrigido
 
+- A data de uma visita gerada por viagem é o dia em que você viajou, no seu fuso —
+  não o dia seguinte. Uma viagem encerrada às 23h30 em Brasília já é o dia seguinte
+  em UTC, e converter errado registraria a memória na data errada
+
 - **Os pins não apareciam no mapa.** A mudança que fez o pin crescer com o número
   de visitas montou a escala de tamanho de um jeito que a biblioteca de mapa
   rejeita, e ela descartava a camada inteira em silêncio — sem erro no console,

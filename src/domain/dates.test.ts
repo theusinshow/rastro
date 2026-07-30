@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatVisitDate } from './dates'
+import { civilDateInTimeZone, formatVisitDate } from './dates'
 
 describe('formatVisitDate', () => {
   it('formata no vocabulário de diário de viagem', () => {
@@ -18,5 +18,35 @@ describe('formatVisitDate', () => {
 
   it('devolve string vazia para entrada inválida', () => {
     expect(formatVisitDate('não é data')).toBe('')
+  })
+})
+
+describe('civilDateInTimeZone', () => {
+  it('às 23h30 de Brasília, a data é o dia da viagem, não o dia seguinte em UTC', () => {
+    // 2026-07-30T23:30 em -03:00 é 2026-07-31T02:30Z.
+    expect(
+      civilDateInTimeZone('2026-07-31T02:30:00.000Z', 'America/Sao_Paulo'),
+    ).toBe('2026-07-30')
+  })
+
+  it('à 01h de Brasília, continua sendo o dia em Brasília', () => {
+    expect(
+      civilDateInTimeZone('2026-07-30T04:00:00.000Z', 'America/Sao_Paulo'),
+    ).toBe('2026-07-30')
+  })
+
+  it('em UTC, a data é a própria', () => {
+    expect(civilDateInTimeZone('2026-07-31T02:30:00.000Z', 'UTC')).toBe(
+      '2026-07-31',
+    )
+  })
+
+  it('o resultado alimenta o formatVisitDate sem conversão no meio', () => {
+    const civil = civilDateInTimeZone(
+      '2026-07-31T02:30:00.000Z',
+      'America/Sao_Paulo',
+    )
+
+    expect(formatVisitDate(civil)).toBe('30 JUL 2026')
   })
 })

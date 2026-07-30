@@ -20,3 +20,28 @@ export function formatVisitDate(isoDate: string): string {
 
   return `${day} ${monthLabel} ${year}`
 }
+
+/**
+ * Data civil `YYYY-MM-DD` de um instante, no fuso informado.
+ *
+ * Existe porque `place_visits.visited_at` é `date` e `trips.ended_at` é
+ * `timestamptz`. Converter no fuso errado registra a visita no dia ANTERIOR: uma
+ * viagem encerrada às 23h30 em Brasília é 02h30 do dia seguinte em UTC, e a
+ * memória apareceria no mapa na data errada.
+ *
+ * É a mesma armadilha do `formatVisitDate` acima, agora no sentido inverso.
+ * `Intl` sabe fuso e horário de verão; fazer a conta com deslocamento fixo de
+ * três horas voltaria a errar sempre que a regra mudasse.
+ */
+export function civilDateInTimeZone(
+  instantIso: string,
+  timeZone: string,
+): string {
+  // `en-CA` formata como `YYYY-MM-DD`, que é exatamente o formato do banco.
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(new Date(instantIso))
+}
