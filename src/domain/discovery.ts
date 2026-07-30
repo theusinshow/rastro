@@ -25,6 +25,21 @@ export const ROAD_SINUOSITY_FACTOR = 1.35
 export const RIDING_TIME_RATIO = 0.75
 
 /**
+ * Tempo parado por parada: foto, café, esticar as pernas, combustível.
+ *
+ * Existe porque o `RIDING_TIME_RATIO` acima NÃO generaliza. Ele foi calibrado
+ * para um destino, reservando 25% do tempo para tudo o que não é pilotar — e
+ * cinco paradas não custam a mesma proporção que uma. Para um destino em quatro
+ * horas o ratio reserva 60 minutos; este modelo reserva 30.
+ *
+ * A divergência é consciente: mudar o `/descobrir` alteraria comportamento já
+ * calibrado sem dado que justifique. O gatilho para unificar as duas réguas é
+ * o registro de viagens passar a gravar distância medida — então dá para
+ * calibrar com dado em vez de palpite.
+ */
+export const MINUTES_PER_STOP = 30
+
+/**
  * Distância rodoviária estimada a partir da linha reta.
  *
  * Existe como função, e não como multiplicação repetida em cada chamador, para

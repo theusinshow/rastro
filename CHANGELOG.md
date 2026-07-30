@@ -24,6 +24,10 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   primeira versão cobre só o passeio de um dia, saindo e voltando da sua origem
 - Plano de implementação de Viagens em `docs/superpowers/plans/2026-07-30-viagens.md`,
   em treze etapas, cada uma com teste antes do código e um commit próprio
+- Ao propor um roteiro, o Rastro passa a saber o que te interessa: lugar que você
+  marcou como quero-conhecer vem antes do que ainda não viu, que vem antes de onde
+  já esteve — e voltar a um lugar que você não vê há dois anos vale mais que
+  voltar ao de mês passado
 
 - Os catorze lugares passam a viver num banco de verdade, como catálogo
   compartilhado — e continuam marcados como dado de desenvolvimento não
