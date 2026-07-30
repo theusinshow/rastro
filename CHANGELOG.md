@@ -28,6 +28,8 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   marcou como quero-conhecer vem antes do que ainda não viu, que vem antes de onde
   já esteve — e voltar a um lugar que você não vê há dois anos vale mais que
   voltar ao de mês passado
+- A ordem das paradas de um roteiro é calculada, não arrastada: o Rastro
+  reorganiza o caminho para ele não cruzar consigo mesmo
 
 - Os catorze lugares passam a viver num banco de verdade, como catálogo
   compartilhado — e continuam marcados como dado de desenvolvimento não

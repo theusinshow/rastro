@@ -1,3 +1,5 @@
+import { estimateRidingMinutes, estimateRoadKm } from './discovery'
+import { haversineKm, type Coordinates } from './geo'
 import type { ExplorePlace } from './place'
 
 /**
@@ -66,4 +68,158 @@ export function scorePlace(place: ExplorePlace, today: string): number {
   if (place.isFavorite) score += SCORE_FAVORITE_BONUS
 
   return score
+}
+
+export interface ItineraryLeg {
+  /** Índice da parada de onde o trecho sai. `-1` é a origem. */
+  fromStopIndex: number
+  roadKm: number
+  minutes: number
+}
+
+export interface Itinerary {
+  /** Já na ordem de rodagem. */
+  stops: ExplorePlace[]
+  /** Inclui o trecho de volta à origem. */
+  legs: ItineraryLeg[]
+  totalRoadKm: number
+  totalRidingMinutes: number
+}
+
+/** Quilômetros rodoviários estimados de um ciclo fechado origem → pontos → origem. */
+function cycleRoadKm(
+  origin: Coordinates,
+  stops: readonly Coordinates[],
+): number {
+  let total = 0
+  let previous: Coordinates = origin
+
+  for (const stop of stops) {
+    total += estimateRoadKm(haversineKm(previous, stop))
+    previous = stop
+  }
+
+  return total + estimateRoadKm(haversineKm(previous, origin))
+}
+
+/**
+ * Vizinho-mais-próximo a partir da origem.
+ *
+ * É o ponto de partida do 2-opt, não a resposta: sozinho ele produz um caminho
+ * que às vezes cruza consigo mesmo.
+ */
+function nearestNeighbourOrder(
+  origin: Coordinates,
+  stops: readonly ExplorePlace[],
+): ExplorePlace[] {
+  const remaining = [...stops]
+  const ordered: ExplorePlace[] = []
+  let current: Coordinates = origin
+
+  while (remaining.length > 0) {
+    let bestIndex = 0
+    let bestKm = Infinity
+
+    for (let i = 0; i < remaining.length; i += 1) {
+      const candidate = remaining[i]
+      if (!candidate) continue
+      const km = haversineKm(current, candidate)
+      if (km < bestKm) {
+        bestKm = km
+        bestIndex = i
+      }
+    }
+
+    const [chosen] = remaining.splice(bestIndex, 1)
+    if (!chosen) break
+    ordered.push(chosen)
+    current = chosen
+  }
+
+  return ordered
+}
+
+/**
+ * 2-opt sobre o ciclo fechado: inverte trechos enquanto isso encurtar o total.
+ *
+ * Com algumas dezenas de paradas isto roda em microssegundos, e é o que desfaz os
+ * cruzamentos que o vizinho-mais-próximo deixa. Não busca o ótimo global — busca
+ * um caminho que não pareça errado a olho no mapa, que é o que importa aqui.
+ */
+function twoOptImprove(
+  origin: Coordinates,
+  stops: readonly ExplorePlace[],
+): ExplorePlace[] {
+  let best = [...stops]
+  let bestKm = cycleRoadKm(origin, best)
+  let improved = true
+
+  while (improved) {
+    improved = false
+
+    for (let i = 0; i < best.length - 1; i += 1) {
+      for (let j = i + 1; j < best.length; j += 1) {
+        const candidate = [
+          ...best.slice(0, i),
+          ...best.slice(i, j + 1).reverse(),
+          ...best.slice(j + 1),
+        ]
+        const km = cycleRoadKm(origin, candidate)
+        if (km < bestKm - 1e-9) {
+          best = candidate
+          bestKm = km
+          improved = true
+        }
+      }
+    }
+  }
+
+  return best
+}
+
+/**
+ * Ordena um conjunto de paradas já escolhido e mede os trechos.
+ *
+ * É o que a montagem manual usa: nenhuma seleção, só geometria. A ordem nunca é
+ * a que o usuário informou — ordenar é trabalho de máquina, e o 2-opt faz melhor
+ * que a mão.
+ */
+export function orderAndMeasure(
+  origin: Coordinates,
+  stops: readonly ExplorePlace[],
+): Itinerary {
+  if (stops.length === 0) {
+    return { stops: [], legs: [], totalRoadKm: 0, totalRidingMinutes: 0 }
+  }
+
+  const ordered = twoOptImprove(origin, nearestNeighbourOrder(origin, stops))
+
+  const legs: ItineraryLeg[] = []
+  let previous: Coordinates = origin
+
+  ordered.forEach((stop, index) => {
+    const roadKm = estimateRoadKm(haversineKm(previous, stop))
+    legs.push({
+      fromStopIndex: index - 1,
+      roadKm,
+      minutes: estimateRidingMinutes(roadKm),
+    })
+    previous = stop
+  })
+
+  const returnKm = estimateRoadKm(haversineKm(previous, origin))
+  legs.push({
+    fromStopIndex: ordered.length - 1,
+    roadKm: returnKm,
+    minutes: estimateRidingMinutes(returnKm),
+  })
+
+  const totalRoadKm = legs.reduce((sum, leg) => sum + leg.roadKm, 0)
+
+  return {
+    stops: ordered,
+    legs,
+    totalRoadKm,
+    totalRidingMinutes: estimateRidingMinutes(totalRoadKm),
+  }
 }

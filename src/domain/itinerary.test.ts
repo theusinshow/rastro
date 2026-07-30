@@ -4,6 +4,7 @@ import {
   SCORE_UNVISITED,
   SCORE_VISITED,
   SCORE_WANTS_TO_VISIT,
+  orderAndMeasure,
   scorePlace,
 } from './itinerary'
 import type { ExplorePlace } from './place'
@@ -81,5 +82,64 @@ describe('scorePlace', () => {
     expect(scorePlace(place({ visitStatus: 'nao-visitado' }), TODAY)).toBe(
       SCORE_UNVISITED,
     )
+  })
+})
+
+const ORIGIN = { latitude: -27.6455, longitude: -48.67 }
+
+describe('orderAndMeasure', () => {
+  it('devolve roteiro vazio para nenhuma parada', () => {
+    const result = orderAndMeasure(ORIGIN, [])
+
+    expect(result.stops).toEqual([])
+    expect(result.legs).toEqual([])
+    expect(result.totalRoadKm).toBe(0)
+  })
+
+  it('fecha o ciclo: a última perna volta para a origem', () => {
+    const result = orderAndMeasure(ORIGIN, [
+      place({ slug: 'a', latitude: -28, longitude: -49 }),
+    ])
+
+    // Uma parada: origem -> a, e a -> origem.
+    expect(result.legs).toHaveLength(2)
+    expect(result.legs[0]?.fromStopIndex).toBe(-1)
+    expect(result.legs[1]?.fromStopIndex).toBe(0)
+  })
+
+  it('ordena para não cruzar: o caminho ruim é reordenado num mais curto', () => {
+    // Quatro pontos num quadrado, entregues na ordem que se cruza (A, C, B, D).
+    const square = [
+      place({ slug: 'a', latitude: -27.0, longitude: -49.0 }),
+      place({ slug: 'c', latitude: -28.0, longitude: -48.0 }),
+      place({ slug: 'b', latitude: -27.0, longitude: -48.0 }),
+      place({ slug: 'd', latitude: -28.0, longitude: -49.0 }),
+    ]
+
+    const result = orderAndMeasure({ latitude: -27.5, longitude: -48.5 }, square)
+    const order = result.stops.map((stop) => stop.slug).join('')
+
+    // O perímetro do quadrado, em algum sentido — nunca a diagonal cruzada.
+    expect([
+      'abcd',
+      'adcb',
+      'bcda',
+      'badc',
+      'cdab',
+      'cbad',
+      'dabc',
+      'dcba',
+    ]).toContain(order)
+  })
+
+  it('soma os trechos no total', () => {
+    const result = orderAndMeasure(ORIGIN, [
+      place({ slug: 'a', latitude: -28, longitude: -49 }),
+      place({ slug: 'b', latitude: -28.5, longitude: -49.5 }),
+    ])
+
+    const somaDosTrechos = result.legs.reduce((sum, leg) => sum + leg.roadKm, 0)
+    expect(result.totalRoadKm).toBeCloseTo(somaDosTrechos, 6)
+    expect(result.totalRoadKm).toBeGreaterThan(0)
   })
 })
