@@ -66,6 +66,13 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   mão nada é descartado — quem escolhe não quer ver a escolha trocada. Em todos os
   três, a ordem é calculada
 
+### Corrigido
+
+- Botão, chip e mensagem de erro passam a fixar o próprio tamanho de texto em vez
+  de herdá-lo. Eles já apareciam no tamanho certo, mas por coincidência — a classe
+  que declarava isso não existia mais, e bastaria colocá-los dentro de um bloco de
+  texto maior para encolherem ou crescerem sem ninguém pedir
+
 ### Removido
 
 - O aviso de "Em breve: criar viagem" no painel do lugar, que agora é um botão que

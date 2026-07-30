@@ -50,7 +50,7 @@ export function InlineMessage({
       role={tone === 'error' ? 'alert' : undefined}
       className={cn(
         'flex flex-col gap-1 rounded-md border px-4 py-3 leading-relaxed',
-        'text-base sm:flex-row sm:items-baseline sm:gap-3',
+        'text-body sm:flex-row sm:items-baseline sm:gap-3',
         TONE[tone],
         className,
       )}
