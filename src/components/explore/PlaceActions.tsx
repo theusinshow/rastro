@@ -16,14 +16,29 @@ function routeUrl(place: ExplorePlace): string {
 export function PlaceActions({ place }: { place: ExplorePlace }) {
   return (
     <div className="shrink-0 border-t border-line px-5 py-4">
-      {/* Das quatro ações que ficavam sob "Em breve", três passaram a funcionar
-          e vivem agora em `PlaceStateControls` e `PlaceVisits`, junto do dado
-          que elas mudam. Sobrou "Criar viagem", que é a etapa seguinte. */}
+      {/* As quatro ações que ficavam sob "Em breve" agora funcionam: três vivem
+          em `PlaceStateControls` e `PlaceVisits`, junto do dado que elas mudam, e
+          a quarta é o roteiro abaixo. */}
       <a href={routeUrl(place)} target="_blank" rel="noreferrer" className="block">
         <Button size="sm" variant="solid" className="w-full">
           Abrir rota
         </Button>
       </a>
+
+      {/* Monta um roteiro semeado por este lugar. Não cria viagem: leva para o
+          formulário com a parada já escolhida, e lá se adiciona o resto.
+
+          É a terceira entrada de montagem — a manual. Diferente das outras duas,
+          aqui NÃO há pontuação de interesse: quem escolheu à mão não quer ver a
+          sua escolha descartada por um critério que a máquina inventou. */}
+      <Link
+        href={`/viagens/nova?paradas=${place.id}`}
+        className="mt-3 block"
+      >
+        <Button size="sm" variant="outline" className="w-full">
+          Montar roteiro com este lugar
+        </Button>
+      </Link>
 
       {/* Só em lugar próprio. Sobre o catálogo compartilhado você tem opinião,
           não posse — e a RLS recusaria a escrita de qualquer forma. */}
@@ -40,14 +55,9 @@ export function PlaceActions({ place }: { place: ExplorePlace }) {
       <div className="mt-4">
         <span className="instrument-label">Em breve</span>
         <p className="mt-1.5 text-small leading-relaxed text-ink-faint">
-          Criar viagem
+          Fotos da viagem
         </p>
       </div>
-
-      <p className="mt-2 text-micro leading-relaxed text-ink-faint">
-        Criar viagem grava paradas e fotos, e fica disponível na etapa de
-        viagens.
-      </p>
     </div>
   )
 }

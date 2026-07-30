@@ -60,6 +60,16 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   só essas viram visita registrada — o pin muda de cor sozinho no mapa. O que você
   desmarcou continua sendo só roteiro, porque o mapa não deve afirmar que você
   esteve onde não esteve
+- **Há três jeitos de montar uma viagem:** deixar o Rastro propor a volta inteira,
+  dizer o destino que você já tem em mente e receber o resto como sugestão, ou
+  escolher as paradas você mesmo a partir do painel de cada lugar. Na montagem à
+  mão nada é descartado — quem escolhe não quer ver a escolha trocada. Em todos os
+  três, a ordem é calculada
+
+### Removido
+
+- O aviso de "Em breve: criar viagem" no painel do lugar, que agora é um botão que
+  funciona
 
 - Os catorze lugares passam a viver num banco de verdade, como catálogo
   compartilhado — e continuam marcados como dado de desenvolvimento não

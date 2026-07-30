@@ -139,10 +139,37 @@ export function TripProposalForm({
 
         {isManual ? (
           <section className="border-b border-line px-4 py-4">
-            <span className="instrument-label">Paradas escolhidas</span>
+            <span className="instrument-label">Roteiro à mão</span>
             <p className="mt-2 text-small leading-relaxed text-ink-muted">
-              Você escolheu estas no painel de cada lugar. A ordem é calculada.
+              Aqui nada é descartado por pontuação: quem escolhe à mão não quer
+              ver a escolha trocada. A ordem continua sendo calculada.
             </p>
+
+            <Field label="Adicionar parada" className="mt-4">
+              {(fieldProps) => (
+                <Select
+                  {...fieldProps}
+                  value=""
+                  onChange={(event) => {
+                    const id = event.target.value
+                    if (!id || manualIds.includes(id)) return
+                    const next = [...manualIds, id]
+                    setManualIds(next)
+                    measure(next)
+                  }}
+                >
+                  <option value="">Escolha um lugar…</option>
+                  {places
+                    .filter((place) => !manualIds.includes(place.id))
+                    .map((place) => (
+                      <option key={place.id} value={place.id}>
+                        {place.name}
+                      </option>
+                    ))}
+                </Select>
+              )}
+            </Field>
+
             {manualIds.length > 0 && !proposal && !pending ? (
               <Button
                 variant="outline"
