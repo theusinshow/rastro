@@ -43,6 +43,7 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 - Lugar afastado da estrada não derruba mais o traçado da viagem inteira. Mirante,
   cachoeira e praia costumam ficar longe do asfalto, e o serviço de rotas recusava
   a rota toda quando uma parada passava de 350 metros de uma via
+- Viagens passam a ser salvas de verdade, com as paradas na ordem e o traçado
 
 - Os catorze lugares passam a viver num banco de verdade, como catálogo
   compartilhado — e continuam marcados como dado de desenvolvimento não

@@ -7,6 +7,8 @@ import { createSupabasePlaceCatalogRepository } from './supabase/supabase-place-
 import { createSupabasePlaceRepository } from './supabase/supabase-place-repository'
 import { createSupabasePlaceStateRepository } from './supabase/supabase-place-state-repository'
 import { createSupabaseProfileRepository } from './supabase/supabase-profile-repository'
+import { createSupabaseTripRepository } from './supabase/supabase-trip-repository'
+import type { TripRepository } from './trip-repository'
 
 /**
  * Cliente e usuário desta requisição.
@@ -52,9 +54,15 @@ export async function getPlaceCatalogRepository(): Promise<PlaceCatalogRepositor
   return createSupabasePlaceCatalogRepository(supabase, userId)
 }
 
+export async function getTripRepository(): Promise<TripRepository> {
+  const { supabase, userId } = await sessionContext()
+  return createSupabaseTripRepository(supabase, userId)
+}
+
 export type {
   PlaceCatalogRepository,
   PlaceRepository,
   PlaceStateRepository,
   ProfileRepository,
+  TripRepository,
 }
