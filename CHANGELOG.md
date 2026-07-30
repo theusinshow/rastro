@@ -36,6 +36,13 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   diz isso — nunca devolve uma lista vazia sem explicação
 - Um roteiro montado no Rastro abre no Google Maps com as paradas já na ordem,
   saindo e voltando da sua origem
+- O traçado de um roteiro passa a seguir a estrada de verdade, com quilometragem e
+  tempo medidos em vez de estimados. Sem a chave do serviço, ou se ele estiver
+  fora do ar, a viagem continua funcionando com a estimativa — e a tela diz qual
+  das duas você está vendo
+- Lugar afastado da estrada não derruba mais o traçado da viagem inteira. Mirante,
+  cachoeira e praia costumam ficar longe do asfalto, e o serviço de rotas recusava
+  a rota toda quando uma parada passava de 350 metros de uma via
 
 - Os catorze lugares passam a viver num banco de verdade, como catálogo
   compartilhado — e continuam marcados como dado de desenvolvimento não
