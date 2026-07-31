@@ -14,6 +14,7 @@ import { CloseButton } from '@/components/ui/CloseButton'
 import { Stat } from '@/components/ui/Stat'
 import { PlaceActions } from './PlaceActions'
 import { PlaceNearbyPhotos } from './PlaceNearbyPhotos'
+import { PlacePhotos } from './PlacePhotos'
 import { PlaceStateControls } from './PlaceStateControls'
 import { PlaceVisits } from './PlaceVisits'
 import { VisitStatusBadge } from './VisitStatusBadge'
@@ -71,9 +72,13 @@ export function PlacePanel({ place, onClose, exiting }: PlacePanelProps) {
         ) : (
           <div className="border-b border-line px-5 py-3">
             <span className="instrument-label">
-              {place.photoCount > 0
-                ? `${place.photoCount} fotografias`
-                : 'Sem fotografias'}
+              {/* O singular só apareceu quando o contador deixou de ser sempre
+                  zero: com uma foto, o texto dizia "1 fotografias". */}
+              {place.photoCount === 0
+                ? 'Sem fotografias'
+                : place.photoCount === 1
+                  ? '1 fotografia'
+                  : `${place.photoCount} fotografias`}
             </span>
           </div>
         )}
@@ -96,6 +101,7 @@ export function PlacePanel({ place, onClose, exiting }: PlacePanelProps) {
 
         <PlaceStateControls place={place} />
         <PlaceVisits place={place} />
+        <PlacePhotos key={`fotos-${place.slug}`} placeId={place.id} />
         {/* `key`: trocar de lugar remonta a busca com estado limpo, em vez de
             zerá-lo dentro do efeito. */}
         <PlaceNearbyPhotos

@@ -7,7 +7,29 @@ import {
   type NewPhoto,
 } from '@/domain/photo'
 import { getPhotoRepository } from '@/lib/data'
+import type { PhotoWithUrl } from '@/lib/data/photo-repository'
 import type { ActionResult } from './result'
+
+/**
+ * Fotos de um lugar, já com URL assinada.
+ *
+ * Existe como action, e não como dado injetado pelo servidor, porque
+ * `PlacePanel` é componente cliente: injetar exigiria reestruturar a árvore de
+ * Explorar inteira para atravessar uma lista até o painel. Mesmo caminho do
+ * `PlaceNearbyPhotos`, que é o componente irmão.
+ *
+ * Devolve `[]` em falha: um painel sem galeria é melhor que um painel quebrado.
+ */
+export async function listPhotosAction(
+  placeId: string,
+): Promise<PhotoWithUrl[]> {
+  try {
+    const repository = await getPhotoRepository()
+    return await repository.listByPlace(placeId)
+  } catch {
+    return []
+  }
+}
 
 /**
  * Grava a linha de uma foto que JÁ subiu para o Storage.

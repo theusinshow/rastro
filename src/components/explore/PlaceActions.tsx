@@ -52,12 +52,6 @@ export function PlaceActions({ place }: { place: ExplorePlace }) {
         </Link>
       ) : null}
 
-      <div className="mt-4">
-        <span className="instrument-label">Em breve</span>
-        <p className="mt-1.5 text-small leading-relaxed text-ink-faint">
-          Fotos da viagem
-        </p>
-      </div>
     </div>
   )
 }

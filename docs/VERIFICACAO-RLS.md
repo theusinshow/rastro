@@ -193,6 +193,35 @@ Rode isto de novo sempre que alterar a função ou qualquer política de `trips`
 
 ---
 
+## Storage `fotos` — verificada em 30/07/2026
+
+Bucket **privado**. As três políticas sobre `storage.objects` prendem cada usuário
+à própria pasta, comparando o primeiro segmento do caminho
+(`{userId}/{placeId}/{uuid}.jpg`) com `auth.uid()`.
+
+```
+node scripts/verificar-storage-rls.mjs
+```
+
+Confirma três coisas com a chave anon, e a terceira é a que decide:
+
+| Verificação | Resultado |
+|---|---|
+| Anônimo lista a pasta de outro | vazio, RLS filtrou |
+| Anônimo escreve na pasta de outro | `new row violates row-level security policy` |
+| **URL pública serve o objeto** | **400** — o bucket é privado de verdade |
+
+A terceira é a que prova privacidade: caminho difícil de adivinhar **não é**
+segurança, e um link vazado valeria para sempre.
+
+O script distingue "bucket ausente" de "RLS recusou" e devolve `INCONCLUSIVO` no
+primeiro caso — contar bucket inexistente como sucesso faria o teste passar pelo
+motivo errado.
+
+Rode de novo ao mexer em qualquer política de Storage.
+
+---
+
 ## Se algum bloco falhar
 
 Um resultado diferente do esperado é uma **falha de segurança real**, não um

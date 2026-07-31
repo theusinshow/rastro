@@ -91,6 +91,10 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Corrigido
 
+- **Fotografias suas num lugar.** Suba pelo painel do lugar e elas aparecem ali,
+  privadas — só você acessa, por um link temporário. A que traz data no arquivo
+  mostra a data em que foi tirada; a que não traz diz "sem data", em vez de fingir
+  que foi hoje. **E o pin no mapa passa a marcar quais lugares têm fotografia**
 - **Você pode informar a autonomia da sua moto, e o roteiro passa a avisar quando
   a volta não fecha num tanque** — dizendo quantas vezes e por volta de qual
   quilômetro abastecer. É um número só, o que a moto faz com um tanque, e ele
