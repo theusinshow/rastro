@@ -68,6 +68,10 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Corrigido
 
+- **Dá para apagar uma viagem.** Antes era possível criar e não era possível
+  desfazer. A confirmação diz o que some e, principalmente, o que **não** some: as
+  visitas que aquela viagem registrou permanecem no mapa, porque elas são memória
+  do que aconteceu, não propriedade do roteiro
 - Botão, chip e mensagem de erro passam a fixar o próprio tamanho de texto em vez
   de herdá-lo. Eles já apareciam no tamanho certo, mas por coincidência — a classe
   que declarava isso não existia mais, e bastaria colocá-los dentro de um bloco de

@@ -4,6 +4,7 @@ import { formatDistanceKm, formatDurationMinutes } from '@/domain/geo'
 import { googleMapsRouteUrl } from '@/domain/google-maps-link'
 import { TRIP_STATUS_LABELS, type TripDetail } from '@/domain/trip'
 import { InlineMessage } from '@/components/ui/InlineMessage'
+import { TripDeleteAction } from './TripDeleteAction'
 
 interface TripItineraryViewProps {
   trip: TripDetail
@@ -100,6 +101,10 @@ export function TripItineraryView({ trip }: TripItineraryViewProps) {
         >
           Voltar às viagens
         </Link>
+
+        <div className="mt-1 border-t border-line pt-4">
+          <TripDeleteAction trip={trip} />
+        </div>
       </div>
     </div>
   )
