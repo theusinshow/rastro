@@ -14,6 +14,14 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Adicionado
 
+- Spec de **Fotos** fechada, em
+  `docs/superpowers/specs/2026-07-30-fotos-design.md`. Nada disso funciona ainda.
+  A foto passará a pertencer ao lugar, com a viagem opcional — hoje o esquema
+  exigia uma viagem para cada foto, o que deixaria de fora toda fotografia
+  anterior ao app. Elas ficam em armazenamento privado, a data e a coordenada saem
+  do próprio arquivo, e foto sem essa informação fica com a data **em branco** em
+  vez de fingir que foi tirada no dia em que você a subiu
+
 - Spec de **Viagens** fechada, em
   `docs/superpowers/specs/2026-07-29-viagens-design.md`. Nada disso funciona
   ainda. O Rastro vai propor a volta escolhendo as paradas — usando o que só ele
