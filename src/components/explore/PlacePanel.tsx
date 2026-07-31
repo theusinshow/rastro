@@ -13,6 +13,7 @@ import { useOrigin } from '@/components/layout/origin-context'
 import { CloseButton } from '@/components/ui/CloseButton'
 import { Stat } from '@/components/ui/Stat'
 import { PlaceActions } from './PlaceActions'
+import { PlaceNearbyPhotos } from './PlaceNearbyPhotos'
 import { PlaceStateControls } from './PlaceStateControls'
 import { PlaceVisits } from './PlaceVisits'
 import { VisitStatusBadge } from './VisitStatusBadge'
@@ -95,6 +96,13 @@ export function PlacePanel({ place, onClose, exiting }: PlacePanelProps) {
 
         <PlaceStateControls place={place} />
         <PlaceVisits place={place} />
+        {/* `key`: trocar de lugar remonta a busca com estado limpo, em vez de
+            zerá-lo dentro do efeito. */}
+        <PlaceNearbyPhotos
+          key={place.slug}
+          latitude={place.latitude}
+          longitude={place.longitude}
+        />
 
         {place.description ? (
           <p className="px-5 py-4 text-body leading-relaxed text-ink-muted">

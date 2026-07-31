@@ -91,6 +91,12 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Corrigido
 
+- **Clicar num pin passa a mostrar fotografias das redondezas**, vindas do
+  Wikimedia Commons, com o autor, a licença e a **distância** de cada uma. Elas
+  são apresentadas como o que são — tiradas perto dali, por outras pessoas — e não
+  como fotos daquele lugar: medindo o catálogo, a Serra do Corvo Branco traz uma
+  imagem da Pedra Furada do Morro da Igreja, a 2,2 km. Tocar na foto abre a página
+  original, onde a licença pode ser conferida
 - **Botões e alvos de toque no celular passam a ter 44px de altura**, o piso para
   dedo com luva. Medidos, seis alvos ficavam abaixo disso — inclusive a marca, que
   é o caminho de volta ao mapa. Restam só os créditos de licença do mapa, que não
