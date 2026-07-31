@@ -25,6 +25,8 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   `docs/superpowers/plans/2026-07-30-fotos.md`, em nove etapas
 - Legenda de fotografia aceita até 280 caracteres, e arquivo em formato que o
   navegador não sabe processar é recusado dizendo qual mandar
+- Uma fotografia com informação de GPS se posiciona sozinha, e a data vem do dia
+  em que ela foi tirada — não do dia em que você a subiu
 
 - Spec de **Viagens** fechada, em
   `docs/superpowers/specs/2026-07-29-viagens-design.md`. Nada disso funciona
