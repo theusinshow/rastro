@@ -14,19 +14,30 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Alterado
 
-- **Direção visual nova, começando pela cor.** A superfície esquentou um grau, a
-  tinta clareou um passo e o âmbar subiu em direção ao farol. O motivo não é
-  gosto: o texto apagado sobre a superfície de hover dava 4,29:1, abaixo da
-  norma de acessibilidade — agora o pior par do sistema inteiro passa. O mapa foi
-  refeito junto, na mesma passada, porque ele desenha em WebGL e não lê a paleta
-  da interface
+- **Direção visual nova.** A superfície esquentou um grau, a tinta clareou um
+  passo e o âmbar subiu em direção ao farol. O motivo não é gosto: o texto
+  apagado sobre a superfície de hover dava 4,29:1, abaixo da norma de
+  acessibilidade — agora o pior par do sistema inteiro passa. O mapa foi refeito
+  junto, na mesma passada, porque ele desenha em WebGL e não lê a paleta da
+  interface
+- A barra e o mostrador viraram **cápsulas em relevo**, e cada destino ganhou a
+  sua cor — âmbar, terracota, oliva e azul de carta náutica, sempre a mesma. O
+  rótulo nunca é colorido; só o glifo e o preenchimento de onde você está
+- O mostrador deixou de ocupar a tela inteira embaixo e virou uma cápsula no
+  canto. Ele reivindicava a importância de uma barra de ferramentas para quatro
+  leituras que ninguém aciona — e comia 36px de mapa de ponta a ponta
+- A trilha do Explorar ganhou um **segmento Lista / Filtros** no lugar do botão
+  "Filtrar" solto: os dois modos não são um principal e um secundário
 
 ### Adicionado
 
 - A **régua** por baixo de todo número: sólida quando foi medido, tracejada
-  quando é conta, pontilhada quando ninguém sabe. É a faixa central da estrada,
-  que já era a marca — e agora diz de onde veio cada valor sem precisar de
-  legenda
+  quando é conta (e aí o valor vem com `~` na frente), pontilhada quando ninguém
+  sabe. É a faixa central da estrada, que já era a marca e já era o traçado da
+  viagem no mapa — e agora diz de onde veio cada valor sem precisar de legenda.
+  A distância de um lugar, que aparecia como `161 km` liso e se lia como
+  quilometragem rodada, agora aparece como `~ 161` com o traço interrompido e
+  "linha reta" escrito embaixo
 
 - `docs/PROMPT-REDESIGN.md` — o briefing completo para refazer a direção visual
   do produto do zero: contexto, paleta atual token a token nas duas metades

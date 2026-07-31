@@ -124,20 +124,30 @@ função pura e testável.
 Este produto não pode parecer template SaaS genérico nem "AI slop".
 
 A direção é **couro e instrumento**, registrada no
-[ADR 0009](./docs/decisions/0009-direcao-visual-couro-e-instrumento.md).
+[ADR 0009](./docs/decisions/0009-direcao-visual-couro-e-instrumento.md) e
+completada pelo
+[ADR 0016](./docs/decisions/0016-a-regua-diz-de-onde-veio-o-numero.md), que
+substitui a paleta e a lista de proibidos.
 
-**Proibido:** card com conteúdo primário, gradientes, glassmorphism decorativo,
-ícones sem função, dashboards de widgets, sombras difusas, grade de botões de
-peso idêntico, toast, tooltip só de hover, skeleton, modal.
+**A régua é o centro do sistema.** Toda leitura numérica se apoia numa régua de
+2px que diz de onde o número veio: sólida quando medimos, tracejada quando é
+conta (e o valor vem com `~` na frente), pontilhada quando não sabemos (e o valor
+é `—`), surda quando é contagem. Opinião não recebe régua: sai do mono, vira sans
+e ganha filete de citação. **`Stat` sem régua é defeito, não é estilo.**
 
-**Única exceção de ícone:** a navegação principal, sempre com rótulo ao lado, com
-glifos desenhados em `src/components/layout/nav-icons.tsx`. Ver
-[ADR 0011](./docs/decisions/0011-icones-na-navegacao-principal.md). Glifo em
-qualquer outro lugar continua proibido.
+**Proibido:** gradiente decorativo, glassmorphism decorativo, ícone decorativo,
+dashboard de widgets, grade de botões de peso idêntico, toast, tooltip só de
+hover, skeleton, modal, e **número sem régua**.
+
+**Ícone:** a navegação principal, sempre com rótulo ao lado, com glifos
+desenhados em `src/components/layout/nav-icons.tsx` — mais os casos em que o
+glifo vem com rótulo colado ou **é o próprio estado**. Glifo decorativo continua
+proibido. Ver [ADR 0016](./docs/decisions/0016-a-regua-diz-de-onde-veio-o-numero.md).
 
 **Obrigatório:** separação por hairlines de 1px, raio escolhido na escala e
 proporcional ao elemento, mapa como estrutura (nunca dentro de um card), todo
-dado numérico em fonte mono, acento âmbar de instrumento, piso de corpo de 17px.
+dado numérico em fonte mono, acento âmbar de instrumento, piso de corpo de 17px,
+alvo de toque de 44px.
 
 **O mapa não lê variável CSS.** MapLibre desenha em WebGL: as cores de
 `src/lib/map/style.ts` e `layers.ts` são hex literal e espelham a paleta à mão.

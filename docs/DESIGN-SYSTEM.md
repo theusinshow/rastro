@@ -6,9 +6,18 @@ produto — inclusive o mapa que a sustenta — é construída sobre esta base.
 
 A direção atual é **couro e instrumento**, registrada no
 [ADR 0009](./decisions/0009-direcao-visual-couro-e-instrumento.md), que
-substituiu a paleta, o teto de raio e a tipografia da primeira versão, e
+substituiu a paleta, o teto de raio e a tipografia da primeira versão,
 corrigida pelo [ADR 0012](./decisions/0012-o-calor-mora-sobre-a-superficie.md),
-que ajustou a dosagem.
+que ajustou a dosagem, e **completada pelo
+[ADR 0016](./decisions/0016-a-regua-diz-de-onde-veio-o-numero.md)**, que
+substitui a paleta e a lista de anti-padrões deste documento.
+
+> ⚠️ **Leia o ADR 0016 antes deste arquivo.** Os hex, a lista de anti-padrões e
+> a descrição do `Stat` abaixo estão desatualizados: a paleta mudou (o texto
+> apagado não passava em AA sobre a superfície de hover), card e segunda camada
+> de elevação deixaram de ser proibidos, e **toda leitura numérica passou a se
+> apoiar numa régua de 2px que diz de onde o número veio**. `Stat` sem régua é
+> defeito.
 
 O Rastro não pode parecer template SaaS genérico nem "AI slop". Separação vem de
 hairlines, não de sombra. Cor vem de instrumento, não de gradiente. Números vêm
@@ -469,14 +478,22 @@ junto, e anunciá-la seria repetir.
 
 ## Anti-padrões proibidos
 
-- Excesso de cards, e **nenhum** card com conteúdo primário
-- Gradientes
-- Glassmorphism decorativo (blur só onde há mapa por trás, para legibilidade)
-- Ícones decorativos
+**Atualizado pelo [ADR 0016](./decisions/0016-a-regua-diz-de-onde-veio-o-numero.md).**
+Três itens desta lista caíram, e estão marcados abaixo.
+
+- ~~Excesso de cards, e nenhum card com conteúdo primário~~ — **caiu.** O que
+  nunca foi mapa pode ser card; o mapa continua sem caixa
+- Gradientes **decorativos**
+- Glassmorphism decorativo (o cromo tem blur em todas as telas, por
+  legibilidade e para ser o mesmo material em toda a aplicação)
+- Ícones decorativos — mas ícone **com rótulo colado**, ou que **é o próprio
+  estado**, passa a ser permitido
 - Dashboards de widgets
-- Sombras difusas — `--shadow-float` é a única sombra, e só no cromo flutuante
+- ~~Sombras difusas — `--shadow-float` é a única~~ — **caiu.** São duas camadas:
+  `float` separa cromo de mapa, `lift` diz qual painel tem o foco
 - Grade de botões de peso visual idêntico
 - Toast/snackbar — erro aparece no painel
 - Tooltip só de hover — sem equivalente de teclado nem de toque
 - Skeleton loader — os dados vêm renderizados no servidor
 - Modal — o padrão é painel lateral, que vira folha inferior abaixo de 768px
+- **Número sem régua.** `Stat` sem régua é defeito, não é variação de estilo
