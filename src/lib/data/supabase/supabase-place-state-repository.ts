@@ -53,6 +53,14 @@ export function createSupabasePlaceStateRepository(
       if (error) throw new Error(error.message)
     },
 
+    async updateVisitReview(visitId, rating, notes) {
+      const { error } = await supabase
+        .from('place_visits')
+        .update({ rating, notes })
+        .eq('id', visitId)
+      if (error) throw new Error(error.message)
+    },
+
     async removeVisit(visitId) {
       const { error } = await supabase
         .from('place_visits')

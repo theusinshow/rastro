@@ -14,5 +14,15 @@ export interface PlaceStateRepository {
   setWantsToVisit(placeId: string, value: boolean): Promise<void>
   recordVisit(placeId: string, visitedAt: string): Promise<void>
   updateVisitDate(visitId: string, visitedAt: string): Promise<void>
+  /**
+   * Como foi ESTA passagem. Distinto da opinião geral sobre o lugar, que vive em
+   * `place_user_states.rating` — a serra pode ser 5 e o dia em que você a pegou
+   * fechada de neblina, 2.
+   */
+  updateVisitReview(
+    visitId: string,
+    rating: number | null,
+    notes: string | null,
+  ): Promise<void>
   removeVisit(visitId: string): Promise<void>
 }

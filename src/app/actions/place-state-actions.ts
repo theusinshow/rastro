@@ -1,6 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { isValidRating, normalizeNote } from '@/domain/review'
 import { getPlaceStateRepository } from '@/lib/data'
 import type { ActionResult } from './result'
 
@@ -77,6 +78,33 @@ export async function updateVisitDateAction(
     await repository.updateVisitDate(visitId, visitedAt)
   } catch {
     return { ok: false, message: 'Não foi possível mudar a data.' }
+  }
+
+  revalidatePath('/', 'layout')
+  return { ok: true }
+}
+
+/**
+ * Como foi esta passagem: nota de 1 a 5 e relato.
+ *
+ * As duas são opcionais e independentes — dar nota sem escrever, ou escrever sem
+ * dar nota, são usos legítimos. Exigir ambas transformaria a memória num
+ * formulário.
+ */
+export async function updateVisitReviewAction(
+  visitId: string,
+  rating: number | null,
+  notes: string | null,
+): Promise<ActionResult> {
+  if (!isValidRating(rating)) {
+    return { ok: false, message: 'A nota precisa ser de 1 a 5.' }
+  }
+
+  try {
+    const repository = await getPlaceStateRepository()
+    await repository.updateVisitReview(visitId, rating, normalizeNote(notes))
+  } catch {
+    return { ok: false, message: 'Não foi possível salvar o relato.' }
   }
 
   revalidatePath('/', 'layout')

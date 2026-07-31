@@ -91,6 +91,11 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Corrigido
 
+- **Cada visita ganha "como foi?": uma nota de 1 a 5 e um relato.** O produto
+  registrava *que* você esteve na serra; agora registra que ela estava fechada de
+  neblina e que você voltou no mês seguinte. A nota vem com o nome do que
+  significa — "muito boa", "daquelas que ficam" — porque um 4 solto não diz nada
+  daqui a cinco anos. Não dar nota continua sendo uma resposta válida
 - **A tela de Memórias deixa de ser um aviso e vira a sua linha do tempo.** Visitas
   registradas, viagens concluídas e fotografias aparecem juntas, agrupadas por mês,
   da mais recente para a mais antiga. A foto cai no mês em que foi **tirada** — não

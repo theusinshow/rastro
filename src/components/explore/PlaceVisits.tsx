@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Field'
 import { InlineMessage } from '@/components/ui/InlineMessage'
 import { SectionHeader } from '@/components/ui/Section'
+import { VisitReview } from './VisitReview'
 import type { ActionResult } from '@/app/actions/result'
 
 function today(): string {
@@ -48,25 +49,28 @@ export function PlaceVisits({ place }: { place: ExplorePlace }) {
       {place.visits.length > 0 ? (
         <ul className="mt-3 flex flex-col gap-2">
           {place.visits.map((visit) => (
-            <li key={visit.id} className="flex items-center gap-3">
-              <Input
-                numeric
-                type="date"
-                defaultValue={visit.visitedAt}
-                max={today()}
-                aria-label={`Data da visita de ${formatVisitDate(visit.visitedAt)}`}
-                onChange={(event) =>
-                  run(() => updateVisitDateAction(visit.id, event.target.value))
-                }
-                className="w-auto flex-1"
-              />
-              <Button
-                variant="danger"
-                size="sm"
-                onClick={() => run(() => removeVisitAction(visit.id))}
-              >
-                Remover
-              </Button>
+            <li key={visit.id} className="flex flex-col gap-2">
+              <div className="flex items-center gap-3">
+                <Input
+                  numeric
+                  type="date"
+                  defaultValue={visit.visitedAt}
+                  max={today()}
+                  aria-label={`Data da visita de ${formatVisitDate(visit.visitedAt)}`}
+                  onChange={(event) =>
+                    run(() => updateVisitDateAction(visit.id, event.target.value))
+                  }
+                  className="w-auto flex-1"
+                />
+                <Button
+                  variant="danger"
+                  size="sm"
+                  onClick={() => run(() => removeVisitAction(visit.id))}
+                >
+                  Remover
+                </Button>
+              </div>
+              <VisitReview visit={visit} />
             </li>
           ))}
         </ul>
