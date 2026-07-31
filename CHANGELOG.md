@@ -23,6 +23,8 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   vez de fingir que foi tirada no dia em que você a subiu
 - Plano de implementação de Fotos em
   `docs/superpowers/plans/2026-07-30-fotos.md`, em nove etapas
+- Legenda de fotografia aceita até 280 caracteres, e arquivo em formato que o
+  navegador não sabe processar é recusado dizendo qual mandar
 
 - Spec de **Viagens** fechada, em
   `docs/superpowers/specs/2026-07-29-viagens-design.md`. Nada disso funciona
