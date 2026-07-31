@@ -14,6 +14,12 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Adicionado
 
+- Migration `0007_access_surface.sql`, preparando o piso do acesso (asfalto,
+  terra ou misto). **Ainda não faz nada na tela** e depende de ser rodada no SQL
+  Editor. O piso fica guardado como observação de quem foi, e não como fato do
+  lugar: estrada de terra vira asfalto, e um lugar do catálogo não pode ser
+  editado por quem não o criou
+
 - **O ano em revista**, no topo de Memórias: quantas viagens, quantos
   quilômetros, quantos lugares e quantas fotos ficaram do ano mais recente com
   registro, e qual foi o mês mais cheio. Só aparece o que aconteceu — um ano sem
