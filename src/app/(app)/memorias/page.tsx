@@ -1,16 +1,21 @@
 import { OverlayPanel } from '@/components/layout/OverlayPanel'
+import { MemoryTimeline } from '@/components/memories/MemoryTimeline'
+import { getMemoryRepository } from '@/lib/data'
+import { MEMORY_LIMIT_PER_SOURCE } from '@/lib/data/supabase/supabase-memory-repository'
 
-export default function MemoriasPage() {
+export default async function MemoriasPage() {
+  const repository = await getMemoryRepository()
+  const entries = await repository.listEntries()
+
+  // Alguma fonte pode ter batido no teto. Não dá para saber qual sem uma
+  // contagem extra, e a resposta honesta ("há mais do que cabe aqui") não
+  // precisa disso.
+  const truncated = entries.length >= MEMORY_LIMIT_PER_SOURCE
+
   return (
     <OverlayPanel side="right">
-      <h1 className="sr-only">Memórias de viagem</h1>
-      <div className="flex flex-1 flex-col justify-center gap-3 px-5">
-        <span className="instrument-label">Memórias</span>
-        <p className="text-body leading-relaxed text-ink-muted">
-          As memórias aparecem aqui quando houver viagens concluídas, organizadas
-          por ano e mês.
-        </p>
-      </div>
+      <h1 className="sr-only">Memórias</h1>
+      <MemoryTimeline entries={entries} truncated={truncated} />
     </OverlayPanel>
   )
 }

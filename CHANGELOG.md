@@ -91,6 +91,11 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Corrigido
 
+- **A tela de Memórias deixa de ser um aviso e vira a sua linha do tempo.** Visitas
+  registradas, viagens concluídas e fotografias aparecem juntas, agrupadas por mês,
+  da mais recente para a mais antiga. A foto cai no mês em que foi **tirada** — não
+  no dia em que você a subiu. Mês em que você não andou de moto não aparece: uma
+  fileira de meses vazios seria um calendário de ausências, não uma memória
 - **Fotografias suas num lugar.** Suba pelo painel do lugar e elas aparecem ali,
   privadas — só você acessa, por um link temporário. A que traz data no arquivo
   mostra a data em que foi tirada; a que não traz diz "sem data", em vez de fingir

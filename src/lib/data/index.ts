@@ -6,7 +6,9 @@ import type { ProfileRepository } from './profile-repository'
 import { createSupabasePlaceCatalogRepository } from './supabase/supabase-place-catalog-repository'
 import { createSupabasePlaceRepository } from './supabase/supabase-place-repository'
 import { createSupabasePlaceStateRepository } from './supabase/supabase-place-state-repository'
+import { createSupabaseMemoryRepository } from './supabase/supabase-memory-repository'
 import { createSupabasePhotoRepository } from './supabase/supabase-photo-repository'
+import type { MemoryRepository } from './memory-repository'
 import { createSupabaseProfileRepository } from './supabase/supabase-profile-repository'
 import { createSupabaseTripRepository } from './supabase/supabase-trip-repository'
 import type { PhotoRepository } from './photo-repository'
@@ -61,12 +63,18 @@ export async function getTripRepository(): Promise<TripRepository> {
   return createSupabaseTripRepository(supabase, userId)
 }
 
+export async function getMemoryRepository(): Promise<MemoryRepository> {
+  const { supabase } = await sessionContext()
+  return createSupabaseMemoryRepository(supabase)
+}
+
 export async function getPhotoRepository(): Promise<PhotoRepository> {
   const { supabase, userId } = await sessionContext()
   return createSupabasePhotoRepository(supabase, userId)
 }
 
 export type {
+  MemoryRepository,
   PhotoRepository,
   PlaceCatalogRepository,
   PlaceRepository,
