@@ -91,6 +91,10 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Corrigido
 
+- **Postos de combustível no mapa**, ao aproximar. Aparecem como anel discreto e
+  ganham o nome mais perto ainda — posto é infraestrutura, não destino, e não deve
+  disputar atenção com os lugares. Sai dos mesmos dados de mapa que já
+  carregávamos: nenhum serviço novo
 - **Clicar num pin passa a mostrar fotografias das redondezas**, vindas do
   Wikimedia Commons, com o autor, a licença e a **distância** de cada uma. Elas
   são apresentadas como o que são — tiradas perto dali, por outras pessoas — e não

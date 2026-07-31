@@ -152,6 +152,68 @@ export function buildRastroStyle(key: string): StyleSpecification {
         },
       },
       {
+        /*
+         * Postos de combustível.
+         *
+         * Vêm dos tiles que já baixamos — a camada `poi` do OpenMapTiles traz
+         * `class: 'fuel'`. Nenhuma requisição a mais, nenhum serviço novo.
+         *
+         * `minzoom: 14` é MEDIDO, não escolhido. A camada `poi` é anunciada a
+         * partir do zoom 11, mas o OpenMapTiles inclui POI progressivamente por
+         * `rank`, e posto não entra no tile antes do 14: em Palhoça, z13 devolve
+         * zero e z14 devolve 23, com nome. Declarar 11 faria o MapLibre consultar
+         * três níveis de zoom que nunca têm nada.
+         *
+         * Desenhados como anel vazado e discreto, e não como símbolo cheio: num
+         * app de moto o posto é INFRAESTRUTURA, não destino. Ele precisa estar
+         * ali quando se procura e sumir do caminho quando não se procura — os
+         * pins de lugar é que são o conteúdo.
+         *
+         * Osso, e nunca âmbar: o âmbar é do produto, reservado aos pins e à
+         * interface. Ver o cabeçalho deste arquivo.
+         */
+        id: 'poi-fuel',
+        type: 'circle',
+        source: 'basemap',
+        'source-layer': 'poi',
+        minzoom: 14,
+        filter: ['==', ['get', 'class'], 'fuel'],
+        paint: {
+          'circle-radius': ['interpolate', ['linear'], ['zoom'], 14, 3, 16, 5.5],
+          'circle-color': 'rgba(0,0,0,0)',
+          'circle-stroke-color': '#948a7c',
+          'circle-stroke-width': 1.5,
+          'circle-opacity': 1,
+        },
+      },
+      {
+        id: 'poi-fuel-label',
+        type: 'symbol',
+        source: 'basemap',
+        'source-layer': 'poi',
+        // Um degrau acima do anel: em z14 há 23 postos numa tela de Palhoça, e
+        // 23 nomes ao mesmo tempo viram ruído. O anel já responde "tem posto
+        // aqui"; o nome só importa quando se está escolhendo qual.
+        minzoom: 15,
+        filter: ['==', ['get', 'class'], 'fuel'],
+        layout: {
+          'text-field': ['get', 'name'],
+          'text-font': ['Noto Sans Regular'],
+          'text-size': 9,
+          'text-offset': [0, 1.1],
+          'text-anchor': 'top',
+          'text-max-width': 8,
+          // O nome cede à colisão: um posto sem nome legível continua sendo um
+          // posto visível, e o anel já diz o que importa.
+          'text-optional': true,
+        },
+        paint: {
+          'text-color': '#948a7c',
+          'text-halo-color': '#0d0d0c',
+          'text-halo-width': 1.2,
+        },
+      },
+      {
         id: 'boundary-admin',
         type: 'line',
         source: 'basemap',
