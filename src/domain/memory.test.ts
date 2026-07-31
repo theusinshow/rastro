@@ -1,9 +1,33 @@
 import { describe, expect, it } from 'vitest'
-import { groupByMonth, monthLabel } from './memory'
+import { groupByMonth, monthLabel, mostRecentYear, summarizeYear } from './memory'
 import type { MemoryEntry } from './memory'
 
-function visita(id: string, on: string): MemoryEntry {
-  return { id, kind: 'visit', on, title: `Lugar ${id}`, subtitle: null, href: '/' }
+function visita(id: string, on: string, placeSlug = `lugar-${id}`): MemoryEntry {
+  return {
+    id,
+    kind: 'visit',
+    on,
+    title: `Lugar ${id}`,
+    subtitle: null,
+    href: '/',
+    placeSlug,
+  }
+}
+
+function viagem(id: string, on: string | null, distanceKm: number | null): MemoryEntry {
+  return {
+    id,
+    kind: 'trip',
+    on,
+    title: `Volta ${id}`,
+    subtitle: null,
+    href: '/',
+    distanceKm,
+  }
+}
+
+function foto(id: string, on: string | null): MemoryEntry {
+  return { id, kind: 'photo', on, title: 'Foto', subtitle: null, href: '/' }
 }
 
 describe('monthLabel', () => {
@@ -70,3 +94,86 @@ describe('groupByMonth', () => {
     expect(grupos.map((g) => g.month)).toEqual(['2026-05', '2026-03'])
   })
 })
+
+describe('mostRecentYear', () => {
+  it('devolve o ano mais recente com alguma coisa registrada', () => {
+    expect(
+      mostRecentYear([visita('a', '2024-11-02'), visita('b', '2026-01-08')]),
+    ).toBe('2026')
+  })
+
+  it('devolve null sem nada com data', () => {
+    expect(mostRecentYear([])).toBeNull()
+    expect(mostRecentYear([foto('a', null)])).toBeNull()
+  })
+})
+
+describe('summarizeYear', () => {
+  const entradas = [
+    viagem('v1', '2026-03-14', 379),
+    viagem('v2', '2026-03-28', 556),
+    viagem('v3', '2026-05-02', null),
+    visita('a', '2026-03-14', 'serra-do-rio-do-rastro'),
+    visita('b', '2026-03-15', 'urubici'),
+    visita('c', '2026-05-02', 'serra-do-rio-do-rastro'),
+    foto('f1', '2026-03-14'),
+    foto('f2', '2026-05-02'),
+    foto('f3', null),
+    visita('velha', '2025-12-30', 'guarda-do-embau'),
+  ]
+
+  it('devolve null para um ano sem nada', () => {
+    expect(summarizeYear(entradas, '2019')).toBeNull()
+  })
+
+  it('conta viagens, lugares distintos e fotos do ano', () => {
+    const ano = summarizeYear(entradas, '2026')
+
+    expect(ano?.tripCount).toBe(3)
+    // A Serra aparece duas vezes; é um lugar, não dois.
+    expect(ano?.placeCount).toBe(2)
+    expect(ano?.photoCount).toBe(2)
+  })
+
+  it('soma só as viagens medidas, e diz quantas foram', () => {
+    // Sem `measuredTrips`, "935 km" pareceria o total de três viagens quando
+    // saiu de duas.
+    const ano = summarizeYear(entradas, '2026')
+
+    expect(ano?.distanceKm).toBe(935)
+    expect(ano?.measuredTrips).toBe(2)
+  })
+
+  it('aponta o mês com mais coisa registrada', () => {
+    expect(summarizeYear(entradas, '2026')?.busiestMonth).toBe('2026-03')
+  })
+
+  it('no empate fica com o mês mais recente', () => {
+    const ano = summarizeYear(
+      [visita('a', '2026-02-01'), visita('b', '2026-09-01')],
+      '2026',
+    )
+
+    expect(ano?.busiestMonth).toBe('2026-09')
+  })
+
+  it('não elege mês mais cheio quando só houve um mês', () => {
+    const ano = summarizeYear(
+      [visita('a', '2026-07-28'), visita('b', '2026-07-28', 'guarda-do-embau')],
+      '2026',
+    )
+
+    expect(ano?.busiestMonth).toBeNull()
+    expect(ano?.placeCount).toBe(2)
+  })
+
+  it('não deixa o ano anterior vazar para dentro da conta', () => {
+    expect(summarizeYear(entradas, '2025')?.placeCount).toBe(1)
+  })
+
+  it('ignora o que não tem data em vez de chutar o ano', () => {
+    // Foto sem EXIF não pertence a ano nenhum.
+    expect(summarizeYear([foto('sem', null)], '2026')).toBeNull()
+  })
+})
+

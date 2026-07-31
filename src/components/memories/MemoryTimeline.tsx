@@ -1,6 +1,13 @@
 import Link from 'next/link'
 import { formatVisitDate } from '@/domain/dates'
-import { groupByMonth, monthLabel, type MemoryEntry } from '@/domain/memory'
+import {
+  groupByMonth,
+  monthLabel,
+  mostRecentYear,
+  summarizeYear,
+  type MemoryEntry,
+} from '@/domain/memory'
+import { YearInReviewPanel } from './YearInReview'
 
 const KIND_LABEL: Record<MemoryEntry['kind'], string> = {
   visit: 'visita',
@@ -29,8 +36,17 @@ export function MemoryTimeline({ entries, truncated }: MemoryTimelineProps) {
     )
   }
 
+  // O ano mais recente com registro, e não o ano de hoje: em 2 de janeiro, um
+  // balanço zerado seria a primeira coisa da tela.
+  const year = mostRecentYear(entries)
+  const review = year ? summarizeYear(entries, year) : null
+
   return (
     <div className="flex-1 overflow-y-auto">
+      {review ? (
+        <YearInReviewPanel review={review} truncated={truncated} />
+      ) : null}
+
       {months.map((group) => (
         <section key={group.month ?? 'sem-data'}>
           {/* O cabeçalho gruda ao rolar: numa lista longa, saber em que mês se

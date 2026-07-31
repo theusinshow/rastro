@@ -73,6 +73,7 @@ export function createSupabaseMemoryRepository(
           title: row.places.name,
           subtitle: row.notes ?? row.places.municipality,
           href: `/?lugar=${row.places.slug}`,
+          placeSlug: row.places.slug,
         })
       }
 
@@ -86,6 +87,7 @@ export function createSupabaseMemoryRepository(
           subtitle:
             row.distance_km !== null ? `${Math.round(row.distance_km)} km` : null,
           href: `/viagens/${row.slug}`,
+          distanceKm: row.distance_km,
         })
       }
 
@@ -122,6 +124,7 @@ export function createSupabaseMemoryRepository(
           subtitle: row.caption,
           href: `/?lugar=${row.places?.slug ?? ''}`,
           imageUrl: url,
+          placeSlug: row.places?.slug,
         })
       }
 

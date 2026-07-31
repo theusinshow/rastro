@@ -14,6 +14,14 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Adicionado
 
+- **O ano em revista**, no topo de Memórias: quantas viagens, quantos
+  quilômetros, quantos lugares e quantas fotos ficaram do ano mais recente com
+  registro, e qual foi o mês mais cheio. Só aparece o que aconteceu — um ano sem
+  viagem não mostra "viagens 0", e o mês mais cheio só é eleito quando houve mais
+  de um mês. Quando parte das viagens não tem distância gravada, a tela diz de
+  quantas o número saiu, em vez de apresentar uma soma parcial como se fosse o
+  total do ano
+
 - Perfil de altimetria na viagem. O traçado passa a ser pedido com a altitude de
   cada ponto, e a página da viagem desenha o relevo dela: dá para ver, antes de
   sair, onde vem a planície e onde começa a serra. Abaixo do desenho, três
