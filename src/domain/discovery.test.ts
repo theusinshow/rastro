@@ -30,6 +30,7 @@ function place(overrides: Partial<ExplorePlace>): ExplorePlace {
     isFavorite: false,
     visits: [],
     isOwn: false,
+    accessSurface: null,
     photoCount: 0,
     lastVisitedAt: null,
     ...overrides,

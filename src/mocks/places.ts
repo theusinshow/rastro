@@ -226,6 +226,9 @@ export const MOCK_PLACES: Place[] = [
  * visitado com fotos, visitado favorito, quero conhecer, quero conhecer
  * favorito, e não visitado sem nada. Lugares ausentes desta lista recebem
  * estado neutro no repositório.
+ *
+ * `accessSurface` é nulo em todos, e continua nulo: não há piso verificado de
+ * nenhum destes acessos, e inventar um seria o mesmo que inventar coordenada.
  */
 export const MOCK_PLACE_USER_STATES: PlaceUserState[] = [
   {
@@ -237,6 +240,7 @@ export const MOCK_PLACE_USER_STATES: PlaceUserState[] = [
     lastVisitedAt: '2026-07-26',
     visitCount: 1,
     photoCount: 12,
+    accessSurface: null,
   },
   {
     placeId: 'pl-guarda-do-embau',
@@ -247,6 +251,7 @@ export const MOCK_PLACE_USER_STATES: PlaceUserState[] = [
     lastVisitedAt: '2026-07-19',
     visitCount: 3,
     photoCount: 8,
+    accessSurface: null,
   },
   {
     placeId: 'pl-santo-amaro-da-imperatriz',
@@ -257,6 +262,7 @@ export const MOCK_PLACE_USER_STATES: PlaceUserState[] = [
     lastVisitedAt: '2026-05-10',
     visitCount: 1,
     photoCount: 0,
+    accessSurface: null,
   },
   {
     placeId: 'pl-morro-da-igreja',
@@ -267,6 +273,7 @@ export const MOCK_PLACE_USER_STATES: PlaceUserState[] = [
     lastVisitedAt: null,
     visitCount: 0,
     photoCount: 0,
+    accessSurface: null,
   },
   {
     placeId: 'pl-serra-do-corvo-branco',
@@ -277,6 +284,7 @@ export const MOCK_PLACE_USER_STATES: PlaceUserState[] = [
     lastVisitedAt: null,
     visitCount: 0,
     photoCount: 0,
+    accessSurface: null,
   },
   {
     placeId: 'pl-praia-do-rosa',
@@ -287,5 +295,6 @@ export const MOCK_PLACE_USER_STATES: PlaceUserState[] = [
     lastVisitedAt: null,
     visitCount: 0,
     photoCount: 0,
+    accessSurface: null,
   },
 ]

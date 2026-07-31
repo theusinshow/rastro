@@ -32,6 +32,7 @@ function userState(overrides: Partial<PlaceUserState> = {}): PlaceUserState {
     lastVisitedAt: null,
     visitCount: 0,
     photoCount: 0,
+    accessSurface: null,
     ...overrides,
   }
 }

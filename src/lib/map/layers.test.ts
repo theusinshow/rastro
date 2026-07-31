@@ -22,6 +22,7 @@ function place(overrides: Partial<ExplorePlace>): ExplorePlace {
     lastVisitedAt: null,
     visits: [],
     isOwn: false,
+    accessSurface: null,
     ...overrides,
   }
 }

@@ -123,6 +123,30 @@ export function validateNewPlace(input: NewPlace): PlaceValidationError[] {
 }
 
 /** Vínculo entre um usuário e um lugar. */
+/**
+ * Piso do acesso a um lugar.
+ *
+ * `misto` não é meio-termo diplomático: é o caso mais comum na serra catarinense
+ * — asfalto até o município e chão nos últimos quilômetros —, e é justamente o
+ * que decide se dá para ir de moto de rua.
+ */
+export const ACCESS_SURFACES = ['asfalto', 'terra', 'misto'] as const
+
+export type AccessSurface = (typeof ACCESS_SURFACES)[number]
+
+export const ACCESS_SURFACE_LABELS: Record<AccessSurface, string> = {
+  asfalto: 'Asfalto',
+  terra: 'Terra',
+  misto: 'Asfalto e terra',
+}
+
+/** Como aparece no meio de uma frase: "tem **chão** no caminho". */
+export const ACCESS_SURFACE_SHORT: Record<AccessSurface, string> = {
+  asfalto: 'asfalto',
+  terra: 'chão',
+  misto: 'um trecho de chão',
+}
+
 export interface PlaceUserState {
   placeId: string
   isFavorite: boolean
@@ -140,6 +164,12 @@ export interface PlaceUserState {
    * (ver `docs/DATA-MODEL.md`).
    */
   photoCount: number
+  /**
+   * Piso do acesso, **declarado por quem foi**. `null` significa "não sei" e é o
+   * estado de todo lugar até alguém marcar — nunca "asfalto". Dizer asfalto sem
+   * saber é o erro que faz sair de moto de rua e pegar 12 km de chão.
+   */
+  accessSurface: AccessSurface | null
 }
 
 /**
@@ -192,6 +222,8 @@ export interface ExplorePlace extends Place {
   visits: PlaceVisit[]
   /** Lugar criado por este usuário — o único que ele pode editar ou apagar. */
   isOwn: boolean
+  /** `null` = não informado. Ver `PlaceUserState.accessSurface`. */
+  accessSurface: AccessSurface | null
 }
 
 export function toExplorePlace(
@@ -208,5 +240,6 @@ export function toExplorePlace(
     lastVisitedAt: userState.lastVisitedAt,
     visits,
     isOwn,
+    accessSurface: userState.accessSurface,
   }
 }

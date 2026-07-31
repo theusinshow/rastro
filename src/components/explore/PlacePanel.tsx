@@ -16,6 +16,7 @@ import { PlaceActions } from './PlaceActions'
 import { PlaceNearbyPhotos } from './PlaceNearbyPhotos'
 import { PlacePhotos } from './PlacePhotos'
 import { PlaceStateControls } from './PlaceStateControls'
+import { PlaceSurface } from './PlaceSurface'
 import { PlaceVisits } from './PlaceVisits'
 import { VisitStatusBadge } from './VisitStatusBadge'
 
@@ -100,6 +101,7 @@ export function PlacePanel({ place, onClose, exiting }: PlacePanelProps) {
         </div>
 
         <PlaceStateControls place={place} />
+        <PlaceSurface place={place} />
         <PlaceVisits place={place} />
         <PlacePhotos key={`fotos-${place.slug}`} placeId={place.id} />
         {/* `key`: trocar de lugar remonta a busca com estado limpo, em vez de

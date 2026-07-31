@@ -1,3 +1,5 @@
+import type { AccessSurface } from '@/domain/place'
+
 /**
  * Escrita do vínculo entre o usuário e um lugar.
  *
@@ -12,6 +14,11 @@
 export interface PlaceStateRepository {
   setFavorite(placeId: string, value: boolean): Promise<void>
   setWantsToVisit(placeId: string, value: boolean): Promise<void>
+  /**
+   * Piso do acesso. `null` desmarca e volta a "não sei" — que é diferente de
+   * "asfalto" e precisa continuar sendo dizível depois de marcado errado.
+   */
+  setAccessSurface(placeId: string, value: AccessSurface | null): Promise<void>
   recordVisit(placeId: string, visitedAt: string): Promise<void>
   updateVisitDate(visitId: string, visitedAt: string): Promise<void>
   /**

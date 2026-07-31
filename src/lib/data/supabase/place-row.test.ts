@@ -56,6 +56,7 @@ describe('toExplorePlaceFromRow', () => {
             last_visited_at: null,
             visit_count: 0,
             photo_count: 0,
+            access_surface: 'misto',
           },
         ],
       }),
@@ -63,6 +64,14 @@ describe('toExplorePlaceFromRow', () => {
     )
     expect(place.isFavorite).toBe(true)
     expect(place.visitStatus).toBe('quero-conhecer')
+    expect(place.accessSurface).toBe('misto')
+  })
+
+  // Sem linha de estado, o piso é "não sei" — nunca asfalto por omissão.
+  it('sem estado pessoal, o piso fica em branco', () => {
+    const place = toExplorePlaceFromRow(row({ place_user_states: [] }), USER)
+
+    expect(place.accessSurface).toBeNull()
   })
 
   it('ordena as visitas da mais recente para a mais antiga', () => {
@@ -77,6 +86,7 @@ describe('toExplorePlaceFromRow', () => {
             last_visited_at: '2026-07-27',
             visit_count: 2,
             photo_count: 0,
+            access_surface: null,
           },
         ],
         place_visits: [

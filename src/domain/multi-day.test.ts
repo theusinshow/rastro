@@ -26,6 +26,7 @@ function place(id: string, grausLeste: number): ExplorePlace {
     isFavorite: false,
     visits: [],
     isOwn: false,
+    accessSurface: null,
     photoCount: 0,
     lastVisitedAt: null,
   }

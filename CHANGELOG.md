@@ -14,6 +14,11 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Adicionado
 
+- **Piso do acesso** no painel do lugar: asfalto, terra, ou os dois. Nasce em
+  branco e branco significa *"não sei"* — nunca asfalto. Tocar no piso já
+  marcado desmarca, porque marcação errada precisa poder ser desfeita. Vale para
+  lugar do catálogo também, já que é a sua observação e não um fato do lugar
+
 - **Condição na estrada** na página da viagem: para hoje, amanhã e depois, o que
   esperar em cada parada entre 7h e 19h — temperatura, chance de chuva e, o que
   mais importa aqui, neblina. Uma linha diz qual ponto decide a viagem: *"Serra

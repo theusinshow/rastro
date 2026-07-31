@@ -13,6 +13,7 @@ function neutralState(placeId: string): PlaceUserState {
     lastVisitedAt: null,
     visitCount: 0,
     photoCount: 0,
+    accessSurface: null,
   }
 }
 

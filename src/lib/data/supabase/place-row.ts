@@ -1,5 +1,6 @@
 import {
   toExplorePlace,
+  type AccessSurface,
   type ExplorePlace,
   type PlaceCategory,
   type PlaceSource,
@@ -19,7 +20,7 @@ export const PLACE_SELECT = `
   state_code, category, tags, cover_image_url, source, created_by,
   place_user_states (
     is_favorite, wants_to_visit, personal_notes, rating,
-    last_visited_at, visit_count, photo_count
+    last_visited_at, visit_count, photo_count, access_surface
   ),
   place_visits ( id, visited_at, notes, rating )
 `
@@ -32,6 +33,7 @@ interface PlaceUserStateRow {
   last_visited_at: string | null
   visit_count: number
   photo_count: number
+  access_surface: AccessSurface | null
 }
 
 interface PlaceVisitRow {
@@ -74,6 +76,7 @@ function neutralState(placeId: string): PlaceUserState {
     lastVisitedAt: null,
     visitCount: 0,
     photoCount: 0,
+    accessSurface: null,
   }
 }
 
@@ -89,6 +92,7 @@ function toUserState(row: PlaceRow): PlaceUserState {
     lastVisitedAt: state.last_visited_at,
     visitCount: state.visit_count,
     photoCount: state.photo_count,
+    accessSurface: state.access_surface,
   }
 }
 

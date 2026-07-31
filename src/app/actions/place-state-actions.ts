@@ -1,6 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { ACCESS_SURFACES, type AccessSurface } from '@/domain/place'
 import { isValidRating, normalizeNote } from '@/domain/review'
 import { getPlaceStateRepository } from '@/lib/data'
 import type { ActionResult } from './result'
@@ -42,6 +43,31 @@ export async function setWantsToVisitAction(
     await repository.setWantsToVisit(placeId, value)
   } catch {
     return { ok: false, message: 'Não foi possível salvar. Tente de novo.' }
+  }
+
+  revalidatePath('/', 'layout')
+  return { ok: true }
+}
+
+/**
+ * Piso do acesso, ou `null` para voltar a "não sei".
+ *
+ * Valida contra a lista real em vez de confiar no tipo: o valor atravessa a rede
+ * e `AccessSurface` some na compilação.
+ */
+export async function setAccessSurfaceAction(
+  placeId: string,
+  value: AccessSurface | null,
+): Promise<ActionResult> {
+  if (value !== null && !ACCESS_SURFACES.includes(value)) {
+    return { ok: false, message: 'Piso desconhecido.' }
+  }
+
+  try {
+    const repository = await getPlaceStateRepository()
+    await repository.setAccessSurface(placeId, value)
+  } catch {
+    return { ok: false, message: 'Não foi possível salvar o piso.' }
   }
 
   revalidatePath('/', 'layout')

@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
+import type { AccessSurface } from '@/domain/place'
 import type { PlaceStateRepository } from '../place-state-repository'
 
 export function createSupabasePlaceStateRepository(
@@ -12,7 +13,11 @@ export function createSupabasePlaceStateRepository(
    */
   async function setFlag(
     placeId: string,
-    patch: { is_favorite?: boolean; wants_to_visit?: boolean },
+    patch: {
+      is_favorite?: boolean
+      wants_to_visit?: boolean
+      access_surface?: AccessSurface | null
+    },
   ) {
     const { error } = await supabase.from('place_user_states').upsert(
       {
@@ -33,6 +38,10 @@ export function createSupabasePlaceStateRepository(
 
     async setWantsToVisit(placeId, value) {
       await setFlag(placeId, { wants_to_visit: value })
+    },
+
+    async setAccessSurface(placeId, value) {
+      await setFlag(placeId, { access_surface: value })
     },
 
     // Sem `.eq('user_id', userId)` nos três abaixo: a RLS de `place_visits` já
