@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import Link from 'next/link'
 import { formatVisitDate } from '@/domain/dates'
 import { buildElevationProfile } from '@/domain/elevation'
@@ -6,6 +7,7 @@ import { googleMapsRouteUrl } from '@/domain/google-maps-link'
 import { TRIP_STATUS_LABELS, type TripDetail } from '@/domain/trip'
 import { InlineMessage } from '@/components/ui/InlineMessage'
 import { ElevationProfileView } from './ElevationProfile'
+import { RouteWeather } from './RouteWeather'
 import { TripDeleteAction } from './TripDeleteAction'
 
 interface TripItineraryViewProps {
@@ -63,6 +65,16 @@ export function TripItineraryView({ trip }: TripItineraryViewProps) {
             estrada.
           </InlineMessage>
         </div>
+      ) : null}
+
+      {/* Previsão só faz sentido para viagem que ainda vai acontecer. Numa
+          viagem concluída ela seria o clima de outro dia que não o vivido. */}
+      {trip.status !== 'completed' ? (
+        // Sem esqueleto: o bloco aparece quando a previsão chega, e o resto da
+        // página não espera por ela.
+        <Suspense fallback={null}>
+          <RouteWeather trip={trip} />
+        </Suspense>
       ) : null}
 
       {elevation ? <ElevationProfileView profile={elevation} /> : null}

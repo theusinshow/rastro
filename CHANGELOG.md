@@ -14,6 +14,13 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Adicionado
 
+- **Condição na estrada** na página da viagem: para hoje, amanhã e depois, o que
+  esperar em cada parada entre 7h e 19h — temperatura, chance de chuva e, o que
+  mais importa aqui, neblina. Uma linha diz qual ponto decide a viagem: *"Serra
+  do Corvo Branco — 3 h de neblina a partir das 07:00"*. Vem de previsão, e a
+  tela diz isso o tempo todo. Viagem já concluída não mostra previsão, que seria
+  o clima de outro dia que não o vivido
+
 - Migration `0007_access_surface.sql`, preparando o piso do acesso (asfalto,
   terra ou misto). **Ainda não faz nada na tela** e depende de ser rodada no SQL
   Editor. O piso fica guardado como observação de quem foi, e não como fato do
