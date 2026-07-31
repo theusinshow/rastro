@@ -91,6 +91,12 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Corrigido
 
+- **Dá para definir o ponto de partida buscando o endereço**, em vez de só clicar
+  no mapa. Escolher um resultado grava o nome e a coordenada **juntos**, e é isso
+  que conserta um erro silencioso: antes o nome era texto livre e podia discordar
+  do ponto. Este perfil dizia "Palhoça, SC" com o pino 82 km dali, no alto da
+  serra — e como toda distância do Rastro parte da origem, o produto informava que
+  o Morro da Cruz, que fica em Florianópolis, estava a 130 km de Palhoça. São 19
 - **O roteiro proposto passa a mostrar a quilometragem e o tempo da estrada de
   verdade, na hora de escolher.** Antes ele media a estrada só depois de salvo:
   uma volta apresentada como 180 km e 3h16 virava 379 km e 6h53, e você só
