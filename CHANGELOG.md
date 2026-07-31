@@ -21,6 +21,8 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   anterior ao app. Elas ficam em armazenamento privado, a data e a coordenada saem
   do próprio arquivo, e foto sem essa informação fica com a data **em branco** em
   vez de fingir que foi tirada no dia em que você a subiu
+- Plano de implementação de Fotos em
+  `docs/superpowers/plans/2026-07-30-fotos.md`, em nove etapas
 
 - Spec de **Viagens** fechada, em
   `docs/superpowers/specs/2026-07-29-viagens-design.md`. Nada disso funciona
