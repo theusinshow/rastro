@@ -2,6 +2,8 @@
 
 import { revalidatePath } from 'next/cache'
 import { civilDateInTimeZone } from '@/domain/dates'
+import { MINUTES_PER_STOP, TIME_BUDGET_MINUTES } from '@/domain/discovery'
+import type { Coordinates } from '@/domain/geo'
 import {
   ITINERARY_REFUSAL_MESSAGES,
   buildItinerary,
@@ -33,11 +35,45 @@ export interface ProposedItinerary {
   stops: { id: string; name: string }[]
   roadKm: number
   minutes: number
+  /**
+   * `true` quando os números vieram do fator de sinuosidade, não da estrada.
+   *
+   * A interface é obrigada a dizer qual dos dois está mostrando — mesma regra que
+   * impede apresentar dado de `src/mocks/` como verificado.
+   */
+  estimated: boolean
+  /** Minutos parados: `paradas × MINUTES_PER_STOP`. */
+  stoppedMinutes: number
+  /** Minutos que o usuário pediu. Permite comparar o pedido com o real. */
+  budgetMinutes: number
 }
 
 type ProposalOutcome = ProposedItinerary | { ok: false; message: string }
 
 type ProposalInput = Omit<ItineraryRequest, 'origin'>
+
+/**
+ * Mede a rota real das paradas, quando possível.
+ *
+ * Existe porque medir DEPOIS de salvar chegava tarde demais: o usuário escolhia
+ * com a estimativa e só descobria o número verdadeiro com a viagem já criada. Um
+ * passeio proposto como 3h16 virava 6h53 de estrada — o produto mentia
+ * exatamente no momento da decisão.
+ *
+ * A cota do provedor é de 2.000 chamadas por dia; propor um roteiro custa uma.
+ */
+async function measureOnRoad(
+  origin: Coordinates,
+  stops: readonly Coordinates[],
+): Promise<{ roadKm: number; minutes: number } | null> {
+  const routing = getRoutingClient()
+  if (!routing) return null
+
+  const routed = await routing.route([origin, ...stops, origin])
+  if (!routed) return null
+
+  return { roadKm: routed.roadKm, minutes: routed.minutes }
+}
 
 /**
  * Monta um roteiro e o devolve para revisão, sem gravar nada.
@@ -67,11 +103,16 @@ export async function proposeTripAction(
     return { ok: false, message: ITINERARY_REFUSAL_MESSAGES[outcome.refusal] }
   }
 
+  const measured = await measureOnRoad(profile.home, outcome.stops)
+
   return {
     ok: true,
     stops: outcome.stops.map((place) => ({ id: place.id, name: place.name })),
-    roadKm: outcome.totalRoadKm,
-    minutes: outcome.totalRidingMinutes,
+    roadKm: measured?.roadKm ?? outcome.totalRoadKm,
+    minutes: measured?.minutes ?? outcome.totalRidingMinutes,
+    estimated: measured === null,
+    stoppedMinutes: outcome.stops.length * MINUTES_PER_STOP,
+    budgetMinutes: TIME_BUDGET_MINUTES[input.timeBudget],
   }
 }
 
@@ -99,12 +140,17 @@ export async function measureTripAction(
   }
 
   const itinerary = orderAndMeasure(profile.home, chosen)
+  const measured = await measureOnRoad(profile.home, itinerary.stops)
 
   return {
     ok: true,
     stops: itinerary.stops.map((place) => ({ id: place.id, name: place.name })),
-    roadKm: itinerary.totalRoadKm,
-    minutes: itinerary.totalRidingMinutes,
+    roadKm: measured?.roadKm ?? itinerary.totalRoadKm,
+    minutes: measured?.minutes ?? itinerary.totalRidingMinutes,
+    estimated: measured === null,
+    stoppedMinutes: itinerary.stops.length * MINUTES_PER_STOP,
+    // Montagem à mão não tem orçamento pedido: não há o que estourar.
+    budgetMinutes: 0,
   }
 }
 

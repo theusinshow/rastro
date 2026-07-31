@@ -91,6 +91,13 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Corrigido
 
+- **O roteiro proposto passa a mostrar a quilometragem e o tempo da estrada de
+  verdade, na hora de escolher.** Antes ele media a estrada só depois de salvo:
+  uma volta apresentada como 180 km e 3h16 virava 379 km e 6h53, e você só
+  descobria com a viagem já criada — o produto errava exatamente no momento da
+  decisão
+- **E ele avisa quando a volta não cabe no tempo que você pediu**, somando o tempo
+  parado em cada parada: "esta volta toma 8h29 — mais que as 6h00 que você pediu"
 - **Dá para apagar uma viagem.** Antes era possível criar e não era possível
   desfazer. A confirmação diz o que some e, principalmente, o que **não** some: as
   visitas que aquela viagem registrou permanecem no mapa, porque elas são memória

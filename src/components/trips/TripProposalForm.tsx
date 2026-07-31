@@ -272,12 +272,37 @@ export function TripProposalForm({
         {proposal ? (
           <section className="border-b border-line">
             <div className="flex items-baseline justify-between gap-3 border-b border-line px-4 py-3">
-              <span className="instrument-label">Roteiro proposto</span>
+              <span className="instrument-label">
+                Roteiro proposto{proposal.estimated ? ' · estimado' : ''}
+              </span>
               <span className="instrument-value text-small text-ink">
                 {formatDistanceKm(proposal.roadKm)} km ·{' '}
                 {formatDurationMinutes(proposal.minutes)}
               </span>
             </div>
+
+            {/*
+              O aviso que faltava. Antes o roteiro era proposto com a estimativa
+              de linha reta e só media a estrada DEPOIS de salvo — um passeio
+              apresentado como 3h16 virava 6h53, e o usuário descobria com a
+              viagem já criada. O produto mentia no momento da decisão.
+            */}
+            {proposal.budgetMinutes > 0 &&
+            proposal.minutes + proposal.stoppedMinutes >
+              proposal.budgetMinutes ? (
+              <div className="border-b border-line px-4 py-3">
+                <InlineMessage tone="warn">
+                  Com {formatDurationMinutes(proposal.stoppedMinutes)} parado nas{' '}
+                  {proposal.stops.length} paradas, esta volta toma{' '}
+                  {formatDurationMinutes(
+                    proposal.minutes + proposal.stoppedMinutes,
+                  )}{' '}
+                  — mais que as{' '}
+                  {formatDurationMinutes(proposal.budgetMinutes)} que você pediu.
+                  Tire uma parada ou escolha mais tempo.
+                </InlineMessage>
+              </div>
+            ) : null}
 
             <ul>
               {proposal.stops.map((stop, index) => (
