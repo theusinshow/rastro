@@ -20,7 +20,10 @@ const VARIANT: Record<ButtonVariant, string> = {
 }
 
 const SIZE: Record<ButtonSize, string> = {
-  sm: 'h-10 rounded-sm px-3.5 text-small',
+  // 44px onde há dedo, 40px onde há mouse. O piso de 44 não é enfeite aqui: o
+  // produto é usado parado no acostamento, com luva — o mesmo motivo do piso de
+  // 17px no corpo de texto. Medido em 390px, `sm` entregava 40px.
+  sm: 'h-11 rounded-sm px-3.5 text-small md:h-10',
   md: 'h-12 rounded-md px-5 text-body',
   lg: 'h-14 rounded-lg px-7 text-lead',
 }

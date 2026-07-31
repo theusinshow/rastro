@@ -44,8 +44,14 @@ export function TopBar() {
       <Link
         href="/"
         aria-label="Rastro — ir para o mapa"
-        className="type-wordmark flex shrink-0 items-center gap-2 text-body
-                   text-ink"
+        // `h-11` no celular: sem ele o alvo é do tamanho do desenho, 24x24, e a
+        // marca é o caminho de volta ao mapa — o alvo mais errado de se perder.
+        // `min-w-11` junto com `h-11`: abaixo de 640px a palavra "Rastro" fica
+        // oculta e sobra só o desenho de 24px, então sem largura mínima o alvo
+        // seria 24x44. Alvo tem duas dimensões.
+        className="type-wordmark flex h-11 min-w-11 shrink-0 items-center
+                   justify-center gap-2 text-body text-ink
+                   md:h-auto md:min-w-0 md:justify-start"
       >
         <Logo size={24} />
         <span className="hidden sm:inline">Rastro</span>
@@ -113,7 +119,9 @@ export function TopBar() {
                       gap-2 md:col-start-auto md:row-start-auto md:gap-3">
         <Link
           href="/lugar/novo"
-          className="press flex h-10 items-center gap-1.5 rounded-md bg-accent
+          // h-11 e não h-10: 44px é o piso de alvo de toque, e este produto é
+          // usado parado no acostamento, com luva. Medido em 390px, era 45x40.
+          className="press flex h-11 items-center gap-1.5 rounded-md bg-accent
                      px-4 text-small font-bold whitespace-nowrap text-on-accent
                      hover:bg-accent-strong"
         >
@@ -131,9 +139,9 @@ export function TopBar() {
         <form action={signOutAction} className="flex">
           <button
             type="submit"
-            className="press flex h-9 items-center rounded-md px-3 text-small
+            className="press flex h-11 items-center rounded-md px-3 text-small
                        whitespace-nowrap text-ink-faint hover:bg-overlay
-                       hover:text-ink-muted"
+                       hover:text-ink-muted md:h-9"
           >
             Sair
           </button>

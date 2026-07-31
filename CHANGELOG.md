@@ -91,6 +91,10 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Corrigido
 
+- **Botões e alvos de toque no celular passam a ter 44px de altura**, o piso para
+  dedo com luva. Medidos, seis alvos ficavam abaixo disso — inclusive a marca, que
+  é o caminho de volta ao mapa. Restam só os créditos de licença do mapa, que não
+  são nossos para mexer
 - **Dá para definir o ponto de partida buscando o endereço**, em vez de só clicar
   no mapa. Escolher um resultado grava o nome e a coordenada **juntos**, e é isso
   que conserta um erro silencioso: antes o nome era texto livre e podia discordar
