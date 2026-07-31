@@ -50,10 +50,22 @@ export function MemoryTimeline({ entries, truncated }: MemoryTimelineProps) {
       {months.map((group) => (
         <section key={group.month ?? 'sem-data'}>
           {/* O cabeçalho gruda ao rolar: numa lista longa, saber em que mês se
-              está é a única orientação que a tela oferece. */}
-          <h2 className="instrument-label sticky top-0 z-10 border-y border-line
-                         bg-base/95 px-5 py-2 backdrop-blur-sm">
-            {group.month ? monthLabel(group.month) : 'sem data conhecida'}
+              está é a única orientação que a tela oferece.
+
+              O filete ocupa a folga à direita em vez de correr por baixo do
+              texto: a linha vira a régua do mês, e o cabeçalho para de parecer
+              uma faixa. */}
+          <h2
+            className="sticky top-0 z-10 flex items-center gap-3 border-b
+                       border-line bg-base/95 px-5 py-2.5 backdrop-blur-sm"
+          >
+            <span className="instrument-label text-ink-muted">
+              {group.month ? monthLabel(group.month) : 'sem data conhecida'}
+            </span>
+            <span aria-hidden className="h-px flex-1 bg-line" />
+            <span className="instrument-value text-micro text-ink-faint">
+              {group.entries.length}
+            </span>
           </h2>
 
           <ul>

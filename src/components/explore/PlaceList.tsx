@@ -125,31 +125,47 @@ export function PlaceList({
                   onBlur={() => onHover(null)}
                   aria-current={selected ? true : undefined}
                   className={cn(
-                    'w-full border-b border-line px-4 py-2.5 text-left',
-                    'transition-colors',
+                    'flex w-full items-center gap-3.5 border-b border-line px-4',
+                    // 64px de piso: a linha carrega nome, categoria, situação e
+                    // uma leitura com régua, e é alvo de toque.
+                    'min-h-16 py-2.5 text-left transition-colors',
                     selected ? 'bg-overlay' : 'hover:bg-overlay',
                   )}
                 >
-                  <div className="flex items-baseline justify-between gap-2">
-                    <span className="truncate text-small text-ink">{place.name}</span>
-                    {/* Distância corrigida por estrada, a mesma do painel e da
-                        descoberta: a linha e o painel ficam visíveis ao mesmo
-                        tempo e não podem discordar sobre o mesmo lugar. */}
-                    {origin ? (
-                      <span className="instrument-value shrink-0 text-micro text-ink-faint">
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-body text-ink">
+                      {place.name}
+                    </span>
+                    <span className="mt-1 flex items-center gap-3">
+                      <span className="text-micro tracking-[0.1em] text-ink-faint uppercase">
+                        {CATEGORY_LABELS[place.category]}
+                      </span>
+                      <VisitStatusBadge status={place.visitStatus} />
+                    </span>
+                  </span>
+
+                  {/* Distância corrigida por estrada, a mesma do painel e da
+                      descoberta: a linha e o painel ficam visíveis ao mesmo
+                      tempo e não podem discordar sobre o mesmo lugar.
+
+                      `~` e régua tracejada porque é conta, não medição: linha
+                      reta vezes o fator de sinuosidade. Quem lê `172 km` liso
+                      acredita que alguém rodou e mediu. */}
+                  {origin ? (
+                    <span className="flex w-20 shrink-0 flex-col items-end gap-1.75">
+                      <span className="instrument-value text-small whitespace-nowrap text-ink-muted">
+                        ~{' '}
                         {formatDistanceKm(
                           estimateRoadKm(haversineKm(origin, place)),
                         )}{' '}
                         km
                       </span>
-                    ) : null}
-                  </div>
-                  <div className="mt-1 flex items-center gap-3">
-                    <span className="text-micro tracking-[0.1em] text-ink-faint uppercase">
-                      {CATEGORY_LABELS[place.category]}
+                      <span
+                        aria-hidden
+                        className="instrument-rule instrument-rule--estimated w-full min-w-0"
+                      />
                     </span>
-                    <VisitStatusBadge status={place.visitStatus} />
-                  </div>
+                  ) : null}
                 </button>
               </li>
             )

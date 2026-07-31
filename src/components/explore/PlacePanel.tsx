@@ -84,10 +84,24 @@ export function PlacePanel({ place, onClose, exiting }: PlacePanelProps) {
           </div>
         )}
 
+        {/* As duas leituras são CONTA, não medição: linha reta a partir da sua
+            origem, vezes o fator de sinuosidade, e tempo a uma velocidade média
+            arbitrada. O `~` e a régua tracejada dizem isso sem legenda — quem lê
+            `172 km` liso acredita que alguém rodou e mediu. */}
         {roadKm !== null && minutes !== null ? (
-          <div className="flex gap-8 border-b border-line px-5 py-4">
-            <Stat label="Distância" value={formatDistanceKm(roadKm)} unit="km" />
-            <Stat label="Tempo" value={formatDurationMinutes(minutes)} />
+          <div className="grid grid-cols-2 gap-6 border-b border-line px-5 py-4">
+            <Stat
+              label="Distância"
+              value={`~ ${formatDistanceKm(roadKm)}`}
+              note="linha reta"
+              origin="estimated"
+            />
+            <Stat
+              label="Tempo"
+              value={`~ ${formatDurationMinutes(minutes)}`}
+              note="a 60 km/h"
+              origin="estimated"
+            />
           </div>
         ) : null}
 

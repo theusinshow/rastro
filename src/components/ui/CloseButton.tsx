@@ -30,8 +30,9 @@ export function CloseButton({
       onClick={onClick}
       aria-label={label}
       className={cn(
-        'press flex h-11 w-11 shrink-0 items-center justify-center rounded-sm',
-        'text-lead leading-none text-ink-faint hover:bg-overlay hover:text-ink',
+        'press flex h-11 w-11 shrink-0 items-center justify-center rounded-full',
+        'border border-line text-lead leading-none text-ink-faint',
+        'hover:border-line-strong hover:bg-overlay hover:text-ink',
         className,
       )}
     >

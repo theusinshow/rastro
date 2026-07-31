@@ -6,6 +6,7 @@ import { formatDistanceKm, formatDurationMinutes } from '@/domain/geo'
 import { googleMapsRouteUrl } from '@/domain/google-maps-link'
 import { TRIP_STATUS_LABELS, unpavedStops, type TripDetail } from '@/domain/trip'
 import { InlineMessage } from '@/components/ui/InlineMessage'
+import { Stat } from '@/components/ui/Stat'
 import { ElevationProfileView } from './ElevationProfile'
 import { RouteWeather } from './RouteWeather'
 import { TripDeleteAction } from './TripDeleteAction'
@@ -43,16 +44,34 @@ export function TripItineraryView({ trip }: TripItineraryViewProps) {
         </span>
         <h2 className="type-title text-title text-ink">{trip.title}</h2>
 
-        <div className="mt-1 flex items-baseline gap-4">
+        {/* Com traçado gravado os dois números saíram da malha viária, e a régua
+            sólida diz isso. Sem traçado, saíram do fator de sinuosidade: régua
+            tracejada e `~` na frente. É a mesma informação que a mensagem abaixo
+            dá por escrito — mas aqui ela chega antes de ler. */}
+        <div className="mt-3 grid grid-cols-2 gap-6">
           {trip.distanceKm !== null ? (
-            <span className="instrument-value text-body text-ink">
-              {formatDistanceKm(trip.distanceKm)} km
-            </span>
+            <Stat
+              label="Estrada"
+              value={
+                trip.hasRealRoute
+                  ? formatDistanceKm(trip.distanceKm)
+                  : `~ ${formatDistanceKm(trip.distanceKm)}`
+              }
+              note="quilômetros"
+              origin={trip.hasRealRoute ? 'measured' : 'estimated'}
+            />
           ) : null}
           {trip.durationMinutes !== null ? (
-            <span className="instrument-value text-body text-ink-muted">
-              {formatDurationMinutes(trip.durationMinutes)}
-            </span>
+            <Stat
+              label="Tempo"
+              value={
+                trip.hasRealRoute
+                  ? formatDurationMinutes(trip.durationMinutes)
+                  : `~ ${formatDurationMinutes(trip.durationMinutes)}`
+              }
+              note="sem paradas"
+              origin={trip.hasRealRoute ? 'measured' : 'estimated'}
+            />
           ) : null}
         </div>
       </div>

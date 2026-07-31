@@ -7,10 +7,14 @@ interface ChipProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 /**
- * Filtro de um toque. 40px de altura porque o produto se usa com a mão suja e a
- * luva do lado — não é o lugar de espremer densidade.
+ * Filtro de um toque. **44px**, que é o piso de alvo do produto inteiro: ele se
+ * usa parado no acostamento, com luva. Não é o lugar de espremer densidade.
  *
  * A ativação é instantânea: um filtro é uma chave, não um fade.
+ *
+ * O inativo ganhou superfície própria (`raised`) em vez de só contorno. Sobre um
+ * painel translúcido com mapa por baixo, contorno sozinho some quando o que
+ * passa embaixo é relevo claro — e o chip deixava de parecer clicável.
  */
 export function Chip({
   active = false,
@@ -24,11 +28,11 @@ export function Chip({
       type="button"
       aria-pressed={active}
       className={cn(
-        'press inline-flex h-10 items-center gap-2 rounded-full border px-4',
-        'text-body',
+        'press inline-flex h-11 items-center gap-2.5 rounded-full border px-4',
+        'text-small',
         active
-          ? 'border-accent bg-accent-dim/45 text-ink'
-          : 'border-line-strong text-ink-muted hover:bg-overlay hover:text-ink',
+          ? 'border-accent/55 bg-accent/14 text-ink'
+          : 'border-line bg-raised text-ink-muted hover:bg-overlay hover:text-ink',
         'disabled:pointer-events-none disabled:opacity-(--disabled-opacity)',
         className,
       )}

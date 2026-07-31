@@ -1,5 +1,6 @@
 import { formatMeters, type ElevationProfile } from '@/domain/elevation'
 import { SectionHeader } from '@/components/ui/Section'
+import { Stat } from '@/components/ui/Stat'
 
 interface ElevationProfileViewProps {
   profile: ElevationProfile
@@ -79,35 +80,24 @@ export function ElevationProfileView({ profile }: ElevationProfileViewProps) {
           strokeWidth="1"
           vectorEffect="non-scaling-stroke"
         />
-        <path d={area} className="fill-accent/10" />
+        <path d={area} className="fill-accent/16" />
         <path
           d={line}
           fill="none"
           className="stroke-accent"
-          strokeWidth="1.5"
+          strokeWidth="2"
           strokeLinejoin="round"
           vectorEffect="non-scaling-stroke"
         />
       </svg>
 
-      {/* Três leituras, nenhuma acumulação. O porquê está em `domain/elevation.ts`. */}
-      <div className="mt-3 flex items-baseline justify-between gap-4">
-        <ElevationFigure label="Mais baixo" value={formatMeters(lowestM)} />
-        <ElevationFigure label="Mais alto" value={formatMeters(highestM)} />
-        <ElevationFigure label="Desnível" value={formatMeters(profile.climbM)} />
+      {/* Três leituras MEDIDAS — régua sólida —, e nenhuma acumulação. O porquê
+          de não haver "subida acumulada" está em `domain/elevation.ts`. */}
+      <div className="mt-4 grid grid-cols-3 gap-5">
+        <Stat label="Mais baixo" value={formatMeters(lowestM)} note="metros" />
+        <Stat label="Mais alto" value={formatMeters(highestM)} note="metros" />
+        <Stat label="Desnível" value={formatMeters(profile.climbM)} note="metros" />
       </div>
     </section>
-  )
-}
-
-function ElevationFigure({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex flex-col gap-1">
-      <span className="instrument-label">{label}</span>
-      <span className="instrument-value text-body leading-none text-ink">
-        {value}
-        <span className="ml-1 text-small text-ink-faint">m</span>
-      </span>
-    </div>
   )
 }

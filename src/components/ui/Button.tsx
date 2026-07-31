@@ -23,9 +23,13 @@ const SIZE: Record<ButtonSize, string> = {
   // 44px onde há dedo, 40px onde há mouse. O piso de 44 não é enfeite aqui: o
   // produto é usado parado no acostamento, com luva — o mesmo motivo do piso de
   // 17px no corpo de texto. Medido em 390px, `sm` entregava 40px.
-  sm: 'h-11 rounded-sm px-3.5 text-small md:h-10',
-  md: 'h-12 rounded-md px-5 text-body',
-  lg: 'h-14 rounded-lg px-7 text-lead',
+  //
+  // Raio cheio, e não `sm`/`md`: botão é o que se aperta, e a pílula é a forma
+  // do que se aperta neste sistema. Retângulo arredondado ficou reservado a
+  // superfície — card, campo, célula —, que é o que se lê.
+  sm: 'h-11 rounded-full px-4 text-small md:h-10',
+  md: 'h-12 rounded-full px-5 text-body',
+  lg: 'h-14 rounded-full px-7 text-lead',
 }
 
 export function Button({

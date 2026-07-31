@@ -10,8 +10,11 @@ import { InlineMessage } from './InlineMessage'
  * literalmente.
  */
 const CONTROL =
-  'w-full rounded-md border border-line-strong bg-void px-4 text-ink ' +
-  'placeholder:text-ink-faint transition-colors hover:border-ink-faint ' +
+  // `raised` e não `void`: o campo mora dentro de um painel translúcido com mapa
+  // por baixo, e um fundo mais escuro que o painel abria um buraco na superfície.
+  // Campo é elevação dentro do painel, como card e célula.
+  'w-full rounded-md border border-line bg-raised px-4 text-ink ' +
+  'placeholder:text-ink-faint transition-colors hover:border-line-strong ' +
   'focus:border-accent aria-invalid:border-alert ' +
   'disabled:pointer-events-none disabled:opacity-(--disabled-opacity)'
 

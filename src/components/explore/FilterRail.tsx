@@ -19,7 +19,6 @@ import {
 import { OverlayPanel } from '@/components/layout/OverlayPanel'
 import { Button } from '@/components/ui/Button'
 import { Chip } from '@/components/ui/Chip'
-import { CloseButton } from '@/components/ui/CloseButton'
 import { SectionHeader } from '@/components/ui/Section'
 import { Toggle } from '@/components/ui/Toggle'
 import { PlaceList } from './PlaceList'
@@ -84,24 +83,82 @@ export function FilterRail({
   const activeCount = countActiveCriteria(filters)
   const resumo = describeFilters(filters, CATEGORY_LABELS)
 
+  // O cabeçalho — busca e segmento — é o mesmo nos dois modos, e é o que faz o
+  // segmento significar alguma coisa: ele fica no lugar enquanto o corpo troca.
+  const header = (
+    <div className="shrink-0 border-b border-line px-4 py-3">
+      <PlaceSearch
+        value={filters.search}
+        onCommit={(search) => setFilters({ ...filters, search })}
+      />
+
+      {/*
+        Segmento de dois botões, e não um botão "Filtrar" solto.
+
+        A trilha tem dois modos e nenhum é secundário: ler o recorte e mexer
+        nele. Um botão solto dizia "há uma ação aqui"; o segmento diz "há dois
+        lugares, e você está neste". É também o que permitiu abandonar de vez o
+        empilhamento que somava 1017px numa coluna de 861px.
+      */}
+      <div className="mt-2 flex items-center gap-2">
+        <div
+          role="group"
+          aria-label="Modo da trilha"
+          className="flex flex-1 gap-1 rounded-full bg-raised p-1"
+        >
+          <button
+            type="button"
+            aria-pressed={!editing}
+            onClick={() => setEditing(false)}
+            className="press h-9 flex-1 rounded-full text-small font-medium
+                       text-ink-muted aria-pressed:bg-accent
+                       aria-pressed:font-bold aria-pressed:text-on-accent"
+          >
+            Lista
+          </button>
+          <button
+            type="button"
+            aria-pressed={editing}
+            onClick={() => setEditing(true)}
+            className="press flex h-9 flex-1 items-center justify-center gap-2
+                       rounded-full text-small font-medium text-ink-muted
+                       aria-pressed:bg-accent aria-pressed:font-bold
+                       aria-pressed:text-on-accent"
+          >
+            Filtros
+            {activeCount > 0 ? (
+              <span className="instrument-value text-micro">{activeCount}</span>
+            ) : null}
+          </button>
+        </div>
+
+        {/* Ligado a `isDefault`, e não à contagem: uma busca sozinha não conta
+            como critério de filtro, mas continua sendo algo a limpar. */}
+        {!isDefault ? (
+          <Button size="sm" variant="ghost" onClick={reset}>
+            Limpar
+          </Button>
+        ) : null}
+      </div>
+
+      {/* O recorte em palavras. Quem não abriu os filtros continua sabendo o
+          que está escondendo lugares do mapa — antes isso só existia dentro
+          dos controles, e os controles estavam cortados. */}
+      {resumo.length > 0 ? (
+        <p className="mt-2.5 text-small leading-snug text-ink-muted">
+          {resumo.join(' · ')}
+        </p>
+      ) : null}
+    </div>
+  )
+
   if (editing) {
     return (
       // A folha padrão de 45vh não segura o conjunto de filtros: medido em
       // 390px de largura, eles somam 538px numa folha de 380px, e nenhum dos
       // quatro controles de situação aparecia sem rolar.
       <OverlayPanel side="left" sheetHeight="88vh">
-        <header className="flex shrink-0 items-center justify-between gap-2 border-b border-line py-2 pr-2 pl-4">
-          <span className="instrument-label">Filtrar</span>
-          <div className="flex items-center gap-1">
-            <Button size="sm" variant="ghost" onClick={reset} disabled={isDefault}>
-              Limpar
-            </Button>
-            <CloseButton
-              onClick={() => setEditing(false)}
-              label="Fechar os filtros"
-            />
-          </div>
-        </header>
+        {header}
 
         <div className="min-h-0 flex-1 overflow-y-auto">
           <section className="border-b border-line px-4 py-4">
@@ -200,41 +257,7 @@ export function FilterRail({
 
   return (
     <OverlayPanel side="left">
-      <div className="shrink-0 border-b border-line px-4 py-3">
-        <PlaceSearch
-          value={filters.search}
-          onCommit={(search) => setFilters({ ...filters, search })}
-        />
-
-        <div className="mt-2 flex items-center gap-2">
-          <Button
-            size="sm"
-            variant={activeCount > 0 ? 'solid' : 'outline'}
-            onClick={() => setEditing(true)}
-          >
-            Filtrar
-            {activeCount > 0 ? (
-              <span className="instrument-value">{activeCount}</span>
-            ) : null}
-          </Button>
-          {/* Ligado a `isDefault`, e não à contagem: uma busca sozinha não conta
-              como critério de filtro, mas continua sendo algo a limpar. */}
-          {!isDefault ? (
-            <Button size="sm" variant="ghost" onClick={reset}>
-              Limpar
-            </Button>
-          ) : null}
-        </div>
-
-        {/* O recorte em palavras. Quem não abriu os filtros continua sabendo o
-            que está escondendo lugares do mapa — antes isso só existia dentro
-            dos controles, e os controles estavam cortados. */}
-        {resumo.length > 0 ? (
-          <p className="mt-2 text-small leading-snug text-ink-muted">
-            {resumo.join(' · ')}
-          </p>
-        ) : null}
-      </div>
+      {header}
 
       <PlaceList
         className="min-h-0 flex-1"
