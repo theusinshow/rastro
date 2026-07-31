@@ -12,7 +12,21 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ## [Não lançado]
 
+### Alterado
+
+- **Direção visual nova, começando pela cor.** A superfície esquentou um grau, a
+  tinta clareou um passo e o âmbar subiu em direção ao farol. O motivo não é
+  gosto: o texto apagado sobre a superfície de hover dava 4,29:1, abaixo da
+  norma de acessibilidade — agora o pior par do sistema inteiro passa. O mapa foi
+  refeito junto, na mesma passada, porque ele desenha em WebGL e não lê a paleta
+  da interface
+
 ### Adicionado
+
+- A **régua** por baixo de todo número: sólida quando foi medido, tracejada
+  quando é conta, pontilhada quando ninguém sabe. É a faixa central da estrada,
+  que já era a marca — e agora diz de onde veio cada valor sem precisar de
+  legenda
 
 - `docs/PROMPT-REDESIGN.md` — o briefing completo para refazer a direção visual
   do produto do zero: contexto, paleta atual token a token nas duas metades

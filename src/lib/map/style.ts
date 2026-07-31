@@ -54,14 +54,14 @@ export function buildRastroStyle(key: string): StyleSpecification {
         source: 'basemap',
         'source-layer': 'landcover',
         filter: ['==', ['get', 'class'], 'wood'],
-        paint: { 'fill-color': '#131d10', 'fill-opacity': 0.75 },
+        paint: { 'fill-color': '#141e11', 'fill-opacity': 0.75 },
       },
       {
         id: 'park',
         type: 'fill',
         source: 'basemap',
         'source-layer': 'park',
-        paint: { 'fill-color': '#172313', 'fill-opacity': 0.6 },
+        paint: { 'fill-color': '#182414', 'fill-opacity': 0.6 },
       },
       {
         id: 'water',
@@ -73,7 +73,7 @@ export function buildRastroStyle(key: string): StyleSpecification {
         // um quarto de qualquer vista do litoral: escondê-lo era jogar fora a
         // maior massa fria disponível, e era metade do motivo de o mapa inteiro
         // ler como marrom.
-        paint: { 'fill-color': '#0e1a29' },
+        paint: { 'fill-color': '#101b2a' },
       },
       {
         id: 'waterway',
@@ -81,7 +81,7 @@ export function buildRastroStyle(key: string): StyleSpecification {
         source: 'basemap',
         'source-layer': 'waterway',
         paint: {
-          'line-color': '#182b45',
+          'line-color': '#1a2c46',
           'line-width': ['interpolate', ['linear'], ['zoom'], 8, 0.4, 14, 1.6],
         },
       },
@@ -98,8 +98,8 @@ export function buildRastroStyle(key: string): StyleSpecification {
           // camada onde saturação custa mais caro, porque ela multiplica por
           // toda a área visível. O que sobrou de quente aqui é lembrança, não
           // cor.
-          'hillshade-highlight-color': '#3a3835',
-          'hillshade-accent-color': '#131311',
+          'hillshade-highlight-color': '#3b3936',
+          'hillshade-accent-color': '#141312',
         },
       },
       {
@@ -111,7 +111,7 @@ export function buildRastroStyle(key: string): StyleSpecification {
         filter: ['in', ['get', 'class'], ['literal', ['minor', 'service']]],
         layout: { 'line-cap': 'round', 'line-join': 'round' },
         paint: {
-          'line-color': '#34322f',
+          'line-color': '#35332f',
           'line-width': ['interpolate', ['linear'], ['zoom'], 10, 0.4, 16, 3],
         },
       },
@@ -123,7 +123,7 @@ export function buildRastroStyle(key: string): StyleSpecification {
         filter: ['in', ['get', 'class'], ['literal', ['tertiary', 'secondary']]],
         layout: { 'line-cap': 'round', 'line-join': 'round' },
         paint: {
-          'line-color': '#655d51',
+          'line-color': '#665e52',
           'line-width': ['interpolate', ['linear'], ['zoom'], 7, 0.5, 16, 5],
         },
       },
@@ -135,7 +135,7 @@ export function buildRastroStyle(key: string): StyleSpecification {
         filter: ['in', ['get', 'class'], ['literal', ['primary', 'trunk']]],
         layout: { 'line-cap': 'round', 'line-join': 'round' },
         paint: {
-          'line-color': '#948a7c',
+          'line-color': '#958b7d',
           'line-width': ['interpolate', ['linear'], ['zoom'], 6, 0.6, 16, 7],
         },
       },
@@ -147,7 +147,7 @@ export function buildRastroStyle(key: string): StyleSpecification {
         filter: ['==', ['get', 'class'], 'motorway'],
         layout: { 'line-cap': 'round', 'line-join': 'round' },
         paint: {
-          'line-color': '#c2b9a7',
+          'line-color': '#c3baa8',
           'line-width': ['interpolate', ['linear'], ['zoom'], 5, 0.8, 16, 9],
         },
       },
@@ -181,7 +181,7 @@ export function buildRastroStyle(key: string): StyleSpecification {
         paint: {
           'circle-radius': ['interpolate', ['linear'], ['zoom'], 14, 3, 16, 5.5],
           'circle-color': 'rgba(0,0,0,0)',
-          'circle-stroke-color': '#948a7c',
+          'circle-stroke-color': '#958b7d',
           'circle-stroke-width': 1.5,
           'circle-opacity': 1,
         },
@@ -208,7 +208,7 @@ export function buildRastroStyle(key: string): StyleSpecification {
           'text-optional': true,
         },
         paint: {
-          'text-color': '#948a7c',
+          'text-color': '#958b7d',
           'text-halo-color': '#0d0d0c',
           'text-halo-width': 1.2,
         },
@@ -239,8 +239,8 @@ export function buildRastroStyle(key: string): StyleSpecification {
           'text-letter-spacing': 0.08,
         },
         paint: {
-          'text-color': '#b7ad9f',
-          'text-halo-color': '#11100f',
+          'text-color': '#bcb2a4',
+          'text-halo-color': '#0e0d0c',
           'text-halo-width': 1.2,
         },
       },
@@ -266,8 +266,8 @@ export function buildRastroStyle(key: string): StyleSpecification {
           'text-max-width': 8,
         },
         paint: {
-          'text-color': '#d9d1c4',
-          'text-halo-color': '#11100f',
+          'text-color': '#dad2c5',
+          'text-halo-color': '#0e0d0c',
           'text-halo-width': 1.4,
         },
       },

@@ -1,0 +1,211 @@
+:root { /* ===== VARIANTE ESCURA (padrão) ===== */
+  /* ============ SUPERFÍCIES — couro escurecido, matiz 30°, saturação baixa ============ */
+  --color-void:    #0e0d0c;  /* fundo da página, atrás de tudo */
+  --color-base:    #191817;  /* superfície de painel */
+  --color-raised:  #221f1d;  /* elevação dentro de painel: card, campo, célula */
+  --color-overlay: #2c2926;  /* hover, estado ativo surdo */
+
+  /* ============ TRAÇOS — tingidos de areia, nunca branco puro ============ */
+  --color-line:        rgba(237, 230, 219, 0.10);
+  --color-line-strong: rgba(237, 230, 219, 0.20);
+
+  /* ============ TINTA — razão medida sobre --color-base ============ */
+  --color-ink:       #ede6db;  /* 14.31:1 */
+  --color-ink-muted: #bcb2a4;  /*  8.48:1 */
+  --color-ink-faint: #9b9082;  /*  5.66:1 — piso AA em texto normal */
+
+  /* ============ ACENTO — âmbar de instrumento / farol ============ */
+  --color-accent:        #e5a338;  /* 8.13:1 */
+  --color-accent-strong: #cf8a1c;  /* 6.17:1 — hover de ação primária */
+  --color-accent-dim:    #6d4d13;  /* 2.30:1 — preenchimento surdo, NUNCA texto */
+  --color-on-accent:     #16110b;  /* 8.60:1 sobre --color-accent */
+
+  /* ============ DOIS VOCABULÁRIOS. Coincidem hoje, podem divergir. NÃO UNIFICAR ============ */
+  --color-visited:   #93a86e;  /* 6.81:1  estado do DADO */
+  --color-wanted:    #e5a338;  /* 8.13:1 */
+  --color-unvisited: #9b9082;  /* 5.66:1 */
+
+  --color-ok:    #93a86e;      /* 6.81:1  estado de uma OPERAÇÃO */
+  --color-warn:  #e5a338;      /* 8.13:1 */
+  --color-alert: #d97456;      /* 5.56:1 */
+
+  /* Pior caso do sistema: sobre --color-overlay. Nenhum par cai abaixo de 4.5.
+     ink 11.67 · muted 6.92 · faint 4.62 · accent 6.63 · visited 5.55 · alert 4.53 */
+
+  /* ============ TIPOGRAFIA — escala inalterada. Não existe --text-base ============ */
+  --font-sans: 'Archivo', system-ui, sans-serif;   /* eixo de largura variável */
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --text-micro:   12px;  --leading-micro:   1;     /* rótulo de instrumento, statusbar */
+  --text-small:   15px;  --leading-small:   1.5;   /* dica de campo, legenda, município */
+  --text-body:    17px;  --leading-body:    1.55;  /* PISO do corpo */
+  --text-lead:    20px;  --leading-lead:    1.4;   /* primeira linha, valor de instrumento */
+  --text-title:   24px;  --leading-title:   1.2;   /* nome de lugar, título de tela */
+  --text-display: 32px;  --leading-display: 1;     /* só display */
+
+  /* ============ ESPAÇAMENTO, RAIO ============ */
+  --space-tight: 8px;  --space-snug: 12px;  --space-panel: 20px;  --space-section: 32px;
+  --radius-sm: 8px; --radius-md: 14px; --radius-lg: 20px; --radius-xl: 28px;
+  --radius-2xl: 36px; --radius-full: 999px;
+
+  /* ============ ELEVAÇÃO — DUAS camadas. A 2 nunca aparece sem a 1 ============ */
+  --shadow-float: 0 18px 40px -24px rgb(0 0 0 / 0.9);   /* cromo sobre o mapa */
+  --shadow-lift:  0 18px 40px -24px rgb(0 0 0 / 0.9),
+                  0 8px 22px -14px rgb(0 0 0 / 0.85);   /* painel sobre painel, card do balanço */
+
+  /* ============ CROMO ============ */
+  --chrome-gap: 12px;
+  --bar-height: 104px;      /* ≥768px: 56px */
+  --status-height: 36px;
+  --sheet-height: 45vh;
+  --panel-narrow: 280px; --panel-base: 380px; --panel-wide: 420px;
+  --blur-chrome: blur(16px) saturate(1.1);
+  --z-map: 0; --z-map-chrome: 10; --z-panel: 20; --z-bar: 30; --z-doc: 35;
+  --focus-width: 2px; --focus-offset: 3px; --disabled-opacity: 0.45;
+  --hit-min: 44px;          /* alvo de toque. Piso duro. */
+
+  /* ============ MOVIMENTO ============ */
+  --dur-instant: 90ms; --dur-fast: 140ms; --dur-base: 220ms;
+  --dur-slow: 320ms; --dur-signal: 400ms; --dur-draw: 420ms; --dur-brand: 520ms;
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --motion-shift: 12px; --motion-press: 0.98; --stagger-step: 35ms; --empty-delay: 120ms;
+}
+
+@media (min-width: 768px) { :root { --bar-height: 56px; } }
+
+/* ================= CLASSES DE CARÁTER ================= */
+.instrument-label {
+  font-family: var(--font-mono); font-size: var(--text-micro); line-height: 1;
+  text-transform: uppercase; letter-spacing: 0.16em; color: var(--color-ink-faint);
+}
+.instrument-value {
+  font-family: var(--font-mono); font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em; line-height: 1;
+}
+.type-display { font-family: var(--font-sans); font-variation-settings: 'wdth' 125; font-weight: 700; text-transform: uppercase; }
+.type-title   { font-family: var(--font-sans); font-variation-settings: 'wdth' 115; font-weight: 700; }
+.type-wordmark{ font-family: var(--font-sans); font-variation-settings: 'wdth' 125; font-weight: 700;
+                text-transform: uppercase; letter-spacing: 0.06em; } /* nunca 0.18em */
+
+/* ================= A RÉGUA — de onde veio o número ================= */
+/* Toda leitura numérica se apoia numa régua de 2px. Ela é a legenda. */
+.instrument-rule { display: block; width: 100%; min-width: 48px; height: 2px; }
+
+/* MEDIDO — nós medimos. Sólida, âmbar. */
+.instrument-rule--measured { background: var(--color-accent); }
+
+/* ESTIMADO — é conta. Tracejada, areia. O valor vem prefixado com "~". */
+.instrument-rule--estimated {
+  background-image: repeating-linear-gradient(90deg, var(--color-ink-faint) 0 5px, transparent 5px 10px);
+}
+
+/* DESCONHECIDO — não sabemos. Pontilhada, apagada. O valor é "—", nunca um palpite. */
+.instrument-rule--unknown {
+  background-image: repeating-linear-gradient(90deg, rgba(237,230,219,.22) 0 2px, transparent 2px 6px);
+}
+
+/* OPINIÃO — sai do mono, vira sans, não recebe régua nenhuma. */
+.type-note {
+  font-family: var(--font-sans); font-size: var(--text-body); line-height: 1.5;
+  color: var(--color-ink-muted); padding-left: 14px;
+  border-left: 2px solid var(--color-line-strong);
+}
+
+/* ================= MOVIMENTO REDUZIDO — TRÊS CAMADAS ================= */
+@media (prefers-reduced-motion: reduce) {
+  /* 1. ZERADO: transform e revelação decorativa */
+  [data-motion="decor"], [data-motion="decor"] * {
+    animation: none !important; transition: none !important; transform: none !important;
+  }
+  /* 2. PRESERVADO: carrega informação — realce de valor, crossfade dos pins */
+  [data-motion="signal"] { animation-duration: var(--dur-signal) !important; }
+  /* 3. DELEGADO: a câmera do MapLibre honra a preferência sozinha.
+        Basta NÃO passar { essential: true } em flyTo/easeTo. */
+}
+
+
+/* =======================================================================
+   VARIANTE CLARA — "a régua, de dia"
+   Mesma família invertida em claridade: areia clara na superfície, couro no
+   texto, âmbar escurecido no acento. Razões medidas sobre --color-base claro.
+   O acento se parte em DOIS papéis, e é a única diferença estrutural:
+   --color-accent (texto, régua, borda) e --color-accent-fill (preenchimento).
+   ======================================================================= */
+[data-theme="claro"], .theme-claro {
+  --color-void:    #e8e2d7;
+  --color-base:    #f4efe6;
+  --color-raised:  #ece5da;
+  --color-overlay: #e2dacd;
+
+  --color-line:        rgba(38, 32, 26, 0.14);
+  --color-line-strong: rgba(38, 32, 26, 0.28);
+
+  --color-ink:       #211d18;  /* 14.63:1 */
+  --color-ink-muted: #554d43;  /*  7.25:1 */
+  --color-ink-faint: #635a4e;  /*  5.91:1 */
+
+  --color-accent:        #7d4a06;  /* 6.42:1 — texto, régua medida, borda */
+  --color-accent-fill:   #d99327;  /* só preenchimento de ação */
+  --color-accent-strong: #5f3804;  /* 8.93:1 — hover de texto e borda */
+  --color-accent-dim:    #f2ddb0;  /* preenchimento surdo, nunca texto */
+  --color-on-accent:     #1c1409;  /* 7.07:1 sobre --color-accent-fill */
+
+  --color-visited:   #445d24;  /* 6.46:1 */
+  --color-wanted:    #7d4a06;  /* 6.42:1 */
+  --color-unvisited: #635a4e;  /* 5.91:1 */
+  --color-ok:    #445d24;
+  --color-warn:  #7d4a06;
+  --color-alert: #9c2f16;      /* 6.48:1 */
+
+  /* Pior caso sobre --color-overlay: ink 12.08 · muted 5.99 · faint 4.88 ·
+     accent 5.31 · visited 5.34 · alert 5.35. Folga maior que na escura. */
+
+  --shadow-float: 0 18px 40px -24px rgb(84 71 54 / 0.35);
+  --shadow-lift:  0 18px 40px -24px rgb(84 71 54 / 0.35),
+                  0 10px 26px -16px rgb(84 71 54 / 0.28);
+}
+
+/* =======================================================================
+   BARRA FLUTUANTE EM RELEVO — comum às duas variantes
+   Cápsula de 60px em radius-full, destacada do topo em 14px. O relevo é feito
+   com quatro camadas e NENHUM gradiente: filete interno claro em cima (a luz),
+   sombra interna curta embaixo (a espessura), uma aresta sólida de 3px (o
+   corpo) e as duas sombras de projeção do sistema. Apertar tira a aresta:
+   translateY(2px), 90ms — o botão afunda de verdade.
+   ======================================================================= */
+.chrome-bar {
+  height: 60px; border-radius: var(--radius-full);
+  backdrop-filter: blur(18px) saturate(1.2);
+  border: 1px solid var(--color-line-strong);
+}
+[data-theme="escuro"] .chrome-bar {
+  background: rgba(32, 29, 27, 0.93);
+  box-shadow: inset 0 1px 0 rgba(237,230,219,.13), inset 0 -2px 6px rgba(0,0,0,.45),
+              0 3px 0 rgba(0,0,0,.5), var(--shadow-lift);
+}
+[data-theme="claro"] .chrome-bar {
+  background: rgba(249, 245, 238, 0.94);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.95), inset 0 -2px 6px rgba(84,71,54,.10),
+              0 3px 0 rgba(84,71,54,.14), var(--shadow-lift);
+}
+
+/* Uma cor por destino. Mesma leveza, matizes vizinhos, iguais nas duas
+   variantes — o destino tem a mesma cor de dia e de noite.
+   O preenchimento é constante; o que muda entre as variantes é a tinta do
+   glifo quando o destino NÃO está ativo (precisa de razão sobre a superfície). */
+:root {
+  --nav-explorar:  #e5a338;
+  --nav-descobrir: #d9834a;
+  --nav-viagens:   #93a86e;
+  --nav-memorias:  #8fa9c2;
+  /* razão do rótulo escuro (#16110b / #1c1409) sobre cada preenchimento:
+     8.60 · 6.52 · 7.21 · 7.70 */
+}
+[data-theme="claro"] {
+  --nav-explorar:  #8a5a0c;  /* glifo inativo, 5.6:1  */
+  --nav-descobrir: #9c4a1f;
+  --nav-viagens:   #4f6b2c;
+  --nav-memorias:  #3f5a75;
+}

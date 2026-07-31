@@ -1,0 +1,1566 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,400..700;1,62..125,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha384-sHL9NAb7lN7rfvG5lfHpm643Xkcjzp4jFvuavGOndn6pjVqS6ny56CAt3nsEVT4H" crossorigin="anonymous" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH" crossorigin="anonymous"></script>
+<style>
+  html, body { margin: 0; padding: 0; background: #e8e2d7; color: #211d18;
+    font-family: 'Archivo', system-ui, sans-serif; font-size: 17px; line-height: 1.55;
+    -webkit-font-smoothing: antialiased; text-wrap: pretty; }
+  * { box-sizing: border-box; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  a { color: #7d4a06; text-decoration-color: rgba(125,74,6,.45); text-underline-offset: 3px; }
+  a:hover { color: #5f3804; }
+  ::selection { background: #f2ddb0; color: #211d18; }
+  :focus-visible { outline: 2px solid #7d4a06; outline-offset: 3px; border-radius: 4px; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: rgba(38,32,26,.18); border-radius: 999px; border: 3px solid transparent; background-clip: padding-box; }
+  ::-webkit-scrollbar-track { background: transparent; }
+
+  .rastro-tiles { filter: grayscale(1) sepia(.5) hue-rotate(-8deg) saturate(1.2) brightness(1.02) contrast(.94); }
+  .leaflet-container { background: #efe9de !important; font-family: 'JetBrains Mono', monospace !important; }
+  .leaflet-control-attribution { background: rgba(244,239,230,.82) !important; color: #635a4e !important;
+    font-size: 10px !important; letter-spacing: .04em; padding: 2px 8px !important; border-radius: 999px 0 0 0; }
+  .leaflet-control-attribution a { color: #554d43 !important; }
+  .rastro-pin { background: none !important; border: 0 !important; }
+  .rp { transition: transform 140ms cubic-bezier(.25,1,.5,1); transform-origin: 50% 50%; cursor: pointer; }
+  .rp:hover { transform: scale(1.22); }
+  .rp.is-sel { animation: pinSel 400ms cubic-bezier(.22,1,.36,1); }
+
+  @keyframes pinSel { from { transform: scale(.7); } to { transform: scale(1); } }
+  @keyframes panelIn { from { opacity: 0; transform: translateX(-12px); } to { opacity: 1; transform: none; } }
+  @keyframes panelInRight { from { opacity: 0; transform: translateX(12px); } to { opacity: 1; transform: none; } }
+  @keyframes riseIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+  @keyframes drawIn { from { stroke-dashoffset: var(--len, 90); } to { stroke-dashoffset: 0; } }
+  @keyframes ruleIn { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  @keyframes valueFlash { 0% { color: #7d4a06; } 100% { color: #211d18; } }
+  @keyframes dashRoll { to { background-position-x: -20px; } }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  /* Barra: a faixa 768–1040px é laptop comum e não cabe com tudo aberto.
+     Nenhum rótulo de destino cai — o que cede é a assinatura (a marca fica, o
+     wordmark sai) e o rótulo da ação, que vira só o "+", exatamente como já
+     está previsto para 390px. Ponto de corte medido, não estimado: com tudo
+     aberto a barra soma 1057px. */
+  @media (max-width: 1200px) {
+    [data-bar="top"] { gap: 14px !important; padding-right: 8px !important; }
+    [data-bar="wordmark"] { display: none !important; }
+    [data-bar="cta-label"] { display: none !important; }
+    [data-bar="cta"] { padding: 0 13px !important; }
+  }
+  @media (max-width: 1000px) { [data-bar="sistema"] { display: none !important; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    /* zerado: deslocamento, fade decorativo, stagger, press */
+    [data-motion="decor"], [data-motion="decor"] * { animation: none !important; transition: none !important; transform: none !important; }
+    .rp:hover { transform: none; }
+    /* preservado: sinal de valor e crossfade dos pins carregam informação */
+    [data-motion="signal"] { animation-duration: 400ms !important; }
+  }
+</style>
+</helmet>
+
+<div style="position:fixed;inset:0;overflow:hidden;background:#e8e2d7">
+
+  <x-import component-from-global-scope="rastro-map-claro" from="./rastro-map-claro.js" data="{{ mapData }}" hint-size="100%,100%" style="position:absolute;inset:0;z-index:0"></x-import>
+
+  <sc-if value="{{ isSistema }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;inset:0;z-index:35;background:#e8e2d7;overflow-y:auto" data-screen-label="Sistema">
+      <div style="max-width:1160px;margin:0 auto;padding:96px 40px 120px;display:flex;flex-direction:column;gap:88px">
+
+        <div style="display:flex;flex-direction:column;gap:20px">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1;text-transform:uppercase;letter-spacing:.16em;color:#635a4e">Rastro · direção visual · variante clara · 31.07.2026</span>
+          <h1 style="margin:0;font-family:'Archivo';font-variation-settings:'wdth' 125;font-weight:700;font-size:32px;line-height:1.05;text-transform:uppercase;letter-spacing:.02em;color:#211d18;max-width:20ch">A régua, de dia</h1>
+          <p style="margin:0;max-width:62ch;font-size:20px;line-height:1.45;color:#554d43">Mesma direção, virada para o dia: o couro sai da superfície e vira <strong style="color:#211d18;font-weight:700">areia clara de mapa em papel</strong>, o âmbar escurece para continuar legível sobre ela, e o mapa segue sangrando por baixo de tudo. A régua que diz de onde veio cada número não muda — muda só o que está por baixo dela.</p>
+        </div>
+
+        <section style="display:flex;flex-direction:column;gap:24px">
+          <div style="display:flex;align-items:baseline;gap:16px">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.16em;color:#7d4a06">01</span>
+            <h2 style="margin:0;font-family:'Archivo';font-variation-settings:'wdth' 115;font-weight:700;font-size:24px;line-height:1.2;color:#211d18">Medido, estimado, opinião</h2>
+            <span style="flex:1;height:1px;background:rgba(38,32,26,.14)"></span>
+          </div>
+          <p style="margin:0;max-width:70ch;font-size:17px;line-height:1.55;color:#554d43">Todo valor do produto se apoia numa régua de 2px. <strong style="color:#211d18;font-weight:700">A régua diz de onde o número veio, antes de você ler a legenda.</strong> Sólida e âmbar: nós medimos. Tracejada e areia: é conta, e o valor vem com <span style="font-family:'JetBrains Mono',monospace">~</span>. Pontilhada e apagada: não sabemos, e o valor é um travessão. Opinião não recebe régua nenhuma — troca de tipo, sai do mono e vira sans com filete à esquerda. Quatro origens, quatro formas, nenhuma palavra necessária.</p>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
+            <div style="display:flex;flex-direction:column;gap:8px;padding:20px;background:#f4efe6;border:1px solid rgba(38,32,26,.14);border-radius:14px">
+              <span style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1;text-transform:uppercase;letter-spacing:.16em;color:#635a4e">Ponto alto</span>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:24px;line-height:1;font-variant-numeric:tabular-nums;color:#211d18">1822</span>
+              <span style="display:block;width:100%;height:2px;background:#7d4a06"></span>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#635a4e">metros · medido</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;padding:20px;background:#f4efe6;border:1px solid rgba(38,32,26,.14);border-radius:14px">
+              <span style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1;text-transform:uppercase;letter-spacing:.16em;color:#635a4e">Distância</span>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:24px;line-height:1;font-variant-numeric:tabular-nums;color:#211d18">~ 172</span>
+              <span style="display:block;width:100%;height:2px;background-image:repeating-linear-gradient(90deg,#635a4e 0 5px,transparent 5px 10px)"></span>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#635a4e">km · linha reta</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;padding:20px;background:#f4efe6;border:1px solid rgba(38,32,26,.14);border-radius:14px">
+              <span style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1;text-transform:uppercase;letter-spacing:.16em;color:#635a4e">Piso do acesso</span>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:24px;line-height:1;color:#635a4e">—</span>
+              <span style="display:block;width:100%;height:2px;background-image:repeating-linear-gradient(90deg,rgba(38,32,26,.30) 0 2px,transparent 2px 6px)"></span>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#635a4e">não sabemos</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;padding:20px;background:#f4efe6;border:1px solid rgba(38,32,26,.14);border-radius:14px">
+              <span style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1;text-transform:uppercase;letter-spacing:.16em;color:#635a4e">Do dono</span>
+              <p style="margin:0;padding-left:14px;border-left:2px solid rgba(38,32,26,.28);font-size:17px;line-height:1.45;color:#554d43">Subimos com a serra limpa. Dia de sorte.</p>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#635a4e">sem régua · opinião</span>
+            </div>
+          </div>
+          <p style="margin:0;max-width:70ch;font-size:15px;line-height:1.5;color:#635a4e">Por que a estrada e não um ícone: a faixa central tracejada já é a marca, já é o traçado da viagem no mapa e já significa asfalto interrompido. Interrompido é exatamente o que um número estimado é. Sobrevive à luva porque é geometria de 2px de altura por 48 de largura, não um glifo de 12px.</p>
+        </section>
+
+        <section style="display:flex;flex-direction:column;gap:24px">
+          <div style="display:flex;align-items:baseline;gap:16px">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.16em;color:#7d4a06">02</span>
+            <h2 style="margin:0;font-family:'Archivo';font-variation-settings:'wdth' 115;font-weight:700;font-size:24px;line-height:1.2;color:#211d18">Paleta, as duas metades</h2>
+            <span style="flex:1;height:1px;background:rgba(38,32,26,.14)"></span>
+          </div>
+          <p style="margin:0;max-width:70ch;font-size:17px;line-height:1.55;color:#554d43">A mesma família, invertida em claridade: areia clara na superfície, couro no texto, âmbar de instrumento escurecido no acento, oliva de estrada em visitado. O acento se parte em dois papéis — <span style="font-family:'JetBrains Mono',monospace">--color-accent</span> para texto, régua e borda, e <span style="font-family:'JetBrains Mono',monospace">--color-accent-fill</span> para o preenchimento da ação, que precisa continuar brilhando. Razões medidas sobre <span style="font-family:'JetBrains Mono',monospace">--color-base</span>. O pior caso do sistema continua sendo sobre <span style="font-family:'JetBrains Mono',monospace">--color-overlay</span>, onde nenhum par cai abaixo de 4,88 — folga maior que na variante escura.</p>
+
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
+            <sc-for list="{{ surfaceTokens }}" as="t" hint-placeholder-count="4">
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <span style="{{ t.chipStyle }}"></span>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.06em;color:#211d18">{{ t.name }}</span>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.06em;color:#635a4e">{{ t.hex }}</span>
+                <span style="font-size:15px;line-height:1.35;color:#635a4e">{{ t.use }}</span>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
+            <sc-for list="{{ inkTokens }}" as="t" hint-placeholder-count="7">
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <span style="{{ t.chipStyle }}"></span>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.06em;color:#211d18">{{ t.name }}</span>
+                <span style="display:flex;gap:10px;align-items:baseline"><span style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.06em;color:#635a4e">{{ t.hex }}</span><span style="{{ t.ratioStyle }}">{{ t.ratio }}</span></span>
+                <span style="font-size:15px;line-height:1.35;color:#635a4e">{{ t.use }}</span>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1;text-transform:uppercase;letter-spacing:.16em;color:#635a4e">Dois vocabulários que coincidem em valor e não se unificam</span>
+            <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:16px">
+              <sc-for list="{{ stateTokens }}" as="t" hint-placeholder-count="6">
+                <div style="display:flex;flex-direction:column;gap:8px">
+                  <span style="{{ t.chipStyle }}"></span>
+                  <span style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.06em;color:#211d18">{{ t.name }}</span>
+                  <span style="display:flex;gap:10px;align-items:baseline"><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#635a4e">{{ t.hex }}</span><span style="{{ t.ratioStyle }}">{{ t.ratio }}</span></span>
+                  <span style="font-size:15px;line-height:1.35;color:#635a4e">{{ t.use }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:12px;padding:24px;background:#f4efe6;border:1px solid rgba(38,32,26,.14);border-radius:20px">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1;text-transform:uppercase;letter-spacing:.16em;color:#7d4a06">A outra metade — hex literal do WebGL</span>
+            <p style="margin:0;max-width:70ch;font-size:15px;line-height:1.5;color:#635a4e">Vai em <span style="font-family:'JetBrains Mono',monospace">src/lib/map/style.ts</span> e <span style="font-family:'JetBrains Mono',monospace">src/lib/map/layers.ts</span>. Mudar um lado sem o outro faz interface e mapa divergirem.</p>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px 24px;margin-top:8px">
+              <sc-for list="{{ mapHex }}" as="m" hint-placeholder-count="24">
+                <div style="display:flex;align-items:center;gap:10px;min-width:0">
+                  <span style="{{ m.chipStyle }}"></span>
+                  <span style="flex:1;min-width:0;font-size:15px;line-height:1.35;color:#554d43">{{ m.k }}</span>
+                  <span style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.04em;color:#635a4e">{{ m.v }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </section>
+
+        <section style="display:flex;flex-direction:column;gap:24px">
+          <div style="display:flex;align-items:baseline;gap:16px">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.16em;color:#7d4a06">03</span>
+            <h2 style="margin:0;font-family:'Archivo';font-variation-settings:'wdth' 115;font-weight:700;font-size:24px;line-height:1.2;color:#211d18">Tipografia</h2>
+            <span style="flex:1;height:1px;background:rgba(38,32,26,.14)"></span>
+          </div>
+          <p style="margin:0;max-width:70ch;font-size:17px;line-height:1.55;color:#554d43">Archivo e JetBrains Mono ficam, e a escala fica inteira, sem um degrau novo — ela já passou por uma auditoria e passou. Mono não é decoração: <strong style="color:#211d18;font-weight:700">tudo que é medição está em mono, tudo que é humano está em sans</strong>. É a segunda metade do sistema do §01.</p>
+          <div style="display:flex;flex-direction:column;border:1px solid rgba(38,32,26,.14);border-radius:20px;overflow:hidden">
+            <sc-for list="{{ typeRows }}" as="r" hint-placeholder-count="6">
+              <div style="display:grid;grid-template-columns:200px 100px 1fr 1.2fr;gap:24px;align-items:center;padding:18px 24px;border-bottom:1px solid rgba(38,32,26,.14)">
+                <span style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.06em;color:#7d4a06">{{ r.tk }}</span>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.06em;color:#635a4e">{{ r.size }}</span>
+                <span style="font-size:15px;color:#635a4e">{{ r.use }}</span>
+                <span style="{{ r.st }}">{{ r.sample }}</span>
+              </div>
+            </sc-for>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px 32px">
+            <sc-for list="{{ charClasses }}" as="c" hint-placeholder-count="7">
+              <div style="display:flex;gap:14px;align-items:baseline">
+                <span style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.04em;color:#211d18;flex:none;min-width:150px">{{ c.n }}</span>
+                <span style="font-size:15px;line-height:1.4;color:#635a4e">{{ c.s }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </section>
+
+        <section style="display:flex;flex-direction:column;gap:24px">
+          <div style="display:flex;align-items:baseline;gap:16px">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.16em;color:#7d4a06">04</span>
+            <h2 style="margin:0;font-family:'Archivo';font-variation-settings:'wdth' 115;font-weight:700;font-size:24px;line-height:1.2;color:#211d18">Elevação, agora em duas camadas</h2>
+            <span style="flex:1;height:1px;background:rgba(38,32,26,.14)"></span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+            <div style="display:flex;flex-direction:column;gap:14px;padding:24px;background:#f4efe6;border:1px solid rgba(38,32,26,.14);border-radius:20px;box-shadow:0 18px 40px -24px rgb(84 71 54 / .22)">
+              <span style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1;text-transform:uppercase;letter-spacing:.16em;color:#635a4e">Camada 1 · --shadow-float</span>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:15px;color:#7d4a06">0 18px 40px -24px rgb(84 71 54 / .22)</span>
+              <p style="margin:0;font-size:17px;line-height:1.5;color:#554d43">Separa cromo do mapa. Papel inalterado: difusão curta, deslocamento negativo grande, um vinco e não um halo.</p>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:14px;padding:24px;background:#ece5da;border:1px solid rgba(38,32,26,.14);border-radius:20px;box-shadow:0 18px 40px -24px rgb(84 71 54 / .22),0 8px 22px -14px rgb(84 71 54 / .15)">
+              <span style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1;text-transform:uppercase;letter-spacing:.16em;color:#635a4e">Camada 2 · --shadow-lift</span>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:15px;color:#7d4a06">+ 0 8px 22px -14px rgb(84 71 54 / .15)</span>
+              <p style="margin:0;font-size:17px;line-height:1.5;color:#554d43">Some sobre a camada 1, nunca sozinha. Existe porque agora há painel sobre painel: o do lugar abre por cima do FilterRail, e com uma camada só os dois viram uma massa e você perde qual tem o teclado. Quem tem a camada 2 tem o foco.</p>
+            </div>
+          </div>
+          <p style="margin:0;max-width:70ch;font-size:15px;line-height:1.5;color:#635a4e">Espaçamento, raio e geometria do cromo permanecem exatamente como estão — 8/12/20/32, raios 8/14/20/28/36/999, barra de 104px abaixo de 768 e 56 acima, folha de 45vh, painéis de 280/380/420.</p>
+        </section>
+
+        <section style="display:flex;flex-direction:column;gap:24px">
+          <div style="display:flex;align-items:baseline;gap:16px">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.16em;color:#7d4a06">05</span>
+            <h2 style="margin:0;font-family:'Archivo';font-variation-settings:'wdth' 115;font-weight:700;font-size:24px;line-height:1.2;color:#211d18">Movimento</h2>
+            <span style="flex:1;height:1px;background:rgba(38,32,26,.14)"></span>
+          </div>
+          <p style="margin:0;max-width:70ch;font-size:17px;line-height:1.55;color:#554d43">A base fica: um ritmo só, sem bounce, saída a 70% da entrada, deslocamento de 12px. O que entra é uso, não sistema novo — e a política de três camadas continua valendo, com cada peça declarada.</p>
+          <div style="display:flex;flex-direction:column;border:1px solid rgba(38,32,26,.14);border-radius:20px;overflow:hidden">
+            <div style="display:grid;grid-template-columns:1.6fr .6fr .8fr 1.4fr;gap:24px;padding:14px 24px;background:#f4efe6;border-bottom:1px solid rgba(38,32,26,.14)">
+              <span style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#635a4e">Peça</span>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#635a4e">Duração</span>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#635a4e">Curva</span>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#635a4e">Movimento reduzido</span>
+            </div>
+            <sc-for list="{{ motionRows }}" as="r" hint-placeholder-count="12">
+              <div style="display:grid;grid-template-columns:1.6fr .6fr .8fr 1.4fr;gap:24px;padding:14px 24px;border-bottom:1px solid rgba(38,32,26,.14)">
+                <span style="font-size:17px;color:#211d18">{{ r.n }}</span>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:15px;font-variant-numeric:tabular-nums;color:#554d43">{{ r.d }}</span>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:15px;color:#554d43">{{ r.e }}</span>
+                <span style="{{ r.cStyle }}">{{ r.c }}</span>
+              </div>
+            </sc-for>
+          </div>
+          <p style="margin:0;max-width:70ch;font-size:15px;line-height:1.5;color:#635a4e">O morfismo de ícone é sempre informação, nunca enfeite: o glifo do destino ativo redesenha seu próprio traço ao assumir, a bússola do CTA vira o vetor da rota quando a resposta chega. Ambos caem na camada zerada — sob movimento reduzido a forma final aparece de uma vez, e ela sozinha já diz o estado.</p>
+        </section>
+
+        <section style="display:flex;flex-direction:column;gap:24px">
+          <div style="display:flex;align-items:baseline;gap:16px">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.16em;color:#7d4a06">06</span>
+            <h2 style="margin:0;font-family:'Archivo';font-variation-settings:'wdth' 115;font-weight:700;font-size:24px;line-height:1.2;color:#211d18">A marca</h2>
+            <span style="flex:1;height:1px;background:rgba(38,32,26,.14)"></span>
+          </div>
+          <div style="display:flex;align-items:center;gap:48px;flex-wrap:wrap;padding:32px;background:#f4efe6;border:1px solid rgba(38,32,26,.14);border-radius:20px">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
+              <div style="width:96px;height:96px;display:flex;align-items:center;justify-content:center;background:#e8e2d7;border:1px solid rgba(38,32,26,.28);border-radius:28px">
+                <svg width="56" height="56" viewBox="0 0 32 32">
+                  <path d="M9 27 L9 6 L18.5 6 A6.5 6.5 0 0 1 18.5 19 L12 19" fill="none" stroke="#211d18" stroke-width="4" stroke-linecap="square"></path>
+                  <path d="M14.5 18.5 L24 27" fill="none" stroke="#211d18" stroke-width="4.6"></path>
+                  <path d="M15.2 19.4 L23.2 26.6" fill="none" stroke="#e8e2d7" stroke-width="1.3" stroke-dasharray="2.4 2.6"></path>
+                </svg>
+              </div>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.1em;color:#635a4e">placa · 96px</span>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
+              <div style="height:96px;display:flex;align-items:center;gap:14px">
+                <svg width="44" height="44" viewBox="0 0 32 32">
+                  <path d="M9 27 L9 6 L18.5 6 A6.5 6.5 0 0 1 18.5 19 L12 19" fill="none" stroke="#211d18" stroke-width="4" stroke-linecap="square"></path>
+                  <path d="M14.5 18.5 L24 27" fill="none" stroke="#211d18" stroke-width="4.6"></path>
+                  <path d="M15.2 19.4 L23.2 26.6" fill="none" stroke="#f4efe6" stroke-width="1.3" stroke-dasharray="2.4 2.6"></path>
+                </svg>
+                <span style="font-family:'Archivo';font-variation-settings:'wdth' 125;font-weight:700;font-size:28px;letter-spacing:.06em;text-transform:uppercase;color:#211d18">Rastro</span>
+              </div>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.1em;color:#635a4e">lockup · barra</span>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
+              <div style="height:96px;display:flex;align-items:center;gap:20px">
+                <svg width="32" height="32" viewBox="0 0 32 32"><path d="M9 27 L9 6 L18.5 6 A6.5 6.5 0 0 1 18.5 19 L12 19" fill="none" stroke="#211d18" stroke-width="4" stroke-linecap="square"></path><path d="M14.5 18.5 L24 27" fill="none" stroke="#211d18" stroke-width="4.6"></path><path d="M15.2 19.4 L23.2 26.6" fill="none" stroke="#f4efe6" stroke-width="1.3" stroke-dasharray="2.4 2.6"></path></svg>
+                <svg width="24" height="24" viewBox="0 0 32 32"><path d="M9 27 L9 6 L18.5 6 A6.5 6.5 0 0 1 18.5 19 L12 19" fill="none" stroke="#211d18" stroke-width="4.3" stroke-linecap="square"></path><path d="M14.5 18.5 L24 27" fill="none" stroke="#211d18" stroke-width="4.9"></path></svg>
+                <svg width="18" height="18" viewBox="0 0 32 32"><path d="M9 27 L9 6 L18.5 6 A6.5 6.5 0 0 1 18.5 19 L12 19" fill="none" stroke="#211d18" stroke-width="4.6" stroke-linecap="square"></path><path d="M14.5 18.5 L24 27" fill="none" stroke="#211d18" stroke-width="5.2"></path></svg>
+              </div>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.1em;color:#635a4e">32 / 24 / 18 · faixa some abaixo de 32</span>
+            </div>
+            <p style="margin:0;flex:1;min-width:280px;font-size:17px;line-height:1.5;color:#554d43">A geometria é a mesma, e a compensação óptica de traço por tamanho continua. O que muda é o comportamento: <strong style="color:#211d18;font-weight:700">na entrada do aplicativo a faixa central desenha uma vez</strong>, 520ms, da junta do R até a ponta da perna — a estrada sendo percorrida. Uma vez por sessão, nunca em laço. Placa só como ícone de app e na tela de entrada; na barra a marca vive sem caixa.</p>
+          </div>
+        </section>
+
+        <section style="display:flex;flex-direction:column;gap:24px">
+          <div style="display:flex;align-items:baseline;gap:16px">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.16em;color:#7d4a06">07</span>
+            <h2 style="margin:0;font-family:'Archivo';font-variation-settings:'wdth' 115;font-weight:700;font-size:24px;line-height:1.2;color:#211d18">390px, que é onde isto é usado</h2>
+            <span style="flex:1;height:1px;background:rgba(38,32,26,.14)"></span>
+          </div>
+          <p style="margin:0;max-width:70ch;font-size:17px;line-height:1.55;color:#554d43">Nada encolhe. O corpo continua em 17, o rótulo em 12, o alvo em 44. O que muda é a arrumação: a barra vira duas linhas, o painel vira folha inferior de 45vh com pegador, e o rodapé de ação da folha fica fixo, fora da rolagem — de luva, o polegar não caça botão.</p>
+          <div style="display:flex;gap:40px;flex-wrap:wrap">
+
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <div style="position:relative;width:390px;height:760px;background:#efe9de;border:1px solid rgba(38,32,26,.28);border-radius:28px;overflow:hidden">
+                <svg viewBox="0 0 390 760" style="position:absolute;inset:0;width:100%;height:100%">
+                  <path d="M30 90 C 110 170, 80 250, 170 300 S 300 400, 360 470" fill="none" stroke="#7d4a06" stroke-width="6" stroke-linecap="round"></path>
+                  <path d="M30 90 C 110 170, 80 250, 170 300 S 300 400, 360 470" fill="none" stroke="#efe9de" stroke-width="1.6" stroke-dasharray="8 10"></path>
+                  <circle cx="240" cy="200" r="7" fill="#445d24" stroke="#445d24" stroke-width="2"></circle>
+                  <circle cx="110" cy="330" r="7" fill="#f4efe6" stroke="#635a4e" stroke-width="2"></circle>
+                  <circle cx="300" cy="140" r="7" fill="#7d4a06" stroke="#7d4a06" stroke-width="2"></circle>
+                </svg>
+                <div style="position:absolute;top:12px;left:12px;right:12px;height:104px;display:flex;flex-direction:column;gap:4px;padding:8px 12px;background:rgba(244,239,230,.94);border:1px solid rgba(38,32,26,.14);border-radius:20px;box-shadow:0 18px 40px -24px rgb(84 71 54 / .22)">
+                  <div style="display:flex;align-items:center;gap:10px;height:44px">
+                    <svg width="22" height="22" viewBox="0 0 32 32"><path d="M9 27 L9 6 L18.5 6 A6.5 6.5 0 0 1 18.5 19 L12 19" fill="none" stroke="#211d18" stroke-width="4.3" stroke-linecap="square"></path><path d="M14.5 18.5 L24 27" fill="none" stroke="#211d18" stroke-width="4.9"></path></svg>
+                    <span style="font-family:'Archivo';font-variation-settings:'wdth' 125;font-weight:700;font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:#211d18">Rastro</span>
+                    <span style="flex:1"></span>
+                    <span style="display:flex;align-items:center;justify-content:center;width:44px;height:36px;background:#d99327;border-radius:999px">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1c1409" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+                    </span>
+                    <span style="font-size:15px;color:#554d43;padding:0 6px">Sair</span>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:2px;height:44px">
+                    <span style="display:flex;align-items:center;gap:6px;height:36px;padding:0 12px;background:#e2dacd;border-radius:999px;color:#7d4a06;font-size:15px">
+                      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M12 21s7-5.7 7-11a7 7 0 1 0-14 0c0 5.3 7 11 7 11z"></path></svg>Explorar</span>
+                    <span style="display:flex;align-items:center;gap:6px;height:36px;padding:0 10px;color:#554d43;font-size:15px">
+                      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="9"></circle></svg>Descobrir</span>
+                    <span style="display:flex;align-items:center;gap:6px;height:36px;padding:0 10px;color:#554d43;font-size:15px">
+                      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M5 20c4.4 0 4.4-7 8-7s3.5-3 3.5-3"></path></svg>Viagens</span>
+                  </div>
+                </div>
+                <div style="position:absolute;left:0;right:0;bottom:0;height:45%;display:flex;flex-direction:column;background:rgba(244,239,230,.97);border-top:1px solid rgba(38,32,26,.14);border-radius:28px 28px 0 0;box-shadow:0 -18px 40px -24px rgb(84 71 54 / .22)">
+                  <div style="display:flex;justify-content:center;padding:10px 0 6px"><span style="display:block;width:44px;height:4px;border-radius:999px;background:rgba(38,32,26,.28)"></span></div>
+                  <div style="padding:4px 16px 12px;display:flex;align-items:center;gap:10px;height:48px;margin:0 16px;background:#ece5da;border:1px solid rgba(38,32,26,.14);border-radius:14px">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#635a4e" stroke-width="1.9"><circle cx="11" cy="11" r="7"></circle><path d="M16.5 16.5 21 21"></path></svg>
+                    <span style="font-size:17px;color:#635a4e">Nome, município ou etiqueta</span>
+                  </div>
+                  <div style="flex:1;overflow:hidden;padding:12px 12px 0;display:flex;flex-direction:column;gap:2px">
+                    <div style="display:flex;align-items:center;gap:12px;min-height:64px;padding:8px 12px;background:#e2dacd;border-radius:14px">
+                      <span style="display:block;width:11px;height:11px;border-radius:999px;background:#445d24;border:2px solid #445d24;flex:none"></span>
+                      <span style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font-size:17px;color:#211d18;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Serra do Rio do Rastro</span><span style="font-size:15px;color:#635a4e">Lauro Müller</span></span>
+                      <span style="display:flex;flex-direction:column;align-items:flex-end;gap:5px"><span style="font-family:'JetBrains Mono',monospace;font-size:15px;color:#554d43">~ 172 km</span><span style="display:block;width:38px;height:2px;background-image:repeating-linear-gradient(90deg,#635a4e 0 5px,transparent 5px 10px)"></span></span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:12px;min-height:64px;padding:8px 12px">
+                      <span style="display:block;width:11px;height:11px;border-radius:999px;background:#7d4a06;border:2px solid #7d4a06;flex:none"></span>
+                      <span style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font-size:17px;color:#211d18">Morro da Igreja</span><span style="font-size:15px;color:#635a4e">Urubici</span></span>
+                      <span style="display:flex;flex-direction:column;align-items:flex-end;gap:5px"><span style="font-family:'JetBrains Mono',monospace;font-size:15px;color:#554d43">~ 168 km</span><span style="display:block;width:38px;height:2px;background-image:repeating-linear-gradient(90deg,#635a4e 0 5px,transparent 5px 10px)"></span></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.1em;color:#635a4e">Explorar · barra em duas linhas, folha a 45vh</span>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <div style="position:relative;width:390px;height:760px;background:#efe9de;border:1px solid rgba(38,32,26,.28);border-radius:28px;overflow:hidden">
+                <svg viewBox="0 0 390 400" style="position:absolute;top:0;left:0;width:100%;height:400px">
+                  <path d="M40 60 C 120 130, 90 210, 190 250 S 320 330, 370 380" fill="none" stroke="#7d4a06" stroke-width="6" stroke-linecap="round"></path>
+                  <path d="M40 60 C 120 130, 90 210, 190 250 S 320 330, 370 380" fill="none" stroke="#efe9de" stroke-width="1.6" stroke-dasharray="8 10"></path>
+                  <circle cx="190" cy="250" r="9" fill="#445d24" stroke="#211d18" stroke-width="2"></circle>
+                </svg>
+                <div style="position:absolute;left:0;right:0;bottom:0;top:180px;display:flex;flex-direction:column;background:rgba(244,239,230,.97);border-top:1px solid rgba(38,32,26,.14);border-radius:28px 28px 0 0;box-shadow:0 -18px 40px -24px rgb(84 71 54 / .22),0 -8px 22px -14px rgb(84 71 54 / .15)">
+                  <div style="display:flex;justify-content:center;padding:10px 0 4px"><span style="display:block;width:44px;height:4px;border-radius:999px;background:rgba(38,32,26,.28)"></span></div>
+                  <div style="padding:8px 20px 16px;display:flex;gap:16px;align-items:flex-start;border-bottom:1px solid rgba(38,32,26,.14)">
+                    <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+                      <span style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1;text-transform:uppercase;letter-spacing:.16em;color:#445d24">Visitado</span>
+                      <span style="font-family:'Archivo';font-variation-settings:'wdth' 115;font-weight:700;font-size:24px;line-height:1.2;color:#211d18">Serra do Rio do Rastro</span>
+                      <span style="font-size:15px;color:#635a4e">Lauro Müller · serra · curvas</span>
+                    </div>
+                    <span style="flex:none;width:44px;height:44px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(38,32,26,.14);border-radius:999px">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#554d43" stroke-width="1.9" stroke-linecap="round"><path d="M6 6 18 18M18 6 6 18"></path></svg>
+                    </span>
+                  </div>
+                  <div style="flex:1;padding:20px;display:flex;flex-direction:column;gap:24px;overflow:hidden">
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px">
+                      <div style="display:flex;flex-direction:column;gap:7px"><span style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1;letter-spacing:.16em;text-transform:uppercase;color:#635a4e">Dist.</span><span style="font-family:'JetBrains Mono',monospace;font-size:20px;line-height:1;color:#211d18">~172</span><span style="display:block;height:2px;background-image:repeating-linear-gradient(90deg,#635a4e 0 5px,transparent 5px 10px)"></span></div>
+                      <div style="display:flex;flex-direction:column;gap:7px"><span style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1;letter-spacing:.16em;text-transform:uppercase;color:#635a4e">Tempo</span><span style="font-family:'JetBrains Mono',monospace;font-size:20px;line-height:1;color:#211d18">~3h</span><span style="display:block;height:2px;background-image:repeating-linear-gradient(90deg,#635a4e 0 5px,transparent 5px 10px)"></span></div>
+                      <div style="display:flex;flex-direction:column;gap:7px"><span style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1;letter-spacing:.16em;text-transform:uppercase;color:#635a4e">Alt.</span><span style="font-family:'JetBrains Mono',monospace;font-size:20px;line-height:1;color:#211d18">1420</span><span style="display:block;height:2px;background:#7d4a06"></span></div>
+                    </div>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap">
+                      <span style="display:inline-flex;align-items:center;gap:9px;height:44px;padding:0 16px;border-radius:999px;background:rgba(125,74,6,.13);border:1px solid rgba(125,74,6,.55);color:#211d18;font-size:15px"><span style="width:9px;height:9px;border-radius:999px;background:#445d24"></span>Visitado</span>
+                      <span style="display:inline-flex;align-items:center;gap:9px;height:44px;padding:0 16px;border-radius:999px;background:#ece5da;border:1px solid rgba(38,32,26,.14);color:#554d43;font-size:15px"><span style="width:9px;height:9px;border-radius:999px;border:1.5px solid #7d4a06"></span>Quero ir</span>
+                    </div>
+                    <p style="margin:0;padding-left:14px;border-left:2px solid rgba(38,32,26,.28);font-size:17px;line-height:1.5;color:#554d43">Subimos com a serra limpa. Parei três vezes só para olhar.</p>
+                  </div>
+                  <div style="padding:12px 16px 20px;border-top:1px solid rgba(38,32,26,.14);display:flex;gap:8px">
+                    <span style="flex:1;height:48px;display:flex;align-items:center;justify-content:center;background:#d99327;color:#1c1409;border-radius:14px;font-weight:700;font-size:17px">Somar à viagem</span>
+                    <span style="height:48px;display:flex;align-items:center;padding:0 18px;border:1px solid rgba(38,32,26,.28);border-radius:14px;color:#554d43;font-size:17px">Editar</span>
+                  </div>
+                </div>
+              </div>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.1em;color:#635a4e">Lugar · folha alta, ação fixa fora da rolagem</span>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <div style="position:relative;width:390px;height:760px;background:#efe9de;border:1px solid rgba(38,32,26,.28);border-radius:28px;overflow:hidden">
+                <svg viewBox="0 0 390 300" style="position:absolute;top:0;left:0;width:100%;height:300px">
+                  <path d="M20 40 C 140 90, 100 180, 230 210 S 350 260, 375 290" fill="none" stroke="#7d4a06" stroke-width="6" stroke-linecap="round"></path>
+                  <path d="M20 40 C 140 90, 100 180, 230 210 S 350 260, 375 290" fill="none" stroke="#efe9de" stroke-width="1.6" stroke-dasharray="8 10"></path>
+                </svg>
+                <div style="position:absolute;left:0;right:0;bottom:0;top:150px;display:flex;flex-direction:column;gap:12px;padding:16px;background:rgba(244,239,230,.97);border-top:1px solid rgba(38,32,26,.14);border-radius:28px 28px 0 0">
+                  <div style="display:flex;justify-content:center;padding-bottom:4px"><span style="display:block;width:44px;height:4px;border-radius:999px;background:rgba(38,32,26,.28)"></span></div>
+                  <div style="display:flex;align-items:baseline;justify-content:space-between;padding:0 4px">
+                    <span style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1;text-transform:uppercase;letter-spacing:.16em;color:#635a4e">Viagens</span>
+                    <span style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.16em;color:#554d43">3 SALVAS</span>
+                  </div>
+                  <div style="position:relative;padding:16px 16px 16px 18px;background:#e2dacd;border:1px solid rgba(125,74,6,.40);border-radius:14px;box-shadow:0 8px 22px -14px rgb(84 71 54 / .15);display:flex;flex-direction:column;gap:12px">
+                    <span style="position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px;background:#7d4a06"></span>
+                    <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px"><span style="font-size:17px;color:#211d18">Serra do Rio do Rastro, dois dias</span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.16em;color:#635a4e;flex:none">12 SET</span></div>
+                    <div style="display:flex;gap:20px">
+                      <span style="display:flex;flex-direction:column;gap:5px"><span style="font-family:'JetBrains Mono',monospace;font-size:20px;line-height:1;color:#211d18">412</span><span style="display:block;min-width:56px;height:2px;background:#7d4a06"></span></span>
+                      <span style="display:flex;flex-direction:column;gap:5px"><span style="font-family:'JetBrains Mono',monospace;font-size:20px;line-height:1;color:#211d18">6h20</span><span style="display:block;min-width:56px;height:2px;background:#7d4a06"></span></span>
+                      <span style="display:flex;flex-direction:column;gap:5px"><span style="font-family:'JetBrains Mono',monospace;font-size:20px;line-height:1;color:#554d43">5</span><span style="display:block;min-width:56px;height:2px;background:rgba(38,32,26,.16)"></span></span>
+                    </div>
+                  </div>
+                  <div style="padding:16px;background:#ece5da;border:1px solid rgba(38,32,26,.14);border-radius:14px;display:flex;flex-direction:column;gap:12px">
+                    <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px"><span style="font-size:17px;color:#211d18">Litoral sul até o Rosa</span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.16em;color:#635a4e;flex:none">03 AGO</span></div>
+                    <div style="display:flex;gap:20px">
+                      <span style="display:flex;flex-direction:column;gap:5px"><span style="font-family:'JetBrains Mono',monospace;font-size:20px;line-height:1;color:#211d18">188</span><span style="display:block;min-width:56px;height:2px;background:#7d4a06"></span></span>
+                      <span style="display:flex;flex-direction:column;gap:5px"><span style="font-family:'JetBrains Mono',monospace;font-size:20px;line-height:1;color:#211d18">3h05</span><span style="display:block;min-width:56px;height:2px;background:#7d4a06"></span></span>
+                      <span style="display:flex;flex-direction:column;gap:5px"><span style="font-family:'JetBrains Mono',monospace;font-size:20px;line-height:1;color:#554d43">3</span><span style="display:block;min-width:56px;height:2px;background:rgba(38,32,26,.16)"></span></span>
+                    </div>
+                  </div>
+                  <div style="display:flex;align-items:center;justify-content:center;gap:10px;height:56px;border:1px dashed rgba(38,32,26,.28);border-radius:14px;color:#554d43;font-size:17px">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>Montar nova viagem
+                  </div>
+                </div>
+              </div>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.1em;color:#635a4e">Viagens · card, e o mapa continua sem caixa</span>
+            </div>
+          </div>
+        </section>
+
+        <section style="display:flex;flex-direction:column;gap:24px">
+          <div style="display:flex;align-items:baseline;gap:16px">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.16em;color:#7d4a06">08</span>
+            <h2 style="margin:0;font-family:'Archivo';font-variation-settings:'wdth' 115;font-weight:700;font-size:24px;line-height:1.2;color:#211d18">Tratamento, elemento por elemento</h2>
+            <span style="flex:1;height:1px;background:rgba(38,32,26,.14)"></span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:32px">
+            <sc-for list="{{ inventory }}" as="g" hint-placeholder-count="10">
+              <div style="display:flex;flex-direction:column;gap:12px">
+                <span style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1;text-transform:uppercase;letter-spacing:.16em;color:#7d4a06">{{ g.g }}</span>
+                <div style="display:flex;flex-direction:column">
+                  <sc-for list="{{ g.items }}" as="it" hint-placeholder-count="4">
+                    <div style="display:grid;grid-template-columns:240px 1fr;gap:24px;padding:10px 0;border-bottom:1px solid rgba(38,32,26,.14)">
+                      <span style="font-size:17px;color:#211d18">{{ it.n }}</span>
+                      <span style="font-size:17px;line-height:1.45;color:#554d43">{{ it.s }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </section>
+
+        <section style="display:flex;flex-direction:column;gap:24px">
+          <div style="display:flex;align-items:baseline;gap:16px">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.16em;color:#7d4a06">09</span>
+            <h2 style="margin:0;font-family:'Archivo';font-variation-settings:'wdth' 115;font-weight:700;font-size:24px;line-height:1.2;color:#211d18">Onde isto contraria o que estava decidido</h2>
+            <span style="flex:1;height:1px;background:rgba(38,32,26,.14)"></span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:2px;max-width:88ch">
+            <sc-for list="{{ contraries }}" as="c" hint-placeholder-count="5">
+              <div style="display:flex;gap:14px;padding:14px 0;border-bottom:1px solid rgba(38,32,26,.14)">
+                <span style="display:block;width:24px;height:2px;flex:none;margin-top:12px;background:#9c2f16"></span>
+                <span style="font-size:17px;line-height:1.5;color:#554d43">{{ c }}</span>
+              </div>
+            </sc-for>
+          </div>
+          <p style="margin:0;max-width:70ch;font-size:15px;line-height:1.5;color:#635a4e">Os dois pontos do §1 continuam de pé sem exceção: nada abaixo de 17px de corpo, 12px de rótulo e 44px de alvo; e toda leitura numérica declara sua origem pela régua, sem legenda.</p>
+        </section>
+
+        <div style="display:flex;gap:12px;padding-top:24px;border-top:1px solid rgba(38,32,26,.14)">
+          <button type="button" onClick="{{ goHome }}" style="height:48px;padding:0 22px;background:#d99327;color:#1c1409;border:0;border-radius:14px;font-weight:700;font-size:17px;cursor:pointer" style-hover="background:#b8790f">Voltar ao produto</button>
+          <a href="./Rastro.dc.html" style="height:48px;display:inline-flex;align-items:center;padding:0 22px;border-radius:14px;font-size:17px;text-decoration:none;border:1px solid rgba(38,32,26,.28);color:#554d43">Ver a variante escura</a>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <header data-bar="top" style="position:absolute;top:14px;left:12px;right:12px;z-index:40;height:60px;display:flex;align-items:center;gap:18px;padding:0 10px 0 16px;background:rgba(249,245,238,.94);backdrop-filter:blur(18px) saturate(1.2);border:1px solid rgba(38,32,26,.16);border-radius:999px;box-shadow:inset 0 1px 0 rgba(255,255,255,.95),inset 0 -2px 6px rgba(84,71,54,.10),0 3px 0 rgba(84,71,54,.14),0 18px 40px -24px rgb(84 71 54 / .35),0 10px 26px -16px rgb(84 71 54 / .28)">
+
+    <button type="button" onClick="{{ goHome }}" title="Rastro" style="display:flex;align-items:center;gap:10px;background:none;border:0;padding:4px 2px;cursor:pointer;border-radius:8px">
+      <svg width="26" height="26" viewBox="0 0 32 32" aria-label="Rastro" style="display:block;flex:none">
+        <path d="M9 27 L9 6 L18.5 6 A6.5 6.5 0 0 1 18.5 19 L12 19" fill="none" stroke="#211d18" stroke-width="4" stroke-linecap="square" />
+        <path d="M14.5 18.5 L24 27" fill="none" stroke="#211d18" stroke-width="4.6" stroke-linecap="butt" />
+        <path d="M15.2 19.4 L23.2 26.6" fill="none" stroke="#f4efe6" stroke-width="1.3" stroke-dasharray="2.4 2.6" stroke-linecap="butt" style="{{ dashStyle }}" />
+      </svg>
+      <span data-bar="wordmark" style="font-family:'Archivo';font-variation-settings:'wdth' 125;font-weight:700;font-size:17px;letter-spacing:.06em;text-transform:uppercase;color:#211d18">Rastro</span>
+    </button>
+
+    <div style="width:1px;height:26px;flex:none;background:rgba(38,32,26,.18)"></div>
+
+    <nav style="display:flex;align-items:center;gap:6px;flex:none">
+      <sc-for list="{{ navItems }}" as="n" hint-placeholder-count="4">
+        <button type="button" onClick="{{ n.go }}" aria-current="{{ n.cur }}" style="{{ n.style }}" style-active="transform:translateY(2px)" data-motion="decor">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="{{ n.iconColor }}" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="flex:none">
+            <path d="{{ n.d1 }}" style="{{ n.drawStyle }}"></path>
+            <path d="{{ n.d2 }}" style="{{ n.drawStyle }}"></path>
+          </svg>
+          <span style="font-size:15px;white-space:nowrap">{{ n.label }}</span>
+        </button>
+      </sc-for>
+    </nav>
+
+    <div style="flex:1"></div>
+
+    <button type="button" data-bar="cta" onClick="{{ openNewPlace }}" aria-label="Novo lugar" style="display:flex;align-items:center;justify-content:center;gap:8px;flex:none;height:42px;padding:0 18px;white-space:nowrap;background:#d99327;color:#1c1409;border:1px solid rgba(0,0,0,.18);border-radius:999px;font-weight:700;font-size:15px;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 2px 0 rgba(84,71,54,.28),0 10px 20px -14px #b8790f;transition:background 140ms cubic-bezier(.25,1,.5,1),box-shadow 140ms,transform 90ms cubic-bezier(.25,1,.5,1)" style-hover="background:#b8790f" style-active="transform:translateY(2px)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" style="flex:none"><path d="M12 5v14M5 12h14"></path></svg>
+      <span data-bar="cta-label">Novo lugar</span>
+    </button>
+    <button type="button" onClick="{{ goPerfil }}" style="{{ perfilBtnStyle }}">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><circle cx="12" cy="8.5" r="3.6"></circle><path d="M5.5 20c.8-3.4 3.4-5 6.5-5s5.7 1.6 6.5 5"></path></svg>
+      <span>Perfil</span>
+    </button>
+    <button type="button" data-bar="sistema" onClick="{{ goSistema }}" style="{{ sistemaBtnStyle }}">Sistema</button>
+    <button type="button" style="height:40px;flex:none;padding:0 12px;white-space:nowrap;background:none;color:#554d43;border:0;border-radius:999px;font-size:15px;cursor:pointer;transition:color 140ms cubic-bezier(.25,1,.5,1)" style-hover="color:#211d18">Sair</button>
+  </header>
+
+  <!-- EXPLORAR -->
+  <sc-if value="{{ isExplorar }}" hint-placeholder-val="{{ true }}">
+    <section data-screen-label="Explorar" data-motion="decor" style="position:absolute;top:86px;left:12px;bottom:60px;width:380px;z-index:20;display:flex;flex-direction:column;background:rgba(244,239,230,.95);backdrop-filter:blur(16px) saturate(1.1);border:1px solid rgba(38,32,26,.14);border-radius:20px;box-shadow:0 18px 40px -24px rgb(84 71 54 / .22);animation:panelIn 220ms cubic-bezier(.22,1,.36,1);overflow:hidden">
+
+      <div style="padding:20px 20px 12px;display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;align-items:baseline;justify-content:space-between">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1;text-transform:uppercase;letter-spacing:.16em;color:#635a4e">Explorar</span>
+          <span data-motion="signal" style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.16em;color:#554d43;font-variant-numeric:tabular-nums">{{ countLabel }}</span>
+        </div>
+
+        <div style="position:relative;display:flex;align-items:center">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#635a4e" stroke-width="1.9" stroke-linecap="round" style="position:absolute;left:14px"><circle cx="11" cy="11" r="7"></circle><path d="M16.5 16.5 21 21"></path></svg>
+          <input type="text" value="{{ query }}" onChange="{{ onQuery }}" placeholder="Nome, município ou etiqueta" style="width:100%;height:48px;padding:0 16px 0 40px;background:#ece5da;border:1px solid rgba(38,32,26,.14);border-radius:14px;font-size:17px;color:#211d18;outline:none;transition:border-color 140ms cubic-bezier(.25,1,.5,1)" style-focus="border-color:#7d4a06" />
+        </div>
+
+        <div style="display:flex;gap:4px;padding:4px;background:#ece5da;border-radius:999px">
+          <button type="button" onClick="{{ showLista }}" style="{{ tabListaStyle }}">Lista</button>
+          <button type="button" onClick="{{ showFiltros }}" style="{{ tabFiltrosStyle }}">Filtros</button>
+        </div>
+      </div>
+
+      <sc-if value="{{ railLista }}" hint-placeholder-val="{{ true }}">
+        <div style="flex:1;overflow-y:auto;padding:4px 12px 16px">
+          <sc-for list="{{ visiblePlaces }}" as="p" hint-placeholder-count="6">
+            <button type="button" onClick="{{ p.go }}" data-motion="decor" style="{{ p.rowStyle }}">
+              <span style="{{ p.dotStyle }}"></span>
+              <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;text-align:left">
+                <span style="font-size:17px;line-height:1.25;color:#211d18;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.name }}</span>
+                <span style="font-size:15px;line-height:1.3;color:#635a4e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.sub }}</span>
+              </span>
+              <span style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex:none">
+                <span style="font-family:'JetBrains Mono',monospace;font-size:15px;letter-spacing:.02em;font-variant-numeric:tabular-nums;color:#554d43">{{ p.dist }}</span>
+                <span style="display:block;width:38px;height:2px;background-image:repeating-linear-gradient(90deg,#635a4e 0 5px,transparent 5px 10px)"></span>
+              </span>
+            </button>
+          </sc-for>
+
+          <sc-if value="{{ isEmpty }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:32px 12px;display:flex;flex-direction:column;gap:14px;align-items:flex-start;animation:fadeIn 220ms cubic-bezier(.22,1,.36,1) 120ms both">
+              <p style="margin:0;font-size:17px;color:#554d43">Nenhum lugar responde a essa busca.</p>
+              <button type="button" onClick="{{ clearQuery }}" style="height:44px;padding:0 18px;background:none;color:#7d4a06;border:1px solid rgba(125,74,6,.50);border-radius:999px;font-size:15px;font-weight:700;cursor:pointer" style-hover="background:rgba(125,74,6,.10)">{{ clearLabel }}</button>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ railFiltros }}" hint-placeholder-val="{{ false }}">
+        <div style="flex:1;overflow-y:auto;padding:4px 20px 20px;display:flex;flex-direction:column;gap:32px" data-motion="decor">
+          <sc-for list="{{ filterGroups }}" as="g" hint-placeholder-count="3">
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <span style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1;text-transform:uppercase;letter-spacing:.16em;color:#635a4e">{{ g.title }}</span>
+              <div style="display:flex;flex-wrap:wrap;gap:8px">
+                <sc-for list="{{ g.chips }}" as="c" hint-placeholder-count="3">
+                  <button type="button" onClick="{{ c.go }}" style="{{ c.style }}">
+                    <span style="{{ c.markStyle }}"></span>{{ c.label }}
+                  </button>
+                </sc-for>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="padding:16px 20px;border-top:1px solid rgba(38,32,26,.14);display:flex;gap:12px">
+          <button type="button" onClick="{{ showLista }}" style="flex:1;height:48px;background:#d99327;color:#1c1409;border:0;border-radius:14px;font-weight:700;font-size:17px;cursor:pointer;transition:background 140ms" style-hover="background:#b8790f">Ver {{ countBare }} lugares</button>
+          <button type="button" onClick="{{ clearFilters }}" style="height:48px;padding:0 18px;background:none;color:#554d43;border:1px solid rgba(38,32,26,.28);border-radius:14px;font-size:15px;cursor:pointer" style-hover="color:#211d18;border-color:rgba(38,32,26,.40)">Limpar</button>
+        </div>
+      </sc-if>
+    </section>
+  </sc-if>
+
+  <!-- DESCOBRIR -->
+  <sc-if value="{{ isDescobrir }}" hint-placeholder-val="{{ false }}">
+    <section data-screen-label="Descobrir" data-motion="decor" style="position:absolute;top:86px;left:12px;bottom:60px;width:380px;z-index:20;display:flex;flex-direction:column;background:rgba(244,239,230,.95);backdrop-filter:blur(16px) saturate(1.1);border:1px solid rgba(38,32,26,.14);border-radius:20px;box-shadow:0 18px 40px -24px rgb(84 71 54 / .22);animation:panelIn 220ms cubic-bezier(.22,1,.36,1);overflow:hidden">
+      <div style="padding:20px 20px 0;display:flex;flex-direction:column;gap:8px">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1;text-transform:uppercase;letter-spacing:.16em;color:#635a4e">Descobrir</span>
+        <p style="margin:0;font-size:20px;line-height:1.4;color:#211d18">Quanto tempo temos hoje?</p>
+      </div>
+      <div style="flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:32px">
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1;text-transform:uppercase;letter-spacing:.16em;color:#635a4e">Tempo disponível</span>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <sc-for list="{{ timeChips }}" as="c" hint-placeholder-count="4">
+              <button type="button" onClick="{{ c.go }}" style="{{ c.style }}">{{ c.label }}</button>
+            </sc-for>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div style="display:flex;align-items:baseline;justify-content:space-between">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1;text-transform:uppercase;letter-spacing:.16em;color:#635a4e">Raio a partir da origem</span>
+            <span data-motion="signal" style="font-family:'JetBrains Mono',monospace;font-size:15px;font-variant-numeric:tabular-nums;color:#7d4a06">{{ radiusLabel }}</span>
+          </div>
+          <input type="range" min="40" max="400" step="20" value="{{ radius }}" onChange="{{ onRadius }}" style="width:100%;accent-color:#7d4a06;height:44px" />
+          <p style="margin:0;font-size:15px;color:#635a4e">Raio em linha reta. A estrada é sempre mais longa.</p>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1;text-transform:uppercase;letter-spacing:.16em;color:#635a4e">Categorias</span>
+          <div style="display:flex;flex-wrap:wrap;gap:8px">
+            <sc-for list="{{ catChips }}" as="c" hint-placeholder-count="5">
+              <button type="button" onClick="{{ c.go }}" style="{{ c.style }}"><span style="{{ c.markStyle }}"></span>{{ c.label }}</button>
+            </sc-for>
+          </div>
+        </div>
+        <sc-if value="{{ hasDiscovery }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1;text-transform:uppercase;letter-spacing:.16em;color:#635a4e">{{ discoveryCount }}</span>
+            <sc-for list="{{ discovery }}" as="d" hint-placeholder-count="3">
+              <button type="button" onClick="{{ d.go }}" data-motion="decor" style="display:flex;flex-direction:column;gap:10px;width:100%;text-align:left;padding:16px;background:#ece5da;border:1px solid rgba(38,32,26,.14);border-radius:14px;cursor:pointer;animation:riseIn 220ms cubic-bezier(.22,1,.36,1) both;animation-delay:{{ d.delay }};transition:border-color 140ms,background 140ms" style-hover="background:#e2dacd;border-color:rgba(38,32,26,.28)">
+                <span style="display:flex;align-items:baseline;justify-content:space-between;gap:12px">
+                  <span style="font-size:17px;color:#211d18">{{ d.name }}</span>
+                  <span style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.16em;color:{{ d.statusColor }}">{{ d.status }}</span>
+                </span>
+                <span style="display:flex;gap:20px">
+                  <span style="display:flex;flex-direction:column;gap:5px">
+                    <span style="font-family:'JetBrains Mono',monospace;font-size:15px;font-variant-numeric:tabular-nums;color:#554d43">{{ d.ida }}</span>
+                    <span style="display:block;width:52px;height:2px;background-image:repeating-linear-gradient(90deg,#635a4e 0 5px,transparent 5px 10px)"></span>
+                  </span>
+                  <span style="display:flex;flex-direction:column;gap:5px">
+                    <span style="font-family:'JetBrains Mono',monospace;font-size:15px;font-variant-numeric:tabular-nums;color:#554d43">{{ d.km }}</span>
+                    <span style="display:block;width:52px;height:2px;background-image:repeating-linear-gradient(90deg,#635a4e 0 5px,transparent 5px 10px)"></span>
+                  </span>
+                </span>
+              </button>
+            </sc-for>
+            <p style="margin:0;font-size:15px;color:#635a4e">Tempo e distância estimados em linha reta — a régua tracejada diz isso. Medimos a estrada quando virar viagem.</p>
+          </div>
+        </sc-if>
+      </div>
+    </section>
+
+    <button type="button" onClick="{{ runDiscovery }}" data-motion="decor" style="position:absolute;left:50%;bottom:72px;transform:translateX(-50%);z-index:25;display:flex;align-items:center;gap:14px;height:64px;padding:0 28px;background:#d99327;color:#1c1409;border:0;border-radius:999px;font-family:'Archivo';font-variation-settings:'wdth' 115;font-weight:700;font-size:20px;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;box-shadow:0 18px 40px -24px rgb(84 71 54 / .22),0 8px 22px -14px rgb(84 71 54 / .15);animation:riseIn 320ms cubic-bezier(.22,1,.36,1);transition:background 140ms,transform 90ms" style-hover="background:#b8790f" style-active="transform:translateX(-50%) scale(.98)">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="{{ compassPath }}" style="transition:d 320ms cubic-bezier(.22,1,.36,1)"></path></svg>
+      Para onde vamos?
+    </button>
+  </sc-if>
+
+  <!-- VIAGENS -->
+  <sc-if value="{{ isViagens }}" hint-placeholder-val="{{ false }}">
+    <section data-screen-label="Viagens" data-motion="decor" style="position:absolute;top:86px;left:12px;bottom:60px;width:380px;z-index:20;display:flex;flex-direction:column;background:rgba(244,239,230,.95);backdrop-filter:blur(16px) saturate(1.1);border:1px solid rgba(38,32,26,.14);border-radius:20px;box-shadow:0 18px 40px -24px rgb(84 71 54 / .22);animation:panelIn 220ms cubic-bezier(.22,1,.36,1);overflow:hidden">
+      <div style="padding:20px 20px 12px;display:flex;align-items:baseline;justify-content:space-between">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1;text-transform:uppercase;letter-spacing:.16em;color:#635a4e">Viagens</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.16em;color:#554d43">3 SALVAS</span>
+      </div>
+      <div style="flex:1;overflow-y:auto;padding:0 16px 16px;display:flex;flex-direction:column;gap:12px">
+        <sc-for list="{{ trips }}" as="t" hint-placeholder-count="3">
+          <button type="button" onClick="{{ t.go }}" data-motion="decor" style="{{ t.cardStyle }}">
+            <span style="{{ t.edgeStyle }}"></span>
+            <span style="display:flex;flex-direction:column;gap:12px;padding:16px 16px 16px 18px">
+              <span style="display:flex;align-items:baseline;justify-content:space-between;gap:12px">
+                <span style="font-size:17px;line-height:1.25;color:#211d18;text-align:left">{{ t.name }}</span>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.16em;color:#635a4e;flex:none">{{ t.date }}</span>
+              </span>
+              <span style="display:flex;gap:22px">
+                <span style="display:flex;flex-direction:column;gap:5px;align-items:flex-start">
+                  <span style="font-family:'JetBrains Mono',monospace;font-size:20px;line-height:1;font-variant-numeric:tabular-nums;color:#211d18">{{ t.km }}</span>
+                  <span style="display:block;width:100%;min-width:56px;height:2px;background:#7d4a06"></span>
+                </span>
+                <span style="display:flex;flex-direction:column;gap:5px;align-items:flex-start">
+                  <span style="font-family:'JetBrains Mono',monospace;font-size:20px;line-height:1;font-variant-numeric:tabular-nums;color:#211d18">{{ t.dur }}</span>
+                  <span style="display:block;width:100%;min-width:56px;height:2px;background:#7d4a06"></span>
+                </span>
+                <span style="display:flex;flex-direction:column;gap:5px;align-items:flex-start">
+                  <span style="font-family:'JetBrains Mono',monospace;font-size:20px;line-height:1;font-variant-numeric:tabular-nums;color:#554d43">{{ t.stops }}</span>
+                  <span style="display:block;width:100%;min-width:56px;height:2px;background:rgba(38,32,26,.16)"></span>
+                </span>
+              </span>
+            </span>
+          </button>
+        </sc-for>
+        <button type="button" style="display:flex;align-items:center;justify-content:center;gap:10px;height:56px;background:none;color:#554d43;border:1px dashed rgba(38,32,26,.28);border-radius:14px;font-size:17px;cursor:pointer;transition:color 140ms,border-color 140ms" style-hover="color:#211d18;border-color:rgba(38,32,26,.45)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+          Montar nova viagem
+        </button>
+      </div>
+    </section>
+  </sc-if>
+
+  <!-- MEMÓRIAS -->
+  <sc-if value="{{ isMemorias }}" hint-placeholder-val="{{ false }}">
+    <section data-screen-label="Memórias" data-motion="decor" style="position:absolute;top:86px;left:12px;bottom:60px;width:380px;z-index:20;display:flex;flex-direction:column;background:rgba(244,239,230,.95);backdrop-filter:blur(16px) saturate(1.1);border:1px solid rgba(38,32,26,.14);border-radius:20px;box-shadow:0 18px 40px -24px rgb(84 71 54 / .22);animation:panelIn 220ms cubic-bezier(.22,1,.36,1);overflow:hidden">
+      <div style="padding:20px 20px 12px;display:flex;align-items:baseline;justify-content:space-between">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1;text-transform:uppercase;letter-spacing:.16em;color:#635a4e">Memórias</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.16em;color:#554d43">2026</span>
+      </div>
+      <div style="flex:1;overflow-y:auto;padding:0 16px 20px">
+        <sc-for list="{{ months }}" as="m" hint-placeholder-count="2">
+          <div style="display:flex;flex-direction:column;gap:10px;padding-bottom:20px">
+            <div style="position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:12px;padding:10px 4px;background:linear-gradient(#f4efe6 70%,rgba(25,24,23,0))">
+              <span style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1;text-transform:uppercase;letter-spacing:.16em;color:#211d18">{{ m.label }}</span>
+              <span style="flex:1;height:1px;background:rgba(38,32,26,.14)"></span>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.16em;color:#635a4e">{{ m.count }}</span>
+            </div>
+            <sc-for list="{{ m.entries }}" as="e" hint-placeholder-count="3">
+              <div data-motion="decor" style="display:flex;gap:14px;padding:14px;background:#ece5da;border:1px solid rgba(38,32,26,.14);border-radius:14px;animation:riseIn 220ms cubic-bezier(.22,1,.36,1) both;animation-delay:{{ e.delay }}">
+                <div style="{{ e.thumbStyle }}">{{ e.thumbLabel }}</div>
+                <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px">
+                  <span style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1;letter-spacing:.16em;text-transform:uppercase;color:{{ e.kindColor }}">{{ e.kind }}</span>
+                  <span style="font-size:17px;line-height:1.25;color:#211d18">{{ e.title }}</span>
+                  <span style="font-size:15px;line-height:1.35;color:#635a4e">{{ e.sub }}</span>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-for>
+
+        <div style="margin-top:8px;padding:20px;background:#ece5da;border:1px solid rgba(38,32,26,.14);border-radius:20px;box-shadow:0 8px 22px -14px rgb(84 71 54 / .15);display:flex;flex-direction:column;gap:20px">
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1;text-transform:uppercase;letter-spacing:.16em;color:#635a4e">Balanço de 2026</span>
+            <span style="font-family:'Archivo';font-variation-settings:'wdth' 115;font-weight:700;font-size:24px;line-height:1.2;color:#211d18">Até aqui, sete meses de estrada.</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px 16px">
+            <sc-for list="{{ yearStats }}" as="s" hint-placeholder-count="4">
+              <div style="display:flex;flex-direction:column;gap:6px">
+                <span style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1;text-transform:uppercase;letter-spacing:.16em;color:#635a4e">{{ s.label }}</span>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:24px;line-height:1;font-variant-numeric:tabular-nums;color:#211d18">{{ s.value }}</span>
+                <span style="display:block;width:100%;height:2px;background:#7d4a06;transform-origin:left;animation:ruleIn 320ms cubic-bezier(.22,1,.36,1) both"></span>
+              </div>
+            </sc-for>
+          </div>
+          <p style="margin:0;font-size:15px;line-height:1.5;color:#635a4e">Só o que aconteceu. Nada que ficou em zero aparece aqui.</p>
+        </div>
+      </div>
+    </section>
+  </sc-if>
+
+  <!-- PERFIL -->
+  <sc-if value="{{ isPerfil }}" hint-placeholder-val="{{ false }}">
+    <section data-screen-label="Perfil" data-motion="decor" style="position:absolute;top:86px;left:12px;bottom:60px;width:380px;z-index:20;display:flex;flex-direction:column;background:rgba(244,239,230,.95);backdrop-filter:blur(16px) saturate(1.1);border:1px solid rgba(38,32,26,.14);border-radius:20px;box-shadow:0 18px 40px -24px rgb(84 71 54 / .22);animation:panelIn 220ms cubic-bezier(.22,1,.36,1);overflow:hidden">
+      <div style="padding:20px 20px 12px">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1;text-transform:uppercase;letter-spacing:.16em;color:#635a4e">Perfil</span>
+      </div>
+      <div style="flex:1;overflow-y:auto;padding:0 20px 20px;display:flex;flex-direction:column;gap:32px">
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <span style="font-size:20px;line-height:1.4;color:#211d18">De onde saímos</span>
+            <span style="font-size:15px;color:#635a4e">Toda distância do produto é contada daqui.</span>
+          </div>
+          <input type="text" value="{{ origin }}" onChange="{{ onOrigin }}" style="width:100%;height:48px;padding:0 16px;background:#ece5da;border:1px solid rgba(38,32,26,.14);border-radius:14px;font-size:17px;color:#211d18;outline:none;transition:border-color 140ms" style-focus="border-color:#7d4a06" />
+          <sc-if value="{{ hasSuggestions }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;background:#ece5da;border:1px solid rgba(38,32,26,.14);border-radius:14px;overflow:hidden;animation:riseIn 140ms cubic-bezier(.22,1,.36,1)">
+              <sc-for list="{{ suggestions }}" as="s" hint-placeholder-count="3">
+                <button type="button" onClick="{{ s.go }}" style="display:flex;flex-direction:column;gap:2px;align-items:flex-start;padding:12px 16px;min-height:52px;background:none;border:0;border-bottom:1px solid rgba(38,32,26,.14);cursor:pointer;text-align:left;transition:background 140ms" style-hover="background:#e2dacd">
+                  <span style="font-size:17px;color:#211d18">{{ s.name }}</span>
+                  <span style="font-size:15px;color:#635a4e">{{ s.sub }}</span>
+                </button>
+              </sc-for>
+            </div>
+          </sc-if>
+          <button type="button" onClick="{{ togglePicker }}" style="{{ pickerBtnStyle }}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4"></path><circle cx="12" cy="12" r="3.2"></circle></svg>
+            {{ pickerLabel }}
+          </button>
+        </div>
+
+        <div style="height:1px;background:rgba(38,32,26,.14)"></div>
+
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <span style="font-size:20px;line-height:1.4;color:#211d18">Autonomia da moto</span>
+            <span style="font-size:15px;color:#635a4e">Serve para avisar de trecho sem posto.</span>
+          </div>
+          <div style="display:flex;gap:12px;align-items:flex-end">
+            <div style="flex:1;display:flex;flex-direction:column;gap:8px">
+              <span style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1;text-transform:uppercase;letter-spacing:.16em;color:#635a4e">Tanque</span>
+              <input type="text" value="16 L" style="width:100%;height:48px;padding:0 16px;background:#ece5da;border:1px solid rgba(38,32,26,.14);border-radius:14px;font-family:'JetBrains Mono',monospace;font-size:17px;color:#211d18;outline:none" style-focus="border-color:#7d4a06" />
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:8px">
+              <span style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1;text-transform:uppercase;letter-spacing:.16em;color:#635a4e">Consumo</span>
+              <input type="text" value="21 km/L" style="width:100%;height:48px;padding:0 16px;background:#ece5da;border:1px solid rgba(38,32,26,.14);border-radius:14px;font-family:'JetBrains Mono',monospace;font-size:17px;color:#211d18;outline:none" style-focus="border-color:#7d4a06" />
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;padding:16px;background:#ece5da;border:1px solid rgba(38,32,26,.14);border-radius:14px">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1;text-transform:uppercase;letter-spacing:.16em;color:#635a4e">Alcance estimado</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:24px;line-height:1;font-variant-numeric:tabular-nums;color:#211d18">~ 336 km</span>
+            <span style="display:block;width:88px;height:2px;background-image:repeating-linear-gradient(90deg,#635a4e 0 5px,transparent 5px 10px)"></span>
+            <span style="font-size:15px;line-height:1.4;color:#635a4e;margin-top:4px">Conta de tanque cheio em estrada plana. Na serra, menos.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </sc-if>
+
+  <!-- PAINEL DIREITO: LUGAR -->
+  <sc-if value="{{ hasPlace }}" hint-placeholder-val="{{ false }}">
+    <aside data-screen-label="Painel do lugar" data-motion="decor" style="position:absolute;top:86px;right:12px;bottom:60px;width:420px;z-index:20;display:flex;flex-direction:column;background:rgba(244,239,230,.96);backdrop-filter:blur(16px) saturate(1.1);border:1px solid rgba(38,32,26,.14);border-radius:20px;box-shadow:0 18px 40px -24px rgb(84 71 54 / .22),0 8px 22px -14px rgb(84 71 54 / .15);animation:panelInRight 220ms cubic-bezier(.22,1,.36,1);overflow:hidden">
+      <div style="padding:20px 20px 16px;display:flex;gap:16px;align-items:flex-start;border-bottom:1px solid rgba(38,32,26,.14)">
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1;text-transform:uppercase;letter-spacing:.16em;color:{{ place.statusColor }}">{{ place.statusLabel }}</span>
+          <h1 style="margin:0;font-family:'Archivo';font-variation-settings:'wdth' 115;font-weight:700;font-size:24px;line-height:1.2;color:#211d18">{{ place.name }}</h1>
+          <span style="font-size:15px;color:#635a4e">{{ place.sub }}</span>
+        </div>
+        <button type="button" onClick="{{ closePlace }}" aria-label="Fechar" style="flex:none;width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:none;color:#554d43;border:1px solid rgba(38,32,26,.14);border-radius:999px;cursor:pointer;transition:color 140ms,border-color 140ms,transform 90ms" style-hover="color:#211d18;border-color:rgba(38,32,26,.40)" style-active="transform:scale(.98)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M6 6 18 18M18 6 6 18"></path></svg>
+        </button>
+      </div>
+
+      <div style="flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:32px">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
+          <sc-for list="{{ place.stats }}" as="s" hint-placeholder-count="3">
+            <div style="display:flex;flex-direction:column;gap:7px">
+              <span style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1;text-transform:uppercase;letter-spacing:.16em;color:#635a4e">{{ s.label }}</span>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:20px;line-height:1;letter-spacing:.02em;font-variant-numeric:tabular-nums;color:{{ s.color }}">{{ s.value }}</span>
+              <span style="{{ s.ruleStyle }}"></span>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1;letter-spacing:.1em;text-transform:uppercase;color:#635a4e">{{ s.note }}</span>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          <sc-for list="{{ place.controls }}" as="c" hint-placeholder-count="3">
+            <button type="button" onClick="{{ c.go }}" style="{{ c.style }}"><span style="{{ c.markStyle }}"></span>{{ c.label }}</button>
+          </sc-for>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1;text-transform:uppercase;letter-spacing:.16em;color:#635a4e">O acesso</span>
+          <div style="display:flex;gap:14px;align-items:center;padding:14px 16px;background:#ece5da;border:1px solid rgba(38,32,26,.14);border-radius:14px">
+            <span style="display:block;width:44px;height:2px;flex:none;background-image:repeating-linear-gradient(90deg,rgba(38,32,26,.30) 0 2px,transparent 2px 6px)"></span>
+            <span style="flex:1;font-size:17px;line-height:1.35;color:#554d43">{{ place.surface }}</span>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div style="display:flex;align-items:baseline;justify-content:space-between">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1;text-transform:uppercase;letter-spacing:.16em;color:#635a4e">Visitas</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.16em;color:#554d43">{{ place.visitCount }}</span>
+          </div>
+          <sc-for list="{{ place.visits }}" as="v" hint-placeholder-count="2">
+            <div style="display:flex;flex-direction:column;gap:10px;padding:16px;background:#ece5da;border:1px solid rgba(38,32,26,.14);border-radius:14px">
+              <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px">
+                <span style="font-family:'JetBrains Mono',monospace;font-size:15px;letter-spacing:.02em;color:#554d43">{{ v.date }}</span>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:15px;letter-spacing:.14em;color:#7d4a06">{{ v.rating }}</span>
+              </div>
+              <p style="margin:0;padding-left:14px;border-left:2px solid rgba(38,32,26,.28);font-size:17px;line-height:1.5;color:#554d43">{{ v.note }}</p>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1;text-transform:uppercase;letter-spacing:.16em;color:#635a4e">Fotos</span>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+            <sc-for list="{{ place.photos }}" as="p" hint-placeholder-count="3">
+              <div style="aspect-ratio:1;display:flex;align-items:flex-end;padding:8px;border-radius:8px;background-color:#ece5da;background-image:repeating-linear-gradient(135deg,rgba(38,32,26,.06) 0 6px,transparent 6px 12px);border:1px solid rgba(38,32,26,.14)">
+                <span style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.2;letter-spacing:.06em;color:#635a4e">{{ p }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+
+      <div style="padding:16px 20px;border-top:1px solid rgba(38,32,26,.14);display:flex;gap:8px">
+        <button type="button" style="flex:1;height:48px;background:#d99327;color:#1c1409;border:0;border-radius:14px;font-weight:700;font-size:17px;cursor:pointer;transition:background 140ms,transform 90ms" style-hover="background:#b8790f" style-active="transform:scale(.98)">Somar à viagem</button>
+        <button type="button" style="height:48px;padding:0 18px;background:none;color:#554d43;border:1px solid rgba(38,32,26,.28);border-radius:14px;font-size:17px;cursor:pointer;transition:color 140ms,border-color 140ms" style-hover="color:#211d18;border-color:rgba(38,32,26,.40)">Editar</button>
+      </div>
+    </aside>
+  </sc-if>
+
+  <!-- PAINEL DIREITO: ITINERÁRIO -->
+  <sc-if value="{{ hasTrip }}" hint-placeholder-val="{{ false }}">
+    <aside data-screen-label="Itinerário" data-motion="decor" style="position:absolute;top:86px;right:12px;bottom:60px;width:420px;z-index:20;display:flex;flex-direction:column;background:rgba(244,239,230,.96);backdrop-filter:blur(16px) saturate(1.1);border:1px solid rgba(38,32,26,.14);border-radius:20px;box-shadow:0 18px 40px -24px rgb(84 71 54 / .22),0 8px 22px -14px rgb(84 71 54 / .15);animation:panelInRight 220ms cubic-bezier(.22,1,.36,1);overflow:hidden">
+      <div style="padding:20px 20px 16px;display:flex;gap:16px;align-items:flex-start;border-bottom:1px solid rgba(38,32,26,.14)">
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1;text-transform:uppercase;letter-spacing:.16em;color:#7d4a06">Roteiro medido</span>
+          <h1 style="margin:0;font-family:'Archivo';font-variation-settings:'wdth' 115;font-weight:700;font-size:24px;line-height:1.2;color:#211d18">{{ trip.name }}</h1>
+          <span style="font-size:15px;color:#635a4e">{{ trip.sub }}</span>
+        </div>
+        <button type="button" onClick="{{ closeTrip }}" aria-label="Fechar" style="flex:none;width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:none;color:#554d43;border:1px solid rgba(38,32,26,.14);border-radius:999px;cursor:pointer;transition:color 140ms,border-color 140ms" style-hover="color:#211d18;border-color:rgba(38,32,26,.40)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M6 6 18 18M18 6 6 18"></path></svg>
+        </button>
+      </div>
+
+      <div style="flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:32px">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
+          <sc-for list="{{ trip.stats }}" as="s" hint-placeholder-count="3">
+            <div style="display:flex;flex-direction:column;gap:7px">
+              <span style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1;text-transform:uppercase;letter-spacing:.16em;color:#635a4e">{{ s.label }}</span>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:20px;line-height:1;letter-spacing:.02em;font-variant-numeric:tabular-nums;color:{{ s.color }}">{{ s.value }}</span>
+              <span style="{{ s.ruleStyle }}"></span>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1;letter-spacing:.1em;text-transform:uppercase;color:#635a4e">{{ s.note }}</span>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="display:flex;gap:14px;padding:16px;background:rgba(156,47,22,.08);border:1px solid rgba(156,47,22,.40);border-radius:14px">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9c2f16" stroke-width="1.9" stroke-linecap="round" style="flex:none;margin-top:2px"><path d="M12 8v5M12 16.5v.01"></path><circle cx="12" cy="12" r="9"></circle></svg>
+          <p style="margin:0;font-size:17px;line-height:1.45;color:#211d18">7,4 km de chão entre Urubici e o Morro da Igreja. Depois de chuva, não sabemos como está.</p>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1;text-transform:uppercase;letter-spacing:.16em;color:#635a4e">Altimetria — medida no traçado</span>
+          <div style="padding:16px 16px 12px;background:#ece5da;border:1px solid rgba(38,32,26,.14);border-radius:14px;display:flex;flex-direction:column;gap:12px">
+            <svg viewBox="0 0 360 120" style="width:100%;height:120px;display:block" role="img" aria-label="Perfil de altimetria da viagem">
+              <path d="{{ elevArea }}" fill="rgba(125,74,6,.14)"></path>
+              <path d="{{ elevLine }}" fill="none" stroke="#7d4a06" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"></path>
+              <line x1="0" y1="{{ elevMaxY }}" x2="360" y2="{{ elevMaxY }}" stroke="rgba(38,32,26,.28)" stroke-width="1"></line>
+              <line x1="0" y1="{{ elevMinY }}" x2="360" y2="{{ elevMinY }}" stroke="rgba(38,32,26,.28)" stroke-width="1"></line>
+            </svg>
+            <div style="display:flex;justify-content:space-between">
+              <sc-for list="{{ elevReadings }}" as="r" hint-placeholder-count="3">
+                <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-start">
+                  <span style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1;text-transform:uppercase;letter-spacing:.16em;color:#635a4e">{{ r.label }}</span>
+                  <span style="font-family:'JetBrains Mono',monospace;font-size:17px;line-height:1;font-variant-numeric:tabular-nums;color:#211d18">{{ r.value }}</span>
+                  <span style="display:block;width:100%;min-width:52px;height:2px;background:#7d4a06"></span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1;text-transform:uppercase;letter-spacing:.16em;color:#635a4e">Previsão — 3 dias à frente</span>
+          <div style="display:flex;gap:8px">
+            <sc-for list="{{ weatherDays }}" as="w" hint-placeholder-count="3">
+              <button type="button" onClick="{{ w.go }}" style="{{ w.style }}">
+                <span style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase">{{ w.day }}</span>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:17px;font-variant-numeric:tabular-nums">{{ w.temp }}</span>
+              </button>
+            </sc-for>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px;padding:16px;background:#ece5da;border:1px solid rgba(38,32,26,.14);border-radius:14px">
+            <p style="margin:0;font-size:17px;line-height:1.45;color:#211d18">{{ weatherLead }}</p>
+            <span style="display:block;width:100%;height:2px;background-image:repeating-linear-gradient(90deg,#635a4e 0 5px,transparent 5px 10px)"></span>
+            <sc-for list="{{ weatherRows }}" as="r" hint-placeholder-count="3">
+              <div style="display:flex;align-items:baseline;gap:12px">
+                <span style="flex:1;min-width:0;font-size:15px;color:#554d43;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.place }}</span>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:15px;font-variant-numeric:tabular-nums;color:{{ r.color }};flex:none">{{ r.value }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1;text-transform:uppercase;letter-spacing:.16em;color:#635a4e">Paradas</span>
+          <sc-for list="{{ trip.stopsList }}" as="s" hint-placeholder-count="5">
+            <div style="display:flex;gap:14px;align-items:flex-start">
+              <div style="display:flex;flex-direction:column;align-items:center;flex:none;padding-top:4px">
+                <span style="{{ s.dotStyle }}"></span>
+                <span style="{{ s.lineStyle }}"></span>
+              </div>
+              <div style="flex:1;min-width:0;padding-bottom:16px;display:flex;flex-direction:column;gap:3px">
+                <span style="font-size:17px;line-height:1.3;color:#211d18">{{ s.name }}</span>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:15px;letter-spacing:.02em;color:#635a4e;font-variant-numeric:tabular-nums">{{ s.meta }}</span>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="padding:16px 20px;border-top:1px solid rgba(38,32,26,.14);display:flex;gap:8px">
+        <button type="button" style="flex:1;height:48px;background:#d99327;color:#1c1409;border:0;border-radius:14px;font-weight:700;font-size:17px;cursor:pointer;transition:background 140ms,transform 90ms" style-hover="background:#b8790f" style-active="transform:scale(.98)">Marcar como feita</button>
+        <button type="button" style="height:48px;padding:0 18px;background:none;color:#554d43;border:1px solid rgba(38,32,26,.28);border-radius:14px;font-size:17px;cursor:pointer" style-hover="color:#211d18;border-color:rgba(38,32,26,.40)">Editar</button>
+      </div>
+    </aside>
+  </sc-if>
+
+  <!-- STATUS BAR -->
+  <div style="position:absolute;left:12px;bottom:12px;z-index:30;height:36px;display:flex;align-items:center;gap:0;padding:0 4px;background:rgba(244,239,230,.94);backdrop-filter:blur(16px) saturate(1.1);border:1px solid rgba(38,32,26,.14);border-radius:999px;box-shadow:0 18px 40px -24px rgb(84 71 54 / .22)">
+    <sc-for list="{{ statusCells }}" as="c" hint-placeholder-count="4">
+      <span style="{{ c.style }}">{{ c.text }}</span>
+    </sc-for>
+  </div>
+
+
+  <template id="__bundler_thumbnail">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+      <rect width="100" height="100" fill="#d99327"/>
+      <g transform="translate(21,21) scale(1.8)">
+        <path d="M9 27 L9 6 L18.5 6 A6.5 6.5 0 0 1 18.5 19 L12 19" fill="none" stroke="#1c1409" stroke-width="4" stroke-linecap="square"/>
+        <path d="M14.5 18.5 L24 27" fill="none" stroke="#1c1409" stroke-width="4.6"/>
+        <path d="M15.2 19.4 L23.2 26.6" fill="none" stroke="#d99327" stroke-width="1.3" stroke-dasharray="2.4 2.6"/>
+      </g>
+    </svg>
+  </template>
+  <sc-if value="{{ picking }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;inset:0;z-index:22;pointer-events:none;display:flex;align-items:center;justify-content:center">
+      <svg width="72" height="72" viewBox="0 0 72 72" fill="none" stroke="#7d4a06" stroke-width="1.6" style="filter:drop-shadow(0 0 8px rgba(14,13,12,.9))">
+        <circle cx="36" cy="36" r="15"></circle>
+        <path d="M36 4v16M36 52v16M4 36h16M52 36h16" stroke-linecap="round"></path>
+        <circle cx="36" cy="36" r="2.4" fill="#7d4a06" stroke="none"></circle>
+      </svg>
+    </div>
+    <div style="position:absolute;left:50%;transform:translateX(-50%);bottom:72px;z-index:25;display:flex;align-items:center;gap:16px;padding:12px 12px 12px 20px;background:rgba(244,239,230,.96);backdrop-filter:blur(16px);border:1px solid rgba(38,32,26,.28);border-radius:999px;box-shadow:0 8px 22px -14px rgb(84 71 54 / .15);animation:riseIn 220ms cubic-bezier(.22,1,.36,1)">
+      <span style="font-size:17px;color:#211d18">Arraste o mapa até o alvo cobrir a sua garagem.</span>
+      <button type="button" onClick="{{ togglePicker }}" style="height:44px;padding:0 20px;background:#d99327;color:#1c1409;border:0;border-radius:999px;font-weight:700;font-size:15px;cursor:pointer" style-hover="background:#b8790f">Fixar aqui</button>
+    </div>
+  </sc-if>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900}}">
+const ACCENT = '#7d4a06', INK = '#211d18', MUTED = '#554d43', FAINT = '#635a4e';
+const RULE_SOLID = 'display:block;width:100%;min-width:48px;height:2px;background:#7d4a06';
+const RULE_DASH = 'display:block;width:100%;min-width:48px;height:2px;background-image:repeating-linear-gradient(90deg,#635a4e 0 5px,transparent 5px 10px)';
+const RULE_NONE = 'display:block;width:100%;min-width:48px;height:2px;background-image:repeating-linear-gradient(90deg,rgba(38,32,26,.30) 0 2px,transparent 2px 6px)';
+
+const PLACES = [
+  { id: 'serra', name: 'Serra do Rio do Rastro', mun: 'Lauro Müller', lat: -28.3907, lng: -49.5477, status: 'visited', fav: true, photo: true, tags: ['serra', 'curvas'], dist: 172, alt: 1420 },
+  { id: 'urubici', name: 'Urubici', mun: 'Urubici', lat: -28.0153, lng: -49.5925, status: 'visited', photo: true, tags: ['serra', 'frio'], dist: 154, alt: 980 },
+  { id: 'morro', name: 'Morro da Igreja', mun: 'Urubici', lat: -28.1244, lng: -49.4794, status: 'wanted', fav: true, tags: ['mirante'], dist: 168, alt: 1822 },
+  { id: 'rosa', name: 'Praia do Rosa', mun: 'Imbituba', lat: -28.1264, lng: -48.6408, status: 'visited', photo: true, tags: ['praia'], dist: 92, alt: 12 },
+  { id: 'guarda', name: 'Guarda do Embaú', mun: 'Palhoça', lat: -27.8886, lng: -48.6103, status: 'visited', tags: ['praia'], dist: 51, alt: 6 },
+  { id: 'bombinhas', name: 'Bombinhas', mun: 'Bombinhas', lat: -27.1394, lng: -48.4816, status: 'wanted', tags: ['praia'], dist: 64, alt: 8 },
+  { id: 'pomerode', name: 'Pomerode', mun: 'Pomerode', lat: -26.7407, lng: -49.1766, status: 'unvisited', tags: ['vale', 'estrada'], dist: 143, alt: 90 },
+  { id: 'corupa', name: 'Rota das Cachoeiras', mun: 'Corupá', lat: -26.4247, lng: -49.2436, status: 'wanted', photo: true, tags: ['cachoeira'], dist: 178, alt: 120 },
+  { id: 'treze', name: 'Treze Tílias', mun: 'Treze Tílias', lat: -27.0016, lng: -51.4079, status: 'unvisited', tags: ['planalto'], dist: 318, alt: 800 },
+  { id: 'saojoaquim', name: 'São Joaquim', mun: 'São Joaquim', lat: -28.2939, lng: -49.9317, status: 'visited', tags: ['frio', 'planalto'], dist: 215, alt: 1360 },
+  { id: 'espraiado', name: 'Cânion do Espraiado', mun: 'Urubici', lat: -28.09, lng: -49.53, status: 'unvisited', tags: ['cânion'], dist: 160, alt: 1100 },
+  { id: 'rancho', name: 'Rancho Queimado', mun: 'Rancho Queimado', lat: -27.6717, lng: -49.0169, status: 'visited', tags: ['estrada'], dist: 62, alt: 850 },
+  { id: 'anitapolis', name: 'Anitápolis', mun: 'Anitápolis', lat: -27.9017, lng: -49.1289, status: 'unvisited', tags: ['chão'], dist: 98, alt: 420 },
+  { id: 'vidal', name: 'Vale Encantado', mun: 'Vidal Ramos', lat: -27.39, lng: -49.36, status: 'wanted', photo: true, tags: ['vale'], dist: 121, alt: 380 }
+];
+
+const ROUTE = [
+  [-27.5954, -48.548], [-27.6875, -48.7783], [-27.6717, -49.0169], [-27.6989, -49.3311],
+  [-27.7975, -49.488], [-28.0153, -49.5925], [-28.1244, -49.4794], [-28.0153, -49.5925],
+  [-28.2939, -49.9317], [-28.3907, -49.5477], [-28.3906, -49.3958]
+];
+
+const ELEV = [8, 40, 180, 620, 850, 780, 910, 1180, 980, 1240, 1822, 1390, 1310, 1360, 1180, 1420, 1400, 980, 420, 120, 60, 32];
+
+const STATUS_META = {
+  visited: { label: 'Visitado', color: '#445d24' },
+  wanted: { label: 'Quero ir', color: '#7d4a06' },
+  unvisited: { label: 'Não visitado', color: '#635a4e' }
+};
+
+const NAV_INK = {"explorar":"#8a5a0c","descobrir":"#9c4a1f","viagens":"#4f6b2c","memorias":"#3f5a75"};
+const NAV_FILL = { explorar: '#e5a338', descobrir: '#d9834a', viagens: '#93a86e', memorias: '#8fa9c2' };
+const ON_FILL = '#1c1409';
+
+const NAV = [
+  { id: 'explorar', label: 'Explorar', d1: 'M12 21s7-5.7 7-11a7 7 0 1 0-14 0c0 5.3 7 11 7 11z', d2: 'M12 10.2v.01' },
+  { id: 'descobrir', label: 'Descobrir', d1: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z', d2: 'M15.6 8.4 13.4 13.4 8.4 15.6 10.6 10.6z' },
+  { id: 'viagens', label: 'Viagens', d1: 'M5 20c4.4 0 4.4-7 8-7s3.5-3 3.5-3', d2: 'M16.5 6.6 19.4 10 16.4 13.2' },
+  { id: 'memorias', label: 'Memórias', d1: 'M4 6.5h10M4 12h16M4 17.5h7', d2: 'M18.5 5.4v2.6' }
+];
+
+class Component extends DCLogic {
+  state = {
+    screen: 'explorar', selected: 'serra', trip: null, rail: 'lista',
+    query: '', filters: { visited: true, wanted: true, unvisited: true, tag: null },
+    radius: 200, timeSlot: 'diaInteiro', cats: { serra: true, praia: false, cachoeira: false, vale: false, planalto: false },
+    discovered: true, origin: 'Florianópolis — Córrego Grande', picking: false,
+    suggestions: false, weatherDay: 1,
+    cam: { lat: -27.9, lng: -49.3, zoom: 8 }, count: PLACES.length
+  };
+
+  componentDidMount() {
+    this._onSel = e => this.setState({ selected: e.detail, trip: null, screen: 'explorar' });
+    this._onCam = e => this.setState({ cam: e.detail });
+    document.addEventListener('rastro:select', this._onSel);
+    document.addEventListener('rastro:camera', this._onCam);
+  }
+  componentWillUnmount() {
+    document.removeEventListener('rastro:select', this._onSel);
+    document.removeEventListener('rastro:camera', this._onCam);
+  }
+
+  go(screen) {
+    this.setState({ screen, selected: screen === 'explorar' ? this.state.selected : null, trip: null, picking: false });
+  }
+
+  filtered() {
+    const { query, filters } = this.state;
+    const q = query.trim().toLowerCase();
+    return PLACES.filter(p => {
+      if (!filters[p.status]) return false;
+      if (filters.tag && !p.tags.includes(filters.tag)) return false;
+      if (!q) return true;
+      return (p.name + ' ' + p.mun + ' ' + p.tags.join(' ')).toLowerCase().includes(q);
+    });
+  }
+
+  chip(active, label, onGo, dotColor) {
+    const mark = dotColor
+      ? `display:inline-block;width:9px;height:9px;border-radius:999px;flex:none;background:${active ? dotColor : 'transparent'};border:1.5px solid ${dotColor}`
+      : 'display:none';
+    return {
+      label, go: onGo, markStyle: mark,
+      style: [
+        'display:inline-flex;align-items:center;gap:9px;min-height:44px;padding:0 16px;border-radius:999px;cursor:pointer',
+        'font-size:15px;line-height:1;white-space:nowrap;transition:background 140ms cubic-bezier(.25,1,.5,1),border-color 140ms,color 140ms',
+        active
+          ? 'background:rgba(125,74,6,.13);border:1px solid rgba(125,74,6,.55);color:#211d18'
+          : 'background:#ece5da;border:1px solid rgba(38,32,26,.14);color:#554d43'
+      ].join(';')
+    };
+  }
+
+  sistemaVals() {
+    const swatch = (name, hex, ratio, use, danger) => ({
+      name, hex, ratio, use,
+      chipStyle: 'display:block;width:100%;height:56px;border-radius:8px;border:1px solid rgba(38,32,26,.14);background:' + hex,
+      ratioStyle: 'font-family:JetBrains Mono,monospace;font-size:12px;letter-spacing:.1em;color:' + (danger ? '#9c2f16' : ratio === '—' ? '#635a4e' : '#445d24')
+    });
+    return {
+      surfaceTokens: [
+        swatch('--color-void', '#e8e2d7', '—', 'atrás de tudo'),
+        swatch('--color-base', '#f4efe6', '—', 'superfície de painel'),
+        swatch('--color-raised', '#ece5da', '—', 'elevação dentro do painel'),
+        swatch('--color-overlay', '#e2dacd', '—', 'hover, ativo surdo')
+      ],
+      inkTokens: [
+        swatch('--color-ink', '#211d18', '14.63', 'texto'),
+        swatch('--color-ink-muted', '#554d43', '7.25', 'apoio, valor secundário'),
+        swatch('--color-ink-faint', '#635a4e', '5.91', 'rótulo de instrumento'),
+        swatch('--color-accent', '#7d4a06', '6.42', 'texto, régua medida, borda'),
+        swatch('--color-accent-fill', '#d99327', '—', 'só preenchimento de ação'),
+        swatch('--color-accent-strong', '#5f3804', '8.93', 'hover de texto e borda'),
+        swatch('--color-accent-dim', '#f2ddb0', '—', 'preenchimento surdo, nunca texto'),
+        swatch('--color-on-accent', '#1c1409', '7.07', 'sobre --color-accent-fill')
+      ],
+      stateTokens: [
+        swatch('--color-visited', '#445d24', '6.46', 'dado: estivemos lá'),
+        swatch('--color-wanted', '#7d4a06', '6.42', 'dado: queremos ir'),
+        swatch('--color-unvisited', '#635a4e', '5.91', 'dado: nunca fomos'),
+        swatch('--color-ok', '#445d24', '6.46', 'operação: deu certo'),
+        swatch('--color-warn', '#7d4a06', '6.42', 'operação: atenção'),
+        swatch('--color-alert', '#9c2f16', '6.48', 'operação: falhou')
+      ],
+      mapHex: [
+        { k: 'fundo', v: '#efe9de' }, { k: 'água', v: '#cfd9e2' }, { k: 'contorno d\u2019água', v: '#a9b8c6' },
+        { k: 'vegetação 75%', v: '#dde3ce' }, { k: 'mata 60%', v: '#d2dabf' },
+        { k: 'relevo sombra', v: '#b9ae9c' }, { k: 'relevo realce', v: '#ffffff' }, { k: 'relevo acento', v: '#e3dccd' },
+        { k: 'via local', v: '#c9c0ae' }, { k: 'via coletora', v: '#a89d88' }, { k: 'via arterial', v: '#857a64' }, { k: 'rodovia', v: '#5f5647' },
+        { k: 'rótulo menor', v: '#554d43' }, { k: 'rótulo maior', v: '#2f2a23' }, { k: 'halo de rótulo', v: '#f4efe6' },
+        { k: 'POI traço e texto', v: '#635a4e' }, { k: 'POI halo', v: '#efe9de' },
+        { k: 'pin VISITED', v: '#445d24' }, { k: 'pin WANTED', v: '#7d4a06' }, { k: 'pin UNVISITED', v: '#635a4e' },
+        { k: 'pin HOLLOW', v: '#f4efe6' }, { k: 'pin BONE', v: '#211d18' },
+        { k: 'traçado asfalto', v: '#c8821a' }, { k: 'traçado faixa central', v: '#f4efe6' }
+      ].map(x => ({ ...x, chipStyle: 'display:block;width:22px;height:22px;border-radius:5px;flex:none;border:1px solid rgba(38,32,26,.18);background:' + x.v })),
+      typeRows: [
+        { tk: '--text-micro', size: '12 / 1', use: 'rótulo de instrumento, statusbar', sample: 'DISTÂNCIA', st: 'font-family:JetBrains Mono,monospace;font-size:12px;line-height:1;text-transform:uppercase;letter-spacing:.16em;color:#635a4e' },
+        { tk: '--text-small', size: '15 / 1.5', use: 'dica de campo, legenda, município', sample: 'Lauro Müller · serra · curvas', st: 'font-size:15px;color:#554d43' },
+        { tk: '--text-body', size: '17 / 1.55', use: 'PISO do corpo — nada abaixo disto lê texto', sample: 'Asfalto até o mirante.', st: 'font-size:17px;color:#211d18' },
+        { tk: '--text-lead', size: '20 / 1.4', use: 'primeira linha de painel, valor de instrumento', sample: 'Quanto tempo temos hoje?', st: 'font-size:20px;color:#211d18' },
+        { tk: '--text-title', size: '24 / 1.2', use: 'nome de lugar, título de tela', sample: 'Serra do Rio do Rastro', st: 'font-family:Archivo;font-variation-settings:\'wdth\' 115;font-weight:700;font-size:24px;line-height:1.2;color:#211d18' },
+        { tk: '--text-display', size: '32 / 1', use: 'só display: entrada, balanço do ano', sample: 'RASTRO', st: 'font-family:Archivo;font-variation-settings:\'wdth\' 125;font-weight:700;font-size:32px;line-height:1;text-transform:uppercase;letter-spacing:.02em;color:#211d18' }
+      ],
+      charClasses: [
+        { n: '.instrument-label', s: 'mantida — mono 12, caixa alta, tracking .16em' },
+        { n: '.instrument-value', s: 'mantida — mono, tabular-nums, tracking .02em' },
+        { n: '.type-display', s: 'mantida — wdth 125, peso 700, caixa alta' },
+        { n: '.type-title', s: 'mantida — wdth 115, peso 700' },
+        { n: '.type-wordmark', s: 'mantida — wdth 125, tracking .06em' },
+        { n: '.instrument-rule', s: 'NOVA — a régua sob o valor: sólida, tracejada ou pontilhada' },
+        { n: '.type-note', s: 'NOVA — opinião: sans, sem régua, filete de 2px à esquerda' }
+      ],
+      motionRows: [
+        { n: 'press', d: '90ms', e: 'out-quart', c: 'zerado' },
+        { n: 'hover e cor', d: '140ms', e: 'out-quart', c: 'zerado (a cor final fica)' },
+        { n: 'entrada de painel + 12px', d: '220ms', e: 'out-quint', c: 'zerado — o painel só aparece' },
+        { n: 'primeira pintura do mapa', d: '320ms', e: 'out-quart', c: 'zerado' },
+        { n: 'régua entrando (scaleX)', d: '320ms', e: 'out-quint', c: 'zerado' },
+        { n: 'desenho do glifo ativo', d: '420ms', e: 'out-quint', c: 'zerado' },
+        { n: 'bússola → rota no CTA', d: '320ms', e: 'out-quint', c: 'zerado — troca seca de forma' },
+        { n: 'traço da marca, uma vez', d: '520ms', e: 'out-quint', c: 'zerado' },
+        { n: 'stagger, trava em 8', d: '35ms', e: '—', c: 'zerado' },
+        { n: 'realce de valor que mudou', d: '400ms', e: 'out-quart', c: 'PRESERVADO — carrega informação' },
+        { n: 'crossfade dos pins', d: '220ms', e: 'out-quart', c: 'PRESERVADO — é a evidência do recorte' },
+        { n: 'câmera do mapa', d: '1100ms', e: 'do MapLibre', c: 'DELEGADO — sem essential:true' }
+      ].map(r => ({ ...r, cStyle: 'font-family:JetBrains Mono,monospace;font-size:12px;letter-spacing:.08em;color:' + (r.c.startsWith('PRESERVADO') ? '#445d24' : r.c.startsWith('DELEGADO') ? '#7d4a06' : '#635a4e') })),
+      inventory: this.inventoryRaw().map(g => ({ g: g.g, items: g.items.map(([n, s]) => ({ n, s })) })),
+      contraries: [
+        'Card com conteúdo primário: Viagens e Memórias passam a ser cards. O mapa continua sem caixa.',
+        'Segunda camada de elevação: --shadow-lift existe para painel sobre painel e para o card do balanço.',
+        'Ícone fora da navegação: só onde há rótulo colado ou onde o glifo é o próprio estado (bússola do CTA, alvo do PointPicker).',
+        'Glassmorphism: o cromo tem blur sempre, não só sobre o mapa, para ser a mesma superfície em todas as telas.',
+        'Gradiente: um só, e não é decoração — o fade de 30px sob o cabeçalho sticky de Memórias.'
+      ]
+    };
+  }
+
+  inventoryRaw() {
+    return [
+        { g: '7.1 Marca', items: [
+          ['Logo', 'placa opcional: squircle radius-md, fundo void, filete line-strong. Sem placa na barra.'],
+          ['Lockup', 'marca 26px + wordmark wdth 125, tracking .06em, gap 10px.'],
+          ['icon.svg / favicon', 'mesma geometria, faixa central some abaixo de 32px. Mexer nos dois arquivos.'],
+          ['Marca em movimento', 'o tracejado da perna desenha uma vez na entrada, 520ms. Depois, estático.']
+        ] },
+        { g: '7.2 Cromo', items: [
+          ['TopBar', 'pílula flutuante 56px, blur 16px, filete 1px. Duas linhas abaixo de 768px.'],
+          ['nav-icons', 'traço 1.75, pontas arredondadas, sem preenchimento. Ativo desenha o traço.'],
+          ['StatusBar', 'pílula mono 36px, células separadas por filete vertical, canto inferior esquerdo.'],
+          ['OverlayPanel', 'radius-lg, blur, entrada de 12px lateral; folha inferior 45vh abaixo de 768px.'],
+          ['DataFallback / MapFallback', 'mesmo painel, InlineMessage de alerta, ação de recarregar. Sem ilustração.']
+        ] },
+        { g: '7.3 Mapa', items: [
+          ['Estilo cartográfico', 'hex do §Paleta, metade direita. Estrada é o conteúdo; fundo cede o palco.'],
+          ['Pins', '3 estados × favorito (anel externo 12,5px) × photoDot (miolo 2,1px) × hover 1.22 × selecionado (anel bone).'],
+          ['Traçado', 'asfalto âmbar 7px + faixa central tracejada na cor do fundo — a marca virando dado.'],
+          ['PointPicker', 'alvo âmbar fixo no centro, mapa se move sob ele; barra de confirmação flutuante.'],
+          ['Atribuição', 'mono 10px, pílula sobre fundo void a 72%.']
+        ] },
+        { g: '7.4 Primitivos', items: [
+          ['Button', 'solid âmbar / outline filete / ghost. Alturas 48 e 44. Radius md, ou full quando flutua.'],
+          ['Chip', 'altura 44 mínima, radius full, marca de estado à esquerda; ativo = âmbar a 14% + borda 55%.'],
+          ['Toggle', 'trilho 52×32, botão bone, âmbar quando ligado.'],
+          ['Stat', 'rótulo mono + valor mono + RÉGUA + nota da unidade. A régua é obrigatória.'],
+          ['Field / Input / Select / Textarea', 'altura 48, raised, filete; foco troca a borda para âmbar.'],
+          ['CloseButton', '44×44, círculo de filete, nunca só um X solto.'],
+          ['InlineMessage', 'cor a 10% + borda a 35% + glifo; info bone, ok oliva, erro terracota.'],
+          ['Section / SectionHeader / Divider', 'space-section 32px entre assuntos; divider é filete de 1px.'],
+          ['RatingPicker', 'mono, "4 / 5". Sem estrelas. É opinião: nunca ganha régua.'],
+          ['Logo', 'ver 7.1.']
+        ] },
+        { g: '7.5 Explorar', items: [
+          ['FilterRail', 'dois modos num segmento único: Lista e Filtros. O rodapé fixo mostra a contagem viva.'],
+          ['PlaceSearch', 'campo de 48px com lupa; busca nome, município e etiqueta.'],
+          ['PlaceList', 'linhas de 64px, ponto de estado, distância com régua tracejada.'],
+          ['PlaceList vazio', 'frase + saída de um clique, com a contagem no rótulo do botão.'],
+          ['PlacePanel', '420px à direita, elevação 2. Stats com régua, controles em chip, acesso, visitas, fotos.'],
+          ['PlaceSurface', 'piso desconhecido = régua pontilhada + a frase. Nunca "asfalto" por omissão.'],
+          ['VisitReview', 'opinião: sans, filete à esquerda, sem régua, sem mono.'],
+          ['PlacePhotos', 'grade de 3, quadrado, listrado enquanto não há foto.'],
+          ['PlaceForm / New / Edit', 'mesmo painel, campos empilhados, ação primária fixa no rodapé.']
+        ] },
+        { g: '7.6 Descobrir', items: [
+          ['DiscoveryLauncher', 'pílula âmbar 64px centrada acima da statusbar; bússola vira rota ao responder.'],
+          ['DiscoveryForm', 'tempo em chips, raio em range com valor mono vivo, categorias em chips.'],
+          ['DiscoveryResults', 'cards raised com stagger de 35ms; tudo com régua tracejada.'],
+          ['DiscoveryView', 'a frase "linha reta" fica no fim da lista, não em tooltip.']
+        ] },
+        { g: '7.7 Viagens', items: [
+          ['TripList', 'cards raised com borda âmbar de 3px no ativo. Três leituras medidas por card.'],
+          ['TripProposalForm', 'dividir em quatro: proposta, paradas, medição, salvar. Cada uma uma Section.'],
+          ['TripItineraryView', 'stats medidos (régua sólida), avisos, altimetria, previsão, paradas, ações.'],
+          ['RouteWeatherPanel', 'chips de dia, frase do ponto crítico, uma linha por parada; risco em terracota.'],
+          ['ElevationProfile', 'traço âmbar 2px, área a 16%, hairlines no topo e no fundo, três leituras com régua.'],
+          ['TripCompletionForm', 'data, avaliação em mono, nota livre em sans.'],
+          ['TripDeleteAction', 'ghost terracota; confirmação no próprio painel, nunca modal.']
+        ] },
+        { g: '7.8 Memórias', items: [
+          ['MemoryTimeline', 'cabeçalho de mês sticky com fade curto; entradas em card raised com stagger.'],
+          ['Miniatura', '64px, radius-sm; viagem não tem foto, ganha bloco âmbar a 10%.'],
+          ['Grupo sem data', 'mesmo tratamento, título "Sem data conhecida". Não inventa data.'],
+          ['YearInReview', 'card de elevação 2; quatro leituras com régua sólida. Zero não aparece.']
+        ] },
+        { g: '7.9 Onboarding e perfil', items: [
+          ['OriginSetup', 'campo + sugestões em lista de 52px + escolher no mapa com alvo.'],
+          ['Autonomia', 'dois campos mono; o alcance é derivado, logo régua tracejada e "~".']
+        ] },
+        { g: '7.10 Estados transversais', items: [
+          ['Vazio', 'frase seca + saída de um clique, após 120ms.'],
+          ['Carregando', 'sem skeleton: o valor entra com o realce de 400ms quando chega.'],
+          ['Erro', 'InlineMessage no painel onde a ação aconteceu.'],
+          ['Indisponível', 'opacidade 0.45, rótulo continua legível, cursor not-allowed.'],
+          ['Foco', 'anel âmbar 2px, offset 3px, em 100% dos controles.'],
+          ['Seleção de texto', 'fundo accent-dim, texto ink.'],
+          ['Movimento reduzido', 'três camadas — ver a tabela de movimento.'],
+          ['Offline / sem chave', 'MapFallback ocupa o lugar do mapa; o cromo continua utilizável.']
+        ] }
+    ];
+  }
+
+  renderVals() {
+    const s = this.state;
+    const list = this.filtered();
+    const sel = PLACES.find(p => p.id === s.selected);
+    const screenIs = k => s.screen === k;
+
+    const focus = s.trip
+      ? { bounds: [[-28.45, -50.05], [-27.45, -48.45]], padding: [90, 440] }
+      : sel
+        ? { lat: sel.lat, lng: sel.lng, zoom: 11, padding: [90, 440] }
+        : screenIs('descobrir')
+          ? { lat: -27.85, lng: -49.1, zoom: 8, padding: [90, 400] }
+          : screenIs('perfil')
+            ? { lat: -27.5954, lng: -48.548, zoom: 12, padding: [90, 400] }
+            : { lat: -27.9, lng: -49.3, zoom: 8, padding: [90, 400] };
+
+    const navItems = NAV.map(n => {
+      const active = s.screen === n.id;
+      return {
+        ...n, cur: active ? 'page' : undefined,
+        go: () => this.go(n.id),
+        drawStyle: active ? 'stroke-dasharray:96;animation:drawIn 420ms cubic-bezier(.22,1,.36,1);--len:96' : '',
+        iconColor: active ? ON_FILL : NAV_INK[n.id],
+        style: [
+          'display:flex;align-items:center;gap:8px;flex:none;height:42px;padding:0 16px;border-radius:999px;cursor:pointer;white-space:nowrap;font-size:15px',
+          'transition:background 140ms cubic-bezier(.25,1,.5,1),color 140ms,box-shadow 140ms,transform 90ms cubic-bezier(.25,1,.5,1)',
+          active
+            ? `background:${NAV_FILL[n.id]};color:${ON_FILL};font-weight:700;border:1px solid rgba(0,0,0,.18);box-shadow:inset 0 1px 0 rgba(255,255,255,.42),0 2px 0 rgba(84,71,54,.30),0 12px 22px -14px ${NAV_FILL[n.id]}`
+            : 'background:#f4efe6;color:#554d43;border:1px solid rgba(38,32,26,.16);box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 1px 0 rgba(84,71,54,.14)'
+        ].join(';')
+      };
+    });
+
+    const trips = [
+      { id: 't1', name: 'Serra do Rio do Rastro, dois dias', date: '12 SET', km: '412', dur: '6h20', stops: '5' },
+      { id: 't2', name: 'Litoral sul até o Rosa', date: '03 AGO', km: '188', dur: '3h05', stops: '3' },
+      { id: 't3', name: 'Vale Europeu, volta longa', date: '21 JUN', km: '327', dur: '5h40', stops: '4' }
+    ].map(t => {
+      const active = s.trip === t.id;
+      return {
+        ...t, go: () => this.setState({ trip: t.id, selected: null }),
+        edgeStyle: `position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px;background:${active ? ACCENT : 'transparent'};transition:background 140ms`,
+        cardStyle: [
+          'position:relative;display:block;width:100%;text-align:left;border-radius:14px;cursor:pointer;overflow:hidden',
+          'transition:background 140ms cubic-bezier(.25,1,.5,1),border-color 140ms,transform 90ms',
+          active
+            ? 'background:#e2dacd;border:1px solid rgba(125,74,6,.40);box-shadow:0 8px 22px -14px rgb(84 71 54 / .15)'
+            : 'background:#ece5da;border:1px solid rgba(38,32,26,.14)'
+        ].join(';')
+      };
+    });
+
+    const statCell = (label, value, kind, note, color) => ({
+      label, value, note,
+      color: color || INK,
+      ruleStyle: kind === 'medido' ? RULE_SOLID : kind === 'estimado' ? RULE_DASH : RULE_NONE
+    });
+
+    const place = sel ? {
+      name: sel.name,
+      sub: sel.mun + ' · ' + sel.tags.join(' · '),
+      statusLabel: STATUS_META[sel.status].label,
+      statusColor: STATUS_META[sel.status].color,
+      surface: sel.id === 'serra' ? 'Asfalto até o mirante — conferido em setembro.' : 'Não sabemos o piso do acesso. Ninguém anotou ainda.',
+      visitCount: sel.status === 'visited' ? '2 REGISTRADAS' : 'NENHUMA',
+      stats: [
+        statCell('Distância', '~ ' + sel.dist, 'estimado', 'linha reta'),
+        statCell('Tempo', '~ ' + Math.round(sel.dist / 60) + 'h' + String(Math.round((sel.dist / 60 % 1) * 60)).padStart(2, '0'), 'estimado', 'a 60 km/h'),
+        statCell('Altitude', String(sel.alt), 'medido', 'metros')
+      ],
+      controls: [
+        this.chip(sel.status === 'visited', 'Visitado', () => {}, '#445d24'),
+        this.chip(sel.status === 'wanted', 'Quero ir', () => {}, '#7d4a06'),
+        this.chip(!!sel.fav, 'Favorito', () => {}, '#211d18')
+      ],
+      visits: sel.status === 'visited' ? [
+        { date: '14.09.2025', rating: '5 / 5', note: 'Subimos com a serra limpa. Parei três vezes só para olhar. Dia de sorte.' },
+        { date: '02.03.2024', rating: '3 / 5', note: 'Neblina fechada do meio da subida para cima. Não deu para ver nada, mas a estrada ainda vale.' }
+      ] : [],
+      photos: sel.photo ? ['foto da subida', 'mirante', 'a moto'] : ['sem foto ainda', '—', '—']
+    } : { stats: [], controls: [], visits: [], photos: [] };
+
+    const w = 360, h = 120, max = Math.max(...ELEV), min = Math.min(...ELEV);
+    const pts = ELEV.map((v, i) => [i / (ELEV.length - 1) * w, h - 8 - (v - min) / (max - min) * (h - 22)]);
+    const line = pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
+
+    const weatherDays = ['SEX', 'SÁB', 'DOM'].map((d, i) => {
+      const active = s.weatherDay === i;
+      return {
+        day: d, temp: ['21°', '14°', '18°'][i],
+        go: () => this.setState({ weatherDay: i }),
+        style: [
+          'flex:1;display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-height:56px;padding:10px 14px;border-radius:14px;cursor:pointer',
+          'transition:background 140ms cubic-bezier(.25,1,.5,1),border-color 140ms,color 140ms',
+          active ? 'background:rgba(125,74,6,.13);border:1px solid rgba(125,74,6,.55);color:#211d18'
+                 : 'background:#ece5da;border:1px solid rgba(38,32,26,.14);color:#554d43'
+        ].join(';')
+      };
+    });
+
+    const leads = [
+      'Sexta abre limpa. Nenhum ponto do traçado com neblina prevista.',
+      'Sábado é o problema: Morro da Igreja a 4 °C com neblina das 6h às 11h.',
+      'Domingo firma de novo. Vento forte no alto da serra, sem chuva prevista.'
+    ];
+    const rows = [
+      [{ place: 'Rancho Queimado', value: '19° · céu limpo', color: MUTED }, { place: 'Urubici', value: '17° · nuvens', color: MUTED }, { place: 'Morro da Igreja', value: '12° · limpo', color: MUTED }],
+      [{ place: 'Rancho Queimado', value: '11° · chuva fraca', color: MUTED }, { place: 'Urubici', value: '7° · neblina', color: '#9c2f16' }, { place: 'Morro da Igreja', value: '4° · neblina', color: '#9c2f16' }],
+      [{ place: 'Rancho Queimado', value: '16° · limpo', color: MUTED }, { place: 'Urubici', value: '13° · limpo', color: MUTED }, { place: 'Morro da Igreja', value: '9° · vento', color: MUTED }]
+    ];
+
+    const stopsList = [
+      { name: 'Florianópolis — origem', meta: '0 km · saída 07h00' },
+      { name: 'Rancho Queimado', meta: '62 km · café' },
+      { name: 'Urubici', meta: '154 km · dormida' },
+      { name: 'Morro da Igreja', meta: '168 km · 7,4 km de chão' },
+      { name: 'Serra do Rio do Rastro', meta: '386 km · o motivo da viagem' },
+      { name: 'Lauro Müller — fim', meta: '412 km · posto na entrada' }
+    ].map((x, i, arr) => ({
+      ...x,
+      dotStyle: `display:block;width:10px;height:10px;border-radius:999px;background:${i === 0 || i === arr.length - 1 ? ACCENT : '#f4efe6'};border:2px solid ${ACCENT}`,
+      lineStyle: i === arr.length - 1 ? 'display:none' : 'display:block;flex:1;width:2px;min-height:34px;margin:4px 0;background-image:repeating-linear-gradient(180deg,rgba(125,74,6,.55) 0 4px,transparent 4px 9px)'
+    }));
+
+    const discovery = [
+      { name: 'Cânion do Espraiado', status: 'NÃO VISITADO', statusColor: FAINT, ida: '~ 2h40', km: '~ 160 km' },
+      { name: 'Vale Encantado', status: 'QUERO IR', statusColor: ACCENT, ida: '~ 2h00', km: '~ 121 km' },
+      { name: 'Anitápolis', status: 'NÃO VISITADO', statusColor: FAINT, ida: '~ 1h40', km: '~ 98 km' }
+    ].map((d, i) => ({ ...d, delay: (i * 35) + 'ms', go: () => this.setState({ selected: null }) }));
+
+    const months = [
+      {
+        label: 'Julho 2026', count: '4 REGISTROS', entries: [
+          { kind: 'Visita', kindColor: '#445d24', title: 'Guarda do Embaú', sub: 'Sábado curto, só para molhar o pé.', thumb: 'praia', photo: true },
+          { kind: 'Foto', kindColor: '#554d43', title: 'Estrada Geral do Siriú', sub: '3 fotos sem lugar associado.', thumb: 'estrada', photo: true },
+          { kind: 'Viagem', kindColor: '#7d4a06', title: 'Litoral sul até o Rosa', sub: '188 km medidos · 3 paradas', thumb: null }
+        ]
+      },
+      {
+        label: 'Junho 2026', count: '2 REGISTROS', entries: [
+          { kind: 'Viagem', kindColor: '#7d4a06', title: 'Vale Europeu, volta longa', sub: '327 km medidos · 4 paradas', thumb: null },
+          { kind: 'Visita', kindColor: '#445d24', title: 'Pomerode', sub: 'Primeira vez. Voltaria.', thumb: 'centro', photo: true }
+        ]
+      },
+      {
+        label: 'Sem data conhecida', count: '1 REGISTRO', entries: [
+          { kind: 'Foto', kindColor: '#554d43', title: 'Serra, sem data no arquivo', sub: 'A câmera não gravou quando.', thumb: 'serra', photo: true }
+        ]
+      }
+    ].map(m => ({
+      ...m,
+      entries: m.entries.map((e, i) => ({
+        ...e, delay: (i * 35) + 'ms',
+        thumbLabel: e.photo ? e.thumb : '',
+        thumbStyle: e.photo
+          ? 'flex:none;width:64px;height:64px;border-radius:8px;display:flex;align-items:flex-end;padding:6px;background-color:#e2dacd;background-image:repeating-linear-gradient(135deg,rgba(38,32,26,.06) 0 6px,transparent 6px 12px);border:1px solid rgba(38,32,26,.14);font-family:JetBrains Mono,monospace;font-size:12px;color:#635a4e'
+          : 'flex:none;width:64px;height:64px;border-radius:8px;background:rgba(125,74,6,.10);border:1px solid rgba(125,74,6,.35)'
+      }))
+    }));
+
+    const statusCells = [
+      { text: s.cam.lat.toFixed(4) + '  ' + s.cam.lng.toFixed(4) },
+      { text: 'Z ' + Math.round(s.cam.zoom) },
+      { text: list.length + ' / ' + PLACES.length + ' LUGARES' },
+      { text: 'ORIGEM: FLORIANÓPOLIS' }
+    ].map((c, i) => ({
+      ...c,
+      style: 'display:flex;align-items:center;height:28px;padding:0 14px;font-family:JetBrains Mono,monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:' + (i === 0 ? MUTED : FAINT) + ';font-variant-numeric:tabular-nums;white-space:nowrap' + (i ? ';border-left:1px solid rgba(38,32,26,.14)' : '')
+    }));
+
+    const tab = active => [
+      'flex:1;height:40px;border-radius:999px;border:0;cursor:pointer;font-size:15px;transition:background 140ms cubic-bezier(.25,1,.5,1),color 140ms',
+      active ? 'background:#d99327;color:#1c1409;font-weight:700' : 'background:transparent;color:#554d43'
+    ].join(';');
+
+    const f = s.filters;
+    return {
+      mapData: JSON.stringify({ pins: list, selected: s.selected, route: s.trip ? ROUTE : null, focus, center: [-27.9, -49.3], zoom: 8 }),
+      dashStyle: 'animation:drawIn 520ms cubic-bezier(.22,1,.36,1) 200ms both;stroke-dasharray:2.4 2.6',
+      navItems, goHome: () => this.go('explorar'), goSistema: () => this.setState({ screen: 'sistema' }),
+      openNewPlace: () => this.setState({ screen: 'explorar', selected: 'morro' }),
+      goPerfil: () => this.go('perfil'),
+      perfilBtnStyle: [
+        'display:flex;align-items:center;gap:8px;flex:none;height:42px;padding:0 14px;border-radius:999px;border:0;cursor:pointer;white-space:nowrap;font-size:15px',
+        'transition:background 140ms cubic-bezier(.25,1,.5,1),color 140ms',
+        screenIs('perfil') ? 'background:#e2dacd;color:#7d4a06' : 'background:none;color:#554d43'
+      ].join(';'),
+      sistemaBtnStyle: 'height:40px;flex:none;white-space:nowrap;padding:0 14px;background:none;color:' + (screenIs('sistema') ? ACCENT : FAINT) + ';border:1px solid rgba(38,32,26,.18);border-radius:999px;font-family:JetBrains Mono,monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;transition:color 140ms,border-color 140ms',
+
+      isExplorar: screenIs('explorar'), isDescobrir: screenIs('descobrir'), isViagens: screenIs('viagens'),
+      isMemorias: screenIs('memorias'), isPerfil: screenIs('perfil'), isSistema: screenIs('sistema'),
+
+      railLista: s.rail === 'lista', railFiltros: s.rail === 'filtros',
+      showLista: () => this.setState({ rail: 'lista' }), showFiltros: () => this.setState({ rail: 'filtros' }),
+      tabListaStyle: tab(s.rail === 'lista'), tabFiltrosStyle: tab(s.rail === 'filtros'),
+
+      query: s.query, onQuery: e => this.setState({ query: e.target.value }),
+      clearQuery: () => this.setState({ query: '', filters: { visited: true, wanted: true, unvisited: true, tag: null } }),
+      clearLabel: 'Limpar busca — ' + PLACES.length + ' lugares',
+      countLabel: list.length + ' DE ' + PLACES.length, countBare: list.length,
+      isEmpty: list.length === 0,
+
+      visiblePlaces: list.map(p => ({
+        name: p.name, sub: p.mun + ' · ' + p.tags.join(' · '), dist: '~ ' + p.dist + ' km',
+        go: () => this.setState({ selected: p.id, trip: null }),
+        dotStyle: `display:block;width:11px;height:11px;flex:none;border-radius:999px;background:${p.status === 'unvisited' ? '#f4efe6' : STATUS_META[p.status].color};border:2px solid ${STATUS_META[p.status].color}`,
+        rowStyle: [
+          'display:flex;align-items:center;gap:14px;width:100%;min-height:64px;padding:10px 12px;border-radius:14px;border:0;cursor:pointer',
+          'transition:background 140ms cubic-bezier(.25,1,.5,1)',
+          s.selected === p.id ? 'background:#e2dacd' : 'background:transparent'
+        ].join(';')
+      })),
+
+      filterGroups: [
+        { title: 'Situação', chips: [
+          this.chip(f.visited, 'Visitado', () => this.setState({ filters: { ...f, visited: !f.visited } }), '#445d24'),
+          this.chip(f.wanted, 'Quero ir', () => this.setState({ filters: { ...f, wanted: !f.wanted } }), '#7d4a06'),
+          this.chip(f.unvisited, 'Não visitado', () => this.setState({ filters: { ...f, unvisited: !f.unvisited } }), '#635a4e')
+        ] },
+        { title: 'Etiqueta', chips: ['serra', 'praia', 'estrada', 'cachoeira', 'vale', 'planalto', 'mirante', 'chão'].map(t =>
+          this.chip(f.tag === t, t, () => this.setState({ filters: { ...f, tag: f.tag === t ? null : t } }))) },
+        { title: 'Distância da origem', chips: ['até 80 km', 'até 150 km', 'até 300 km', 'sem limite'].map((t, i) =>
+          this.chip(i === 3, t, () => {}))  }
+      ],
+      clearFilters: () => this.setState({ filters: { visited: true, wanted: true, unvisited: true, tag: null }, rail: 'lista' }),
+
+      timeChips: [['manha', 'Uma manhã'], ['meioDia', 'Meio dia'], ['diaInteiro', 'Dia inteiro'], ['fimSemana', 'Fim de semana']]
+        .map(([k, label]) => this.chip(s.timeSlot === k, label, () => this.setState({ timeSlot: k, discovered: true }))),
+      catChips: Object.keys(s.cats).map(k =>
+        this.chip(s.cats[k], k, () => this.setState({ cats: { ...s.cats, [k]: !s.cats[k] } }))),
+      radius: s.radius, radiusLabel: s.radius + ' km',
+      onRadius: e => this.setState({ radius: +e.target.value }),
+      runDiscovery: () => this.setState({ discovered: true }),
+      compassPath: s.discovered ? 'M15.6 8.4 13.4 13.4 8.4 15.6 10.6 10.6z' : 'M8 15 12 8l4 7',
+      hasDiscovery: s.discovered, discovery, discoveryCount: discovery.length + ' DESTINOS DENTRO DO RAIO',
+
+      trips,
+      hasTrip: !!s.trip, closeTrip: () => this.setState({ trip: null }),
+      trip: {
+        name: 'Serra do Rio do Rastro, dois dias',
+        sub: '12 e 13 de setembro · saindo de Florianópolis',
+        stats: [
+          statCell('Distância', '412', 'medido', 'km de estrada'),
+          statCell('Em movimento', '6h20', 'medido', 'sem paradas'),
+          statCell('Ponto alto', '1822', 'medido', 'metros')
+        ],
+        stopsList
+      },
+      elevLine: line,
+      elevArea: line + ` L${w} ${h} L0 ${h} Z`,
+      elevMaxY: (h - 8 - (max - min) / (max - min) * (h - 22)).toFixed(1),
+      elevMinY: (h - 8).toFixed(1),
+      elevReadings: [
+        { label: 'Mais alto', value: '1822 m' },
+        { label: 'Mais baixo', value: '8 m' },
+        { label: 'Trecho > 1000 m', value: '86 km' }
+      ],
+      weatherDays, weatherLead: leads[s.weatherDay], weatherRows: rows[s.weatherDay],
+
+      months,
+      yearStats: [
+        { label: 'Km rodados', value: '3 214' }, { label: 'Lugares novos', value: '9' },
+        { label: 'Viagens', value: '4' }, { label: 'Dias na estrada', value: '17' }
+      ],
+
+      origin: s.origin, onOrigin: e => this.setState({ origin: e.target.value, suggestions: e.target.value.length > 2 }),
+      hasSuggestions: s.suggestions,
+      suggestions: [
+        { name: 'Córrego Grande', sub: 'Florianópolis · SC' },
+        { name: 'Rua Vereador Osni Ortiga', sub: 'Lagoa da Conceição · Florianópolis' },
+        { name: 'Corupá', sub: 'Santa Catarina' }
+      ].map(x => ({ ...x, go: () => this.setState({ origin: x.name, suggestions: false }) })),
+      picking: s.picking, togglePicker: () => this.setState({ picking: !s.picking, suggestions: false }),
+      pickerLabel: s.picking ? 'Cancelar escolha no mapa' : 'Escolher no mapa',
+      pickerBtnStyle: [
+        'display:flex;align-items:center;justify-content:center;gap:10px;height:48px;border-radius:14px;cursor:pointer;font-size:17px',
+        'transition:background 140ms,color 140ms,border-color 140ms',
+        s.picking ? 'background:rgba(125,74,6,.13);border:1px solid rgba(125,74,6,.55);color:#211d18'
+                  : 'background:none;border:1px solid rgba(38,32,26,.28);color:#554d43'
+      ].join(';'),
+
+      hasPlace: !!sel && !s.trip, place, closePlace: () => this.setState({ selected: null }),
+      statusCells,
+      ...(screenIs('sistema') ? this.sistemaVals() : {})
+    };
+  }
+}
+
+</script>
+</body>
+</html>

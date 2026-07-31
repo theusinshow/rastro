@@ -16,43 +16,56 @@
      numa única faixa de matiz e não sobrava nada contra o que o âmbar pudesse
      se destacar. O calor do produto mora no que está EM CIMA da superfície:
      texto, estrada, acento. Ver ADR 0012. */
-  --color-void: #11100f;
-  --color-base: #181716;
-  --color-raised: #201e1c;
-  --color-overlay: #2a2726;
+  --color-void: #0e0d0c;
+  --color-base: #191817;
+  --color-raised: #221f1d;
+  --color-overlay: #2c2926;
 
   /* Traços — hairlines fazem a separação estrutural no lugar de sombras.
      Tingidos de areia, e não de branco puro, para não esfriar a superfície. */
-  --color-line: rgba(234, 227, 216, 0.1);
-  --color-line-strong: rgba(234, 227, 216, 0.2);
+  --color-line: rgba(237, 230, 219, 0.1);
+  --color-line-strong: rgba(237, 230, 219, 0.2);
 
   /* Texto — areia, e aqui a areia FICA. O texto é traço sobre a superfície, não
      a superfície: a mesma saturação que vira banho numa área de tela inteira é
      exatamente o que dá caráter numa linha de 1px de espessura óptica. */
-  --color-ink: #eae3d8; /* 14.05:1 */
-  --color-ink-muted: #b7ad9f; /* 8.09:1 */
-  --color-ink-faint: #93887a; /* 5.15:1 — passa AA em texto normal */
+  /* A tinta clareou um passo em relação à direção anterior. O motivo não é
+     gosto: `ink-faint` a #93887a dava 4.29:1 sobre `--color-overlay`, que é a
+     superfície de hover — abaixo de AA. A #9b9082 dá 4.62:1, e o pior par do
+     sistema inteiro passa a caber dentro da norma. */
+  --color-ink: #ede6db; /* 14.31:1 */
+  --color-ink-muted: #bcb2a4; /* 8.48:1 */
+  --color-ink-faint: #9b9082; /* 5.66:1 — 4.62:1 sobre overlay */
 
   /* Acento — amarelo queimado de instrumento: painel de moto, farol, GPS
      outdoor. Deliberadamente o oposto do azul de SaaS. */
-  --color-accent: #e0a02e; /* 7.87:1 */
-  --color-accent-strong: #c9861a; /* hover de ação primária */
-  --color-accent-dim: #6b4b12; /* preenchimento surdo, nunca texto */
-  --color-on-accent: #14100c; /* 8.33:1 sobre o acento */
+  --color-accent: #e5a338; /* 8.13:1 */
+  --color-accent-strong: #cf8a1c; /* 6.17:1 — hover de ação primária */
+  --color-accent-dim: #6d4d13; /* 2.30:1 — preenchimento surdo, nunca texto */
+  --color-on-accent: #16110b; /* 8.60:1 sobre o acento */
 
   /* Estados de VISITA — nomeiam o dado. Separados dos estados de operação
      abaixo de propósito: um lugar visitado não é uma operação bem sucedida, e
      os dois significados podem divergir sem que nada avise. Ver ADR 0009. */
-  --color-visited: #8fa36a; /* 6.49:1 */
-  --color-wanted: #e0a02e; /* mesmo tom do acento — reforça a intenção */
-  --color-unvisited: #93887a; /* 5.15:1 */
+  --color-visited: #93a86e; /* 6.81:1 */
+  --color-wanted: #e5a338; /* mesmo tom do acento — reforça a intenção */
+  --color-unvisited: #9b9082; /* 5.66:1 */
 
   /* Estados de OPERAÇÃO — nomeiam o resultado de uma escrita. Antes disto uma
      mensagem de erro usava `ink-muted` e era visualmente idêntica a uma
      legenda. */
-  --color-alert: #d4694a; /* erro — 5.05:1 */
-  --color-warn: #e0a02e; /* aviso */
-  --color-ok: #8fa36a; /* sucesso */
+  --color-alert: #d97456; /* erro — 5.56:1 */
+  --color-warn: #e5a338; /* aviso */
+  --color-ok: #93a86e; /* sucesso */
+
+  /* Uma cor por destino da navegação. Matizes vizinhos, mesma leveza, todos
+     dentro da família — a cor vira identificador de lugar na aplicação, e não
+     enfeite. O rótulo NUNCA é colorido; só o glifo e o preenchimento do ativo.
+     Razão do rótulo escuro sobre cada preenchimento: 8.60 · 6.52 · 7.21 · 7.70. */
+  --color-nav-explorar: #e5a338;
+  --color-nav-descobrir: #d9834a;
+  --color-nav-viagens: #93a86e;
+  --color-nav-memorias: #8fa9c2;
 
   /* Tipografia — escala nomeada, com altura de linha embutida.
      Antes disto os tamanhos eram valores soltos: oito arbitrários espalhados
@@ -93,11 +106,20 @@
   --radius-2xl: 36px;
   --radius-full: 999px;
 
-  /* A única sombra do produto, e ela não é decoração: é o que separa o cromo
-     flutuante do mapa que passa por baixo. Difusão curta e deslocamento
-     negativo grande — o resultado é um vinco embaixo da peça, não o halo macio
-     que o ADR 0009 recusa. Ver ADR 0010. */
+  /* Duas camadas de elevação, e nenhuma delas é decoração.
+
+     `float` é o vinco que separa o cromo flutuante do mapa que passa por baixo:
+     difusão curta, deslocamento negativo grande, nunca o halo macio. Ver ADR
+     0010.
+
+     `lift` é `float` mais uma segunda projeção, e existe porque agora há painel
+     SOBRE painel — o do lugar abre por cima da trilha, e o balanço do ano sobe
+     sobre a linha do tempo. Com uma camada só os dois viram uma massa chapada e
+     se perde qual deles tem o teclado. **Quem tem a camada 2 tem o foco.**
+     Nunca aparece sozinha. */
   --shadow-float: 0 18px 40px -24px rgb(0 0 0 / 0.9);
+  --shadow-lift:
+    0 18px 40px -24px rgb(0 0 0 / 0.9), 0 8px 22px -14px rgb(0 0 0 / 0.85);
 }
 
 /*
@@ -117,6 +139,10 @@
   /* Realce de valor que mudou. Sobrevive a `prefers-reduced-motion` porque
      carrega informação — ver o bloco de movimento reduzido abaixo. */
   --dur-signal: 400ms;
+  /* Desenho de traço: o glifo do destino ativo redesenha a si mesmo ao assumir. */
+  --dur-draw: 420ms;
+  /* Traço da marca, uma vez por sessão. */
+  --dur-brand: 520ms;
 
   --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
   --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
@@ -190,6 +216,14 @@
        fica visivelmente presente e explicitamente indisponível. */
     --disabled-opacity: 0.45;
 
+    /* Alvo de toque. Piso duro, e não sugestão: o produto é operado de luva. */
+    --hit-min: 44px;
+
+    /* Desfoque do cromo. Ele existe em TODAS as telas, e não só onde há mapa
+       atrás: o cromo precisa ser a mesma superfície em toda a aplicação, senão
+       muda de material ao trocar de destino. */
+    --blur-chrome: blur(16px) saturate(1.1);
+
     /* Larguras de painel. Estavam espalhadas como literais em quatro arquivos,
        e o `padding` da câmera do mapa precisa bater com elas. */
     /* 280px, e não 232: a trilha foi calibrada quando o texto tinha 10px. Com o
@@ -247,6 +281,26 @@
       /* Mesmo defeito do stagger: um atraso literal sobreviveria à duração
          zerada e o estado vazio ficaria em branco por 120ms antes de aparecer. */
       --empty-delay: 0ms;
+      --dur-draw: 0ms;
+      --dur-brand: 0ms;
+    }
+
+    /* Camada 1, agora declarada em vez de só descrita: o que se marca como
+       decorativo para de se mexer. Existe para animação que não passa por token
+       — desenho de traço em SVG, morfismo de forma — e que sobreviveria a
+       simplesmente zerar as durações. */
+    [data-motion='decor'],
+    [data-motion='decor'] * {
+      animation: none !important;
+      transition: none !important;
+      transform: none !important;
+    }
+
+    /* Camada 2: o que carrega informação continua se mexendo, com a duração
+       cheia. Marcar explicitamente protege o único sinal de que um valor mudou
+       de uma futura regra de "zera tudo". */
+    [data-motion='signal'] {
+      animation-duration: var(--dur-signal) !important;
     }
   }
 }
@@ -263,6 +317,73 @@
     letter-spacing: 0.16em;
     text-transform: uppercase;
     color: var(--color-ink-faint);
+  }
+
+  /*
+   * A RÉGUA — de onde veio o número.
+   *
+   * Toda leitura numérica do produto se apoia numa régua de 2px, e ela É a
+   * legenda: quatro origens, quatro formas, nenhuma palavra necessária.
+   *
+   * Por que a estrada e não um ícone: a faixa central tracejada já é a marca, já
+   * é o traçado da viagem no mapa e já significa asfalto interrompido.
+   * Interrompido é exatamente o que um número estimado é. E sobrevive à luva e
+   * ao sol porque é geometria de 2×48px, não um glifo de 12px.
+   *
+   * A regra irmã, que é a outra metade do mesmo sistema: **medição é mono,
+   * humano é sans**. `RatingPicker` fica em mono porque é escala, mas NUNCA
+   * ganha régua, porque é opinião.
+   */
+  .instrument-rule {
+    display: block;
+    width: 100%;
+    min-width: 48px;
+    height: 2px;
+  }
+
+  /* MEDIDO — nós medimos. Sólida, âmbar. */
+  .instrument-rule--measured {
+    background-color: var(--color-accent);
+  }
+
+  /* ESTIMADO — é conta, não medição. O valor vem prefixado com `~`. */
+  .instrument-rule--estimated {
+    background-image: repeating-linear-gradient(
+      90deg,
+      var(--color-ink-faint) 0 5px,
+      transparent 5px 10px
+    );
+  }
+
+  /* DESCONHECIDO — não sabemos. O valor é `—`, nunca um palpite. */
+  .instrument-rule--unknown {
+    background-image: repeating-linear-gradient(
+      90deg,
+      rgba(237, 230, 219, 0.22) 0 2px,
+      transparent 2px 6px
+    );
+  }
+
+  /* Contagem não é medição nem estimativa: é o número exato de coisas que
+     existem. Régua neutra — presente, para a forma do `Stat` não variar, e
+     surda, para não reivindicar precisão de instrumento. */
+  .instrument-rule--count {
+    background-color: rgba(237, 230, 219, 0.12);
+  }
+
+  /*
+   * OPINIÃO — sai do mono, vira sans, e não recebe régua nenhuma.
+   *
+   * É o relato de uma visita, a nota de alguém. O filete à esquerda é de
+   * citação: o que está aqui foi dito, não medido.
+   */
+  .type-note {
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: 1.5;
+    color: var(--color-ink-muted);
+    padding-left: 14px;
+    border-left: 2px solid var(--color-line-strong);
   }
 
   /* Todo dado numérico usa isto: km, coordenada, duração, zoom. */
@@ -448,6 +569,41 @@
     to {
       background-color: transparent;
     }
+  }
+
+  /*
+   * Cápsula de cromo em relevo — a barra e a statusbar.
+   *
+   * O relevo é feito com quatro camadas e **nenhum gradiente**: filete interno
+   * claro em cima (a luz), sombra interna curta embaixo (a espessura), uma
+   * aresta sólida de 3px (o corpo) e as sombras de projeção do sistema.
+   *
+   * O `backdrop-filter` fica em todas as telas, e não só onde há mapa atrás: se
+   * o cromo mudasse de material ao trocar de destino, ele deixaria de ser a
+   * mesma peça.
+   */
+  .chrome-capsule {
+    background-color: rgba(32, 29, 27, 0.93);
+    backdrop-filter: var(--blur-chrome);
+    border: 1px solid var(--color-line-strong);
+    box-shadow:
+      inset 0 1px 0 rgba(237, 230, 219, 0.13),
+      inset 0 -2px 6px rgba(0, 0, 0, 0.45),
+      0 3px 0 rgba(0, 0, 0, 0.5),
+      var(--shadow-lift);
+  }
+
+  /* Apertar tira a aresta de 3px: a peça afunda de verdade, em vez de encolher.
+     É o `press` do cromo, e substitui o `scale` nele — uma cápsula de largura
+     total encolhendo lê como erro de layout. */
+  .chrome-press {
+    transition:
+      translate var(--dur-instant) var(--ease-out-quart),
+      box-shadow var(--dur-instant) var(--ease-out-quart);
+  }
+
+  .chrome-press:active:not(:disabled) {
+    translate: 0 2px;
   }
 
   /* Primeira pintura do mapa. Sem isto a área central é `void` sólido até os

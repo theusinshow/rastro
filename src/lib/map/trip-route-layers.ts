@@ -17,8 +17,8 @@ export const TRIP_ROUTE_LAYERS = [
  * não lê variável CSS. Mudar uma sem a outra faz interface e mapa divergirem.
  * Paleta do ADR 0012.
  */
-const ASPHALT = '#e0a02e'
-const CENTERLINE = '#11100f'
+const ASPHALT = '#e5a338'
+const CENTERLINE = '#0e0d0c'
 
 /**
  * A rota é desenhada como a MARCA: traço âmbar com faixa central tracejada na cor
@@ -49,7 +49,10 @@ export function buildTripRouteLayers(): LineLayerSpecification[] {
         'line-color': CENTERLINE,
         'line-width': ['interpolate', ['linear'], ['zoom'], 6, 0.7, 14, 1.6],
         // `line-dasharray` é em múltiplos da LARGURA da linha, não em pixels.
-        'line-dasharray': [2, 3],
+        // 4.5/5.5 e não 2/3: o tracejado curto lia como pontilhado, e a faixa
+        // precisa ser a MESMA da régua de "estimado" e da perna da marca — é o
+        // que faz o traçado no mapa e o número na tela contarem a mesma coisa.
+        'line-dasharray': [4.5, 5.5],
       },
     },
   ]

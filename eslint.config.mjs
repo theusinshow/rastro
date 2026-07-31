@@ -15,6 +15,10 @@ const eslintConfig = defineConfig([
     // Material de referência externo: insumo para decidir o que portar, nunca
     // código do produto. Fora do versionamento e fora das verificações.
     "_referencia/**",
+    // Handoff de design: protótipos em HTML com o JS embutido, que existem para
+    // serem OLHADOS. O próprio handoff diz para descartar o mapa de Leaflet dele
+    // na implementação. Lintar isso seria auditar um desenho.
+    "claude-design/**",
   ]),
 ]);
 
