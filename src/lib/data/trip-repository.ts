@@ -1,4 +1,4 @@
-import type { Coordinates } from '@/domain/geo'
+import type { Coordinates, RoutePosition } from '@/domain/geo'
 import type { TripDetail, TripStopKind, TripSummary } from '@/domain/trip'
 
 export interface NewTripStopInput {
@@ -20,7 +20,7 @@ export interface NewTripInput {
   /** `null` quando o roteamento falhou — e é o sinal de "número estimado". */
   routeGeoJson: {
     type: 'LineString'
-    coordinates: [number, number][]
+    coordinates: RoutePosition[]
   } | null
 }
 

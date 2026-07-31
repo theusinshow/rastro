@@ -1,14 +1,16 @@
-import type { Coordinates } from '@/domain/geo'
+import type { Coordinates, RoutePosition } from '@/domain/geo'
 
 /** Traçado real da estrada entre uma sequência de pontos. */
 export interface RoutedLine {
   /**
-   * `LineString` em GeoJSON, coordenadas `[longitude, latitude]`.
+   * `LineString` em GeoJSON, coordenadas `[longitude, latitude]` e, quando o
+   * provedor mede o relevo, a altitude em metros como terceiro valor.
    *
    * Vai direto para `trips.route_geojson` e para uma fonte do MapLibre, sem
-   * conversão. É por isso que o provedor escolhido devolve GeoJSON nativamente.
+   * conversão. É por isso que o provedor escolhido devolve GeoJSON nativamente —
+   * e o MapLibre ignora o terceiro valor sozinho.
    */
-  geometry: { type: 'LineString'; coordinates: [number, number][] }
+  geometry: { type: 'LineString'; coordinates: RoutePosition[] }
   roadKm: number
   minutes: number
 }

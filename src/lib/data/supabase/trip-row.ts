@@ -1,3 +1,4 @@
+import type { RoutePosition } from '@/domain/geo'
 import type {
   TripDetail,
   TripDetailStop,
@@ -43,7 +44,7 @@ export interface TripRow {
   notes: string | null
   route_geojson: {
     type: 'LineString'
-    coordinates: [number, number][]
+    coordinates: RoutePosition[]
   } | null
   trip_stops: TripStopRow[]
 }

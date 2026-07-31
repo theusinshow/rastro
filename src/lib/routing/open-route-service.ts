@@ -1,4 +1,4 @@
-import type { Coordinates } from '@/domain/geo'
+import type { Coordinates, RoutePosition } from '@/domain/geo'
 import type { RoutedLine, RoutingClient } from './routing-client'
 
 const ENDPOINT =
@@ -31,15 +31,19 @@ interface OrsResponse {
   }[]
 }
 
-function isCoordinatePairs(value: unknown): value is [number, number][] {
+/**
+ * Aceita pares e trincas: com `elevation` ligado o ORS devolve
+ * `[longitude, latitude, metros]`, e a altitude é opcional por contrato — se um
+ * dia vier sem ela, o perfil some e a rota continua.
+ */
+function isRoutePositions(value: unknown): value is RoutePosition[] {
   return (
     Array.isArray(value) &&
     value.every(
-      (pair) =>
-        Array.isArray(pair) &&
-        pair.length >= 2 &&
-        typeof pair[0] === 'number' &&
-        typeof pair[1] === 'number',
+      (position) =>
+        Array.isArray(position) &&
+        position.length >= 2 &&
+        position.every((n) => typeof n === 'number'),
     )
   )
 }
@@ -56,7 +60,7 @@ function toRoutedLine(body: unknown): RoutedLine | null {
   const summary = feature?.properties?.summary
 
   if (feature?.geometry?.type !== 'LineString') return null
-  if (!isCoordinatePairs(coordinates)) return null
+  if (!isRoutePositions(coordinates)) return null
   if (typeof summary?.distance !== 'number') return null
   if (typeof summary?.duration !== 'number') return null
 
@@ -86,6 +90,9 @@ export function createOpenRouteServiceClient(apiKey: string): RoutingClient {
               point.latitude,
             ]),
             radiuses: points.map(() => SNAP_RADIUS_M),
+            // Cada ponto do traçado passa a vir com a altitude em metros. É o
+            // que permite dizer, antes de sair de casa, quanto a serra sobe.
+            elevation: true,
           }),
           signal: AbortSignal.timeout(TIMEOUT_MS),
         })

@@ -1,9 +1,11 @@
 import Link from 'next/link'
 import { formatVisitDate } from '@/domain/dates'
+import { buildElevationProfile } from '@/domain/elevation'
 import { formatDistanceKm, formatDurationMinutes } from '@/domain/geo'
 import { googleMapsRouteUrl } from '@/domain/google-maps-link'
 import { TRIP_STATUS_LABELS, type TripDetail } from '@/domain/trip'
 import { InlineMessage } from '@/components/ui/InlineMessage'
+import { ElevationProfileView } from './ElevationProfile'
 import { TripDeleteAction } from './TripDeleteAction'
 
 interface TripItineraryViewProps {
@@ -15,6 +17,12 @@ const ACTION =
   'text-body font-medium tracking-[0.02em]'
 
 export function TripItineraryView({ trip }: TripItineraryViewProps) {
+  // `null` para viagem sem traçado, e também para as gravadas antes de o
+  // roteador pedir altimetria: nesses casos a seção simplesmente não existe.
+  const elevation = trip.routeGeoJson
+    ? buildElevationProfile(trip.routeGeoJson.coordinates)
+    : null
+
   const googleUrl = trip.originCoordinates
     ? googleMapsRouteUrl(
         trip.originCoordinates,
@@ -57,7 +65,9 @@ export function TripItineraryView({ trip }: TripItineraryViewProps) {
         </div>
       ) : null}
 
-      <ul className="mt-2">
+      {elevation ? <ElevationProfileView profile={elevation} /> : null}
+
+      <ul className={elevation ? '' : 'mt-2'}>
         {trip.stops.map((stop, index) => (
           <li
             key={stop.id}

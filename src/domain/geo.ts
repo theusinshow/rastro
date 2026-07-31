@@ -4,6 +4,16 @@ export interface Coordinates {
   longitude: number
 }
 
+/**
+ * Posição GeoJSON: `[longitude, latitude]` e, quando o provedor mede o relevo,
+ * a altitude em metros como terceiro valor.
+ *
+ * O terceiro valor é opcional no formato e é opcional aqui: traçados gravados
+ * antes de o roteador passar a pedir altimetria continuam sendo pares, e o tipo
+ * obriga quem lê a tratar essa ausência.
+ */
+export type RoutePosition = [number, number] | [number, number, number]
+
 const EARTH_RADIUS_KM = 6371
 
 function toRadians(degrees: number): number {

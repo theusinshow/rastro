@@ -73,7 +73,9 @@ export function buildTripRouteGeoJson(
   detail: TripDetail,
 ): GeoJSON.FeatureCollection<GeoJSON.LineString> {
   const origin = detail.originCoordinates
-  const coordinates: [number, number][] = detail.routeGeoJson
+  // `Position` do GeoJSON e não um par: com altimetria, cada ponto do traçado
+  // vem com um terceiro valor, que o MapLibre ignora ao desenhar.
+  const coordinates: GeoJSON.Position[] = detail.routeGeoJson
     ? detail.routeGeoJson.coordinates
     : [
         ...(origin ? [toLngLat(origin)] : []),

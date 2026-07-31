@@ -14,6 +14,20 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Adicionado
 
+- Perfil de altimetria na viagem. O traçado passa a ser pedido com a altitude de
+  cada ponto, e a página da viagem desenha o relevo dela: dá para ver, antes de
+  sair, onde vem a planície e onde começa a serra. Abaixo do desenho, três
+  leituras — o ponto mais baixo, o mais alto e o desnível entre os dois. Uma
+  volta de 556 km pelo Corvo Branco e pelo Morro da Igreja sai do nível do mar e
+  chega a 1.758 m. Viagens gravadas antes disso não têm altitude registrada e
+  seguem sem a seção
+- **Subida acumulada foi deliberadamente deixada de fora.** O número é comum em
+  aplicativos de ciclismo, mas aqui ele seria invenção: o modelo de elevação
+  tremelica alguns metros ponto a ponto, e somar essa tremida deu *449 m de
+  subida* em 78 km de planície costeira entre Tubarão e Araranguá, onde a
+  altitude nunca passa de 89 m. Altitude e desnível são leituras e ficam;
+  acumulação não se sustenta e não entra
+
 - Busca por nome na trilha do Explorar. Digitar acha por nome, por município ou
   por etiqueta — "curvas" traz a Serra do Rio do Rastro e a Serra Dona Francisca
   sem que você precise lembrar o nome de nenhuma das duas. Acento não faz

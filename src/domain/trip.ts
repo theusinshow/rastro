@@ -1,4 +1,4 @@
-import type { Coordinates } from './geo'
+import type { Coordinates, RoutePosition } from './geo'
 
 export type TripStatus = 'planned' | 'ongoing' | 'completed'
 
@@ -100,6 +100,6 @@ export interface TripDetail extends TripSummary {
   /** `LineString` do traçado real, quando houver. */
   routeGeoJson: {
     type: 'LineString'
-    coordinates: [number, number][]
+    coordinates: RoutePosition[]
   } | null
 }
