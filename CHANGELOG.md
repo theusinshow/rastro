@@ -27,6 +27,11 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   navegador não sabe processar é recusado dizendo qual mandar
 - Uma fotografia com informação de GPS se posiciona sozinha, e a data vem do dia
   em que ela foi tirada — não do dia em que você a subiu
+- Fotografias são reduzidas no seu próprio aparelho antes de subir, o que cabe
+  cerca de dez vezes mais delas no armazenamento sem diferença visível na tela
+- A fotografia sobe do seu aparelho direto para o armazenamento, sem passar pelo
+  servidor do aplicativo — o que remove o limite de tamanho que existiria no
+  caminho
 
 - Spec de **Viagens** fechada, em
   `docs/superpowers/specs/2026-07-29-viagens-design.md`. Nada disso funciona
