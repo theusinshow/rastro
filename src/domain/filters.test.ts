@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { matchesSearch, normalizeForSearch } from './filters'
 import {
   DEFAULT_EXPLORE_FILTERS,
   countActiveCriteria,
@@ -190,8 +191,17 @@ describe('countActiveCriteria', () => {
         radiusKm: 100,
         visitStatus: ['visitado'],
         favoritesOnly: true,
+        search: '',
       }),
     ).toBe(4)
+  })
+
+  // O número aparece no botão "Filtrar", e a busca tem campo próprio, fora dele.
+  // Contá-la daria um "1" que não corresponde a nada dentro do painel aberto.
+  it('não conta a busca, que não mora no painel de filtros', () => {
+    expect(
+      countActiveCriteria({ ...DEFAULT_EXPLORE_FILTERS, search: 'serra' }),
+    ).toBe(0)
   })
 })
 
@@ -210,10 +220,20 @@ describe('describeFilters', () => {
           visitStatus: ['nao-visitado'],
           radiusKm: 150,
           categories: ['cachoeira'],
+          search: '',
         },
         CATEGORY_LABELS,
       ),
     ).toEqual(['Cachoeira', 'até 150 km', 'Não visitados', 'Favoritos'])
+  })
+
+  it('não repete a busca, que já está escrita no campo', () => {
+    expect(
+      describeFilters(
+        { ...DEFAULT_EXPLORE_FILTERS, search: 'urubici' },
+        CATEGORY_LABELS,
+      ),
+    ).toEqual([])
   })
 
   it('usa os rótulos de interface das categorias', () => {
@@ -223,5 +243,51 @@ describe('describeFilters', () => {
         CATEGORY_LABELS,
       ),
     ).toEqual(['Ponto turístico'])
+  })
+})
+
+describe('normalizeForSearch', () => {
+  it('tira acento e caixa', () => {
+    expect(normalizeForSearch('Lagoa da Conceição')).toBe('lagoa da conceicao')
+    expect(normalizeForSearch('Guarda do Embaú')).toBe('guarda do embau')
+    expect(normalizeForSearch('  SERRA  ')).toBe('serra')
+  })
+})
+
+describe('matchesSearch', () => {
+  const serra = place({
+    name: 'Serra do Rio do Rastro',
+    municipality: 'Bom Jardim da Serra',
+    tags: ['curvas', 'mirante'],
+  })
+
+  it('acha sem acento o que tem acento', () => {
+    // Ninguém digita acento com luva, parado no acostamento.
+    const lagoa = place({ name: 'Lagoa da Conceição', municipality: 'Floripa' })
+
+    expect(matchesSearch(lagoa, 'conceicao')).toBe(true)
+    expect(matchesSearch(lagoa, 'CONCEIÇÃO')).toBe(true)
+  })
+
+  it('acha por pedaço do nome', () => {
+    expect(matchesSearch(serra, 'rastro')).toBe(true)
+  })
+
+  it('acha pelo município', () => {
+    expect(matchesSearch(serra, 'bom jardim')).toBe(true)
+  })
+
+  it('acha pela etiqueta', () => {
+    // É assim que se procura o que se quer sem lembrar o nome.
+    expect(matchesSearch(serra, 'curvas')).toBe(true)
+  })
+
+  it('termo vazio não restringe nada', () => {
+    expect(matchesSearch(serra, '')).toBe(true)
+    expect(matchesSearch(serra, '   ')).toBe(true)
+  })
+
+  it('recusa o que não casa', () => {
+    expect(matchesSearch(serra, 'praia')).toBe(false)
   })
 })

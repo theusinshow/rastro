@@ -23,6 +23,7 @@ import { CloseButton } from '@/components/ui/CloseButton'
 import { SectionHeader } from '@/components/ui/Section'
 import { Toggle } from '@/components/ui/Toggle'
 import { PlaceList } from './PlaceList'
+import { PlaceSearch } from './PlaceSearch'
 
 const STATUS_OPTIONS: Array<{ value: VisitStatus; label: string }> = [
   { value: 'nao-visitado', label: 'Não visitados' },
@@ -200,7 +201,12 @@ export function FilterRail({
   return (
     <OverlayPanel side="left">
       <div className="shrink-0 border-b border-line px-4 py-3">
-        <div className="flex items-center gap-2">
+        <PlaceSearch
+          value={filters.search}
+          onCommit={(search) => setFilters({ ...filters, search })}
+        />
+
+        <div className="mt-2 flex items-center gap-2">
           <Button
             size="sm"
             variant={activeCount > 0 ? 'solid' : 'outline'}
@@ -211,7 +217,9 @@ export function FilterRail({
               <span className="instrument-value">{activeCount}</span>
             ) : null}
           </Button>
-          {activeCount > 0 ? (
+          {/* Ligado a `isDefault`, e não à contagem: uma busca sozinha não conta
+              como critério de filtro, mas continua sendo algo a limpar. */}
+          {!isDefault ? (
             <Button size="sm" variant="ghost" onClick={reset}>
               Limpar
             </Button>

@@ -53,6 +53,7 @@ export function useExploreFilters(hasOrigin: boolean) {
         VISIT_STATUSES,
       ),
       favoritesOnly: searchParams.get('fav') === '1',
+      search: searchParams.get('busca') ?? '',
     }),
     [searchParams, hasOrigin],
   )
@@ -72,6 +73,7 @@ export function useExploreFilters(hasOrigin: boolean) {
       assign('raio', next.radiusKm ? String(next.radiusKm) : null)
       assign('status', next.visitStatus.join(',') || null)
       assign('fav', next.favoritesOnly ? '1' : null)
+      assign('busca', next.search.trim() || null)
 
       const query = params.toString()
       // `replace` e não `push`: cada clique de chip não deve encher o histórico.
@@ -88,7 +90,8 @@ export function useExploreFilters(hasOrigin: boolean) {
     filters.categories.length === 0 &&
     filters.radiusKm === null &&
     filters.visitStatus.length === 0 &&
-    !filters.favoritesOnly
+    !filters.favoritesOnly &&
+    filters.search.trim().length === 0
 
   return { filters, setFilters, reset, isDefault }
 }

@@ -16,6 +16,8 @@ export interface ExploreFilters {
   radiusKm: number | null
   visitStatus: VisitStatus[]
   favoritesOnly: boolean
+  /** Texto livre. Vazio = sem restrição. */
+  search: string
 }
 
 export const DEFAULT_EXPLORE_FILTERS: ExploreFilters = {
@@ -23,6 +25,36 @@ export const DEFAULT_EXPLORE_FILTERS: ExploreFilters = {
   radiusKm: null,
   visitStatus: [],
   favoritesOnly: false,
+  search: '',
+}
+
+/**
+ * Minúsculas e **sem acento**.
+ *
+ * Sem isso, procurar "conceicao" não acha "Lagoa da Conceição" e "embau" não acha
+ * "Guarda do Embaú — e ninguém digita acento com luva, parado no acostamento.
+ * `NFD` separa a letra do sinal, e a faixa `̀-ͯ` remove só os sinais.
+ */
+export function normalizeForSearch(text: string): string {
+  return text
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .trim()
+}
+
+/**
+ * Casa contra nome, município e etiquetas.
+ *
+ * As etiquetas entram porque é assim que se procura o que se quer sem lembrar o
+ * nome: "curvas", "cachoeira", "mirante".
+ */
+export function matchesSearch(place: ExplorePlace, term: string): boolean {
+  const alvo = normalizeForSearch(term)
+  if (alvo.length === 0) return true
+
+  const campos = [place.name, place.municipality, ...place.tags]
+  return campos.some((campo) => normalizeForSearch(campo).includes(alvo))
 }
 
 /** Rótulos de situação, no vocabulário da interface. */
@@ -36,8 +68,10 @@ const VISIT_STATUS_LABELS: Record<VisitStatus, string> = {
  * Quantos critérios estão restringindo o recorte.
  *
  * Conta critérios, não valores: três categorias marcadas são **uma** restrição
- * de categoria. É o número que a trilha mostra quando os filtros estão
- * recolhidos, e ele responde "quanto do mapa está escondido de mim?".
+ * de categoria. É o número que a trilha mostra no botão "Filtrar", e por isso
+ * conta só o que mora **dentro** daquele painel: a busca fica de fora porque tem
+ * campo próprio e visível. Um "1" no botão sem nada marcado ao abri-lo seria uma
+ * mentira.
  */
 export function countActiveCriteria(filters: ExploreFilters): number {
   let total = 0
@@ -54,6 +88,9 @@ export function countActiveCriteria(filters: ExploreFilters): number {
  * Vive no domínio porque é tradução de estado para linguagem, não desenho — e
  * porque a ordem importa: categoria, distância, situação, favoritos é a ordem em
  * que a pessoa pensa a viagem.
+ *
+ * A busca não entra: ela já está escrita, por extenso, no campo logo acima deste
+ * resumo. Repeti-la aqui seria descrever o que está à vista.
  */
 export function describeFilters(
   filters: ExploreFilters,
@@ -83,6 +120,7 @@ export type FilterCriterion =
   | 'radiusKm'
   | 'visitStatus'
   | 'favoritesOnly'
+  | 'search'
 
 /** Rótulos em PT-BR, como `CATEGORY_LABELS`: o código fala inglês, a interface não. */
 export const FILTER_CRITERION_LABELS: Record<FilterCriterion, string> = {
@@ -90,6 +128,7 @@ export const FILTER_CRITERION_LABELS: Record<FilterCriterion, string> = {
   radiusKm: 'raio',
   visitStatus: 'situação',
   favoritesOnly: 'favoritos',
+  search: 'busca',
 }
 
 export interface FilterRelaxation {
@@ -137,6 +176,9 @@ export function mostRestrictiveCriterion(
       filters: { ...filters, favoritesOnly: false },
     })
   }
+  if (filters.search.trim().length > 0) {
+    candidates.push({ criterion: 'search', filters: { ...filters, search: '' } })
+  }
 
   let best: FilterRelaxation | null = null
 
@@ -176,6 +218,10 @@ export function filterPlaces(
     }
 
     if (filters.radiusKm !== null && haversineKm(origin, place) > filters.radiusKm) {
+      return false
+    }
+
+    if (!matchesSearch(place, filters.search)) {
       return false
     }
 

@@ -14,6 +14,13 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Adicionado
 
+- Busca por nome na trilha do Explorar. Digitar acha por nome, por município ou
+  por etiqueta — "curvas" traz a Serra do Rio do Rastro e a Serra Dona Francisca
+  sem que você precise lembrar o nome de nenhuma das duas. Acento não faz
+  diferença: "conceicao" acha a Lagoa da Conceição. O termo entra no endereço da
+  página, então uma busca pode ser guardada nos favoritos do navegador ou
+  compartilhada
+
 - Spec de **Fotos** fechada, em
   `docs/superpowers/specs/2026-07-30-fotos-design.md`. Nada disso funciona ainda.
   A foto passará a pertencer ao lugar, com a viagem opcional — hoje o esquema
