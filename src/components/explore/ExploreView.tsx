@@ -29,9 +29,9 @@ import { useSetVisiblePlaceCount } from './visible-places-context'
  */
 const CAMERA_PADDING: PaddingOptions = {
   top: 56 + 24,
-  right: 380 + 24,
+  right: 420 + 24,
   bottom: 36 + 24,
-  left: 280 + 24,
+  left: 380 + 24,
 }
 
 /**

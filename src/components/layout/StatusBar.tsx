@@ -7,6 +7,37 @@ import { usePickerState } from '@/components/map/picker-context'
 import { cn } from '@/lib/utils/cn'
 import { useOrigin } from './origin-context'
 
+/** Célula do mostrador. O filete entre elas vem do `divide-x` do contêiner. */
+function Cell({
+  children,
+  className,
+  ...rest
+}: React.ComponentProps<'span'>) {
+  return (
+    <span
+      className={cn(
+        'instrument-value flex h-7 items-center px-3 text-micro whitespace-nowrap',
+        className,
+      )}
+      {...rest}
+    >
+      {children}
+    </span>
+  )
+}
+
+/**
+ * Mostrador do mapa: uma cápsula no canto inferior esquerdo.
+ *
+ * Deixou de ser uma barra de largura total. Ocupando a tela inteira embaixo, ela
+ * reivindicava a importância de uma barra de ferramentas para quatro leituras
+ * que ninguém aciona — e comia 36px de mapa de ponta a ponta. Como cápsula, ela
+ * é o que sempre foi: um instrumento pequeno, no canto, que se lê de relance.
+ *
+ * Some abaixo de 768px. Lá a folha inferior já ocupa 45vh e a contagem de
+ * lugares aparece no cabeçalho dela — repetir aqui custaria mapa numa tela que
+ * já tem pouco.
+ */
 export function StatusBar() {
   const view = useMapView()
   const count = useVisiblePlaceCount()
@@ -18,50 +49,34 @@ export function StatusBar() {
   const shown = picking ? cursor : (view?.center ?? null)
 
   return (
-    /* Flutuante como o resto do cromo. Ver ADR 0010. Continua sendo o elemento
-       de assinatura do produto — o que muda é ela deixar de ser a moldura de
-       baixo e passar a boiar sobre o mapa, como tudo o mais. */
+    /* Flutuante como o resto do cromo. Ver ADR 0010. */
     <footer
-      className="absolute inset-x-(--chrome-gap) bottom-(--chrome-gap)
-                 z-(--z-bar) flex h-(--status-height) items-center gap-3
-                 overflow-hidden rounded-lg border border-line bg-base/92 px-4
-                 shadow-float backdrop-blur-sm md:gap-6"
+      className="chrome-capsule absolute bottom-(--chrome-gap) left-(--chrome-gap)
+                 z-(--z-bar) hidden h-(--status-height) items-center divide-x
+                 divide-line overflow-hidden rounded-full text-ink-faint md:flex"
     >
-      <span
-        className={cn(
-          'instrument-value text-micro whitespace-nowrap',
-          picking ? 'text-accent' : 'text-ink-faint',
-        )}
-      >
+      <Cell className={picking ? 'text-accent' : 'text-ink-muted'}>
         {picking ? 'MIRA ' : '⌖ '}
         {shown
           ? `${formatCoordinate(shown.latitude)} ${formatCoordinate(shown.longitude)}`
           : '—.———— —.————'}
-      </span>
-      {/* Abaixo de 768px a barra tem 36px de altura fixa e quatro campos a fazem
-          quebrar em duas linhas. Coordenada e contagem ficam; zoom e origem são
-          os dois que menos mudam durante o uso. */}
-      <span className="instrument-value hidden text-micro text-ink-faint md:inline">
-        Z{view ? view.zoom.toFixed(1) : '—'}
-      </span>
+      </Cell>
+
+      <Cell>Z {view ? view.zoom.toFixed(1) : '—'}</Cell>
+
       {count !== null ? (
-        <span
-          // `key` remonta o nó e reinicia o realce a cada valor novo. Sem ele o
-          // número muda a 10px num canto e ninguém percebe.
-          key={count}
-          className="value-changed instrument-value px-1 text-micro
-                     whitespace-nowrap text-ink-faint"
-        >
-          ● {count} {count === 1 ? 'lugar' : 'lugares'}
-        </span>
+        // `key` remonta o nó e reinicia o realce a cada valor novo. Sem ele o
+        // número muda a 12px num canto e ninguém percebe que filtrar fez algo.
+        // `data-motion="signal"`: sobrevive a movimento reduzido de propósito,
+        // porque carrega informação.
+        <Cell key={count} className="value-changed" data-motion="signal">
+          {count} {count === 1 ? 'LUGAR' : 'LUGARES'}
+        </Cell>
       ) : null}
+
       {/* Sem origem definida o campo some, em vez de mostrar um lugar que não é
           o seu. É o mesmo princípio do resto: não inventar dado. */}
-      {originLabel ? (
-        <span className="ml-auto instrument-value hidden text-micro text-ink-faint md:inline">
-          ⌂ {originLabel}
-        </span>
-      ) : null}
+      {originLabel ? <Cell>⌂ {originLabel}</Cell> : null}
     </footer>
   )
 }

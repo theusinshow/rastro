@@ -48,18 +48,22 @@ export function OverlayPanel({
       data-exiting={exiting}
       style={
         {
+          // O painel do objeto selecionado é o mais largo do produto: ele
+          // carrega nome de lugar, três leituras com régua, visitas e fotos.
+          // A trilha da esquerda fica em `--panel-base`, que já é o que ela
+          // precisava desde que o corpo passou a 17px.
           '--panel-width': width
             ? `${width}px`
             : side === 'right'
-              ? 'var(--panel-base)'
-              : 'var(--panel-narrow)',
+              ? 'var(--panel-wide)'
+              : 'var(--panel-base)',
           ...(sheetHeight ? { '--sheet-height': sheetHeight } : {}),
         } as React.CSSProperties
       }
-      className={cn(
-        'overlay-panel border-line bg-base/95 backdrop-blur-sm',
-        className,
-      )}
+      // Superfície e desfoque vivem em `.overlay-panel`: o cromo inteiro é o
+      // mesmo material, e declará-lo em dois lugares deixaria a barra e o painel
+      // divergirem no dia em que um dos dois mudasse.
+      className={cn('overlay-panel', className)}
     >
       {children}
     </aside>

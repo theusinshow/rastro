@@ -58,14 +58,11 @@
   --color-warn: #e5a338; /* aviso */
   --color-ok: #93a86e; /* sucesso */
 
-  /* Uma cor por destino da navegação. Matizes vizinhos, mesma leveza, todos
-     dentro da família — a cor vira identificador de lugar na aplicação, e não
-     enfeite. O rótulo NUNCA é colorido; só o glifo e o preenchimento do ativo.
-     Razão do rótulo escuro sobre cada preenchimento: 8.60 · 6.52 · 7.21 · 7.70. */
-  --color-nav-explorar: #e5a338;
-  --color-nav-descobrir: #d9834a;
-  --color-nav-viagens: #93a86e;
-  --color-nav-memorias: #8fa9c2;
+  /* As cores de destino da navegação vivem no bloco `@theme static` abaixo, e
+     não aqui. O motivo é medido: elas são lidas por `var()` dentro de um
+     `--tint` inline, e nunca por uma utilitária `bg-nav-explorar`. O Tailwind
+     remove do CSS entregue todo token de `@theme` que nenhuma regra referencia,
+     então o destino ativo saía com fundo transparente. */
 
   /* Tipografia — escala nomeada, com altura de linha embutida.
      Antes disto os tamanhos eram valores soltos: oito arbitrários espalhados
@@ -132,6 +129,22 @@
  * só um degrau dela está em uso.
  */
 @theme static {
+  /*
+   * Uma cor por destino da navegação. Matizes vizinhos, mesma leveza, todos
+   * dentro da família — a cor vira identificador de lugar na aplicação, e não
+   * enfeite. O rótulo NUNCA é colorido; só o glifo e o preenchimento do ativo.
+   * Razão do rótulo escuro sobre cada preenchimento: 8.60 · 6.52 · 7.21 · 7.70.
+   *
+   * `static` é obrigatório aqui: estas quatro são lidas por `var()` a partir de
+   * um `--tint` inline, e nunca por uma utilitária. Sem `static`, o Tailwind as
+   * remove do CSS entregue e o destino ativo fica com fundo transparente — foi
+   * medido no navegador, não deduzido.
+   */
+  --color-nav-explorar: #e5a338;
+  --color-nav-descobrir: #d9834a;
+  --color-nav-viagens: #93a86e;
+  --color-nav-memorias: #8fa9c2;
+
   --dur-instant: 90ms; /* press, feedback tátil */
   --dur-fast: 140ms; /* hover, cor */
   --dur-base: 220ms; /* entrada de painel, revelação */
@@ -441,8 +454,10 @@
     position: absolute;
     z-index: var(--z-panel);
     inset-inline: var(--chrome-gap);
-    /* Acima da barra de status, que também flutua. */
-    bottom: calc(var(--status-height) + var(--chrome-gap) * 2);
+    /* Abaixo de 768px o mostrador não existe, e a folha desce até a folga da
+       borda. Descontar uma barra que não está ali deixaria 48px de mapa morto
+       embaixo da folha, na tela que menos tem espaço. */
+    bottom: var(--chrome-gap);
     display: flex;
     max-height: var(--sheet-height);
     flex-direction: column;
@@ -452,6 +467,8 @@
     border: 1px solid var(--color-line);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-float);
+    background-color: color-mix(in srgb, var(--color-base) 93%, transparent);
+    backdrop-filter: var(--blur-chrome);
     pointer-events: auto;
     opacity: 1;
     translate: 0 0;
@@ -461,10 +478,15 @@
   }
 
   /* O detalhe cobre o filtro: numa folha inferior os dois não cabem lado a
-     lado, e quem abriu um lugar quer ler o lugar. */
+     lado, e quem abriu um lugar quer ler o lugar.
+
+     `--shadow-lift` é a segunda camada de elevação, e é o que diz **qual dos
+     dois painéis tem o teclado**. Com uma camada só, painel sobre painel virava
+     uma massa chapada. */
   .overlay-panel[data-side='right'] {
     z-index: calc(var(--z-panel) + 1);
     max-height: 70vh;
+    box-shadow: var(--shadow-lift);
   }
 
   @starting-style {
@@ -629,6 +651,15 @@
   @keyframes fade-in {
     from {
       opacity: 0;
+    }
+  }
+
+  /* O glifo do destino que acabou de assumir redesenha o próprio traço. É
+     informação — diz qual destino mudou —, e por isso vale um movimento que
+     nenhum outro ícone do produto tem. */
+  @keyframes nav-draw {
+    from {
+      stroke-dashoffset: 96;
     }
   }
 }

@@ -7,15 +7,33 @@ import { Logo } from '@/components/ui/Logo'
 import { cn } from '@/lib/utils/cn'
 import { NavIcon, type NavIconName } from './nav-icons'
 
+/**
+ * Uma cor por destino, e a MESMA cor sempre.
+ *
+ * É o que faz a cor virar identificador de lugar na aplicação em vez de
+ * enfeite: quem chega em Viagens reconhece o oliva antes de ler a palavra. Os
+ * quatro matizes são vizinhos e têm a mesma leveza — nenhum azul de SaaS.
+ */
 const NAV_ITEMS = [
-  { href: '/', label: 'Explorar', icon: 'explorar' },
-  { href: '/descobrir', label: 'Descobrir', icon: 'descobrir' },
-  { href: '/viagens', label: 'Viagens', icon: 'viagens' },
-  { href: '/memorias', label: 'Memórias', icon: 'memorias' },
+  { href: '/', label: 'Explorar', icon: 'explorar', tint: 'nav-explorar' },
+  {
+    href: '/descobrir',
+    label: 'Descobrir',
+    icon: 'descobrir',
+    tint: 'nav-descobrir',
+  },
+  { href: '/viagens', label: 'Viagens', icon: 'viagens', tint: 'nav-viagens' },
+  {
+    href: '/memorias',
+    label: 'Memórias',
+    icon: 'memorias',
+    tint: 'nav-memorias',
+  },
 ] as const satisfies ReadonlyArray<{
   href: string
   label: string
   icon: NavIconName
+  tint: string
 }>
 
 function isActive(pathname: string, href: string): boolean {
@@ -28,32 +46,30 @@ export function TopBar() {
 
   return (
     /*
-     * Barra flutuante sobre o mapa. Ver ADR 0010.
+     * Cápsula flutuante sobre o mapa. Ver ADR 0010 e ADR 0016.
      *
-     * O `backdrop-blur` sobre `base/85` é o que mantém o texto legível quando o
-     * que passa por baixo é relevo sombreado ou água quase preta. É legibilidade,
-     * não efeito — e continua sendo o único uso de blur permitido no produto.
+     * O relevo vem de `.chrome-capsule`: quatro camadas e nenhum gradiente — luz
+     * em cima, espessura embaixo, aresta de 3px, e as sombras do sistema. O
+     * `backdrop-filter` fica em todas as telas, e não só onde há mapa atrás:
+     * cromo que muda de material ao trocar de destino deixa de ser a mesma peça.
      */
     <header
-      className="absolute inset-x-(--chrome-gap) top-(--chrome-gap) z-(--z-bar)
-                 grid h-(--bar-height) grid-cols-[auto_1fr] grid-rows-[auto_1fr]
-                 items-center gap-x-2 rounded-lg border border-line bg-base/92
-                 px-3 shadow-float backdrop-blur-sm md:flex md:items-stretch
-                 md:gap-6 md:px-4"
+      className="chrome-capsule absolute inset-x-(--chrome-gap) top-(--chrome-gap)
+                 z-(--z-bar) grid h-(--bar-height) grid-cols-[auto_1fr]
+                 grid-rows-[auto_1fr] items-center gap-x-2 rounded-full px-3
+                 md:flex md:items-stretch md:gap-5 md:px-4"
     >
       <Link
         href="/"
         aria-label="Rastro — ir para o mapa"
-        // `h-11` no celular: sem ele o alvo é do tamanho do desenho, 24x24, e a
-        // marca é o caminho de volta ao mapa — o alvo mais errado de se perder.
-        // `min-w-11` junto com `h-11`: abaixo de 640px a palavra "Rastro" fica
-        // oculta e sobra só o desenho de 24px, então sem largura mínima o alvo
-        // seria 24x44. Alvo tem duas dimensões.
+        // `h-11 min-w-11` no celular: abaixo de 640px a palavra some e sobra o
+        // desenho de 26px. Alvo tem duas dimensões, e a marca é o caminho de
+        // volta ao mapa — o alvo mais errado de se perder.
         className="type-wordmark flex h-11 min-w-11 shrink-0 items-center
                    justify-center gap-2 text-body text-ink
                    md:h-auto md:min-w-0 md:justify-start"
       >
-        <Logo size={24} />
+        <Logo size={26} />
         <span className="hidden sm:inline">Rastro</span>
       </Link>
 
@@ -62,7 +78,7 @@ export function TopBar() {
           linha e o traço não separaria nada. */}
       <span
         aria-hidden
-        className="hidden h-6 w-px shrink-0 self-center bg-line-strong md:block"
+        className="hidden h-6.5 w-px shrink-0 self-center bg-line-strong md:block"
       />
 
       {/* Abaixo de 768px a navegação desce para a segunda linha da grade e ocupa
@@ -81,28 +97,32 @@ export function TopBar() {
                 <Link
                   href={item.href}
                   aria-current={active ? 'page' : undefined}
+                  style={
+                    {
+                      '--tint': `var(--color-${item.tint})`,
+                    } as React.CSSProperties
+                  }
                   className={cn(
-                    // Retângulo arredondado, não pílula: a pílula é a forma do
-                    // que se aperta, e o item de navegação é um lugar onde se
-                    // está. No celular o raio abre porque o item fica quase
-                    // quadrado — proporcional ao elemento, como manda a escala.
-                    'press flex whitespace-nowrap rounded-lg md:rounded-md',
+                    'press flex whitespace-nowrap rounded-full',
                     // No celular o rótulo desce para baixo do glifo. Lado a
                     // lado, os quatro destinos somam 442px numa barra de 340 —
                     // medido, "Memórias" ficava fora da tela. Empilhado, cada
                     // item cabe em ~78px e os quatro entram sem rolagem.
-                    'h-14 flex-col items-center justify-center gap-1 px-2',
-                    'text-micro md:h-9 md:flex-row md:gap-2 md:px-3.5 md:text-small',
-                    // Caixa normal, sem tracking: caixa alta e espaçamento largo
-                    // são o vocabulário reservado à medição, e gastá-los aqui
-                    // enfraquecia a leitura de instrumento onde ela importa.
-                    // Ver ADR 0011.
+                    'h-14 flex-col items-center justify-center gap-1 px-2.5',
+                    'text-micro md:h-10 md:flex-row md:gap-2 md:px-3.5 md:text-small',
                     active
-                      ? 'bg-accent/14 font-semibold text-accent'
-                      : 'text-ink-muted hover:bg-overlay hover:text-ink',
+                      ? // Preenchido na cor do destino, com um brilho curto da
+                        // própria cor. O rótulo vira a tinta escura porque o
+                        // preenchimento é claro: 8.60 / 6.52 / 7.21 / 7.70.
+                        'bg-(--tint) font-bold text-on-accent shadow-[0_12px_22px_-14px_var(--tint)]'
+                      : // Inativo é uma tecla: superfície elevada e o glifo na
+                        // cor do destino. **O rótulo nunca é colorido** —
+                        // colorir a palavra faria quatro cores competirem por
+                        // atenção ao mesmo tempo, e nenhuma seria estado.
+                        'bg-raised text-ink-muted hover:bg-overlay hover:text-ink [&>svg]:text-(--tint)',
                   )}
                 >
-                  <NavIcon name={item.icon} />
+                  <NavIcon name={item.icon} drawing={active} />
                   {item.label}
                 </Link>
               </li>
@@ -112,16 +132,16 @@ export function TopBar() {
       </nav>
 
       {/* Criar lugar é AÇÃO, não destino: sai da gramática da navegação e é o
-          único bloco de cor cheia da tela. Estava com contorno, ou seja, com o
-          peso que o sistema reserva para ação secundária — e o mapa ficava sem
-          nenhum ponto de entrada evidente. */}
-      <div className="col-start-2 row-start-1 ml-auto flex shrink-0 items-center
-                      gap-2 md:col-start-auto md:row-start-auto md:gap-3">
+          único bloco de âmbar cheio da barra. */}
+      <div
+        className="col-start-2 row-start-1 ml-auto flex shrink-0 items-center
+                   gap-2 md:col-start-auto md:row-start-auto md:gap-3"
+      >
         <Link
           href="/lugar/novo"
-          // h-11 e não h-10: 44px é o piso de alvo de toque, e este produto é
-          // usado parado no acostamento, com luva. Medido em 390px, era 45x40.
-          className="press flex h-11 items-center gap-1.5 rounded-md bg-accent
+          // h-11 e não h-10: 44px é o piso de alvo, e este produto é usado
+          // parado no acostamento, com luva.
+          className="press flex h-11 items-center gap-1.5 rounded-full bg-accent
                      px-4 text-small font-bold whitespace-nowrap text-on-accent
                      hover:bg-accent-strong"
         >
@@ -139,9 +159,9 @@ export function TopBar() {
         <form action={signOutAction} className="flex">
           <button
             type="submit"
-            className="press flex h-11 items-center rounded-md px-3 text-small
+            className="press flex h-11 items-center rounded-full px-3 text-small
                        whitespace-nowrap text-ink-faint hover:bg-overlay
-                       hover:text-ink-muted md:h-9"
+                       hover:text-ink-muted md:h-10"
           >
             Sair
           </button>

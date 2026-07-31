@@ -11,7 +11,7 @@ import { getTripRepository } from '@/lib/data'
  */
 const CAMERA_PADDING: PaddingOptions = {
   top: 56 + 24,
-  right: 380 + 24,
+  right: 420 + 24,
   bottom: 36 + 24,
   left: 24,
 }
