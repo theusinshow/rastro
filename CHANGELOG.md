@@ -32,6 +32,10 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 - A fotografia sobe do seu aparelho direto para o armazenamento, sem passar pelo
   servidor do aplicativo — o que remove o limite de tamanho que existiria no
   caminho
+- A galeria de um lugar carrega todas as fotos com um único pedido de acesso, em
+  vez de um por imagem
+- Apagar uma fotografia remove o registro e o arquivo, nessa ordem — uma imagem
+  quebrada na tela seria pior que um arquivo esquecido
 
 - Spec de **Viagens** fechada, em
   `docs/superpowers/specs/2026-07-29-viagens-design.md`. Nada disso funciona
