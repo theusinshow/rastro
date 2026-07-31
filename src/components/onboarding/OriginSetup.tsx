@@ -4,7 +4,8 @@ import { useCallback, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { formatCoordinate, type Coordinates } from '@/domain/geo'
 import { searchAddressAction } from '@/app/actions/geocoding-actions'
-import { setHomeAction } from '@/app/actions/profile-actions'
+import { setAutonomyAction, setHomeAction } from '@/app/actions/profile-actions'
+import { MAX_AUTONOMY_KM, MIN_AUTONOMY_KM } from '@/domain/fuel'
 import type { GeocodedPlace } from '@/lib/geocoding'
 import { OverlayPanel } from '@/components/layout/OverlayPanel'
 import { useOrigin } from '@/components/layout/origin-context'
@@ -14,13 +15,22 @@ import { Field, Input } from '@/components/ui/Field'
 import { InlineMessage } from '@/components/ui/InlineMessage'
 import { SectionHeader } from '@/components/ui/Section'
 
-export function OriginSetup() {
+interface OriginSetupProps {
+  /** Autonomia já gravada. `null` quando o usuário nunca informou. */
+  autonomyKm: number | null
+}
+
+export function OriginSetup({ autonomyKm }: OriginSetupProps) {
   const router = useRouter()
   const { origin: current, label: currentLabel } = useOrigin()
   const [point, setPoint] = useState<Coordinates | null>(current)
   const [label, setLabel] = useState(currentLabel ?? '')
   const [error, setError] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
+
+  const [autonomy, setAutonomy] = useState(
+    autonomyKm === null ? '' : String(autonomyKm),
+  )
 
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<GeocodedPlace[] | null>(null)
@@ -59,9 +69,23 @@ export function OriginSetup() {
   function save() {
     if (!point) return
     startTransition(async () => {
-      const result = await setHomeAction(point.latitude, point.longitude, label)
-      if (result.ok) router.push('/')
-      else setError(result.message)
+      const home = await setHomeAction(point.latitude, point.longitude, label)
+      if (!home.ok) {
+        setError(home.message)
+        return
+      }
+
+      // Campo vazio limpa a autonomia, e isso é intencional: quem trocou de moto
+      // prefere que o produto pare de opinar a que ele opine com o número antigo.
+      const trimmed = autonomy.trim()
+      const parsed = trimmed === '' ? null : Number(trimmed)
+      const fuel = await setAutonomyAction(parsed)
+      if (!fuel.ok) {
+        setError(fuel.message)
+        return
+      }
+
+      router.push('/')
     })
   }
 
@@ -160,6 +184,31 @@ export function OriginSetup() {
               />
             )}
           </Field>
+
+          {/* Autonomia mora aqui, junto da origem, porque as duas são as
+              medidas que alimentam todo cálculo do produto — e porque construir
+              cadastro de motos para chegar a um único número seria uma
+              funcionalidade inteira no caminho de uma conta simples. */}
+          <div className="border-t border-line pt-4">
+            <Field
+              label="Autonomia da moto"
+              hint="Quantos quilômetros ela faz com um tanque. Em branco, o Rastro não opina sobre combustível."
+            >
+              {(field) => (
+                <Input
+                  {...field}
+                  type="number"
+                  inputMode="numeric"
+                  numeric
+                  min={MIN_AUTONOMY_KM}
+                  max={MAX_AUTONOMY_KM}
+                  value={autonomy}
+                  onChange={(event) => setAutonomy(event.target.value)}
+                  placeholder="300"
+                />
+              )}
+            </Field>
+          </div>
 
           {error ? <InlineMessage tone="error">{error}</InlineMessage> : null}
 

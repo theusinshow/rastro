@@ -304,6 +304,39 @@ export function TripProposalForm({
               </div>
             ) : null}
 
+            {/*
+              Combustível. Só aparece quando a autonomia foi informada — sem ela
+              o produto não opina, porque chutar autonomia média seria inventar
+              dado sobre a moto de outra pessoa.
+            */}
+            {proposal.refuel && !proposal.refuel.fitsInOneTank ? (
+              <div className="border-b border-line px-4 py-3">
+                <InlineMessage tone="warn">
+                  Não fecha num tanque. Com{' '}
+                  {formatDistanceKm(proposal.refuel.usableRangeKm)} km de
+                  autonomia útil, você precisa abastecer{' '}
+                  {proposal.refuel.stops === 1
+                    ? 'uma vez'
+                    : `${proposal.refuel.stops} vezes`}
+                  {proposal.refuel.atKm.length > 0
+                    ? ` — por volta do km ${proposal.refuel.atKm
+                        .map((km) => formatDistanceKm(km))
+                        .join(' e do km ')}`
+                    : ''}
+                  .
+                </InlineMessage>
+              </div>
+            ) : null}
+
+            {proposal.refuel?.fitsInOneTank ? (
+              <div className="border-b border-line px-4 py-3">
+                <span className="instrument-label">
+                  Cabe num tanque · {formatDistanceKm(proposal.refuel.usableRangeKm)} km
+                  úteis
+                </span>
+              </div>
+            ) : null}
+
             <ul>
               {proposal.stops.map((stop, index) => (
                 <li

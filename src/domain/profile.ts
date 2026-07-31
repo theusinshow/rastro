@@ -12,4 +12,12 @@ export interface Profile {
   displayName: string | null
   home: Coordinates | null
   homeLabel: string | null
+  /**
+   * Autonomia da moto em quilômetros, informada por quem pilota.
+   *
+   * Nulo significa "não informei", e é estado legítimo: nesse caso o produto
+   * **não opina** sobre combustível. Chutar uma autonomia média seria inventar
+   * dado sobre o veículo de outra pessoa.
+   */
+  autonomyKm: number | null
 }

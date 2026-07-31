@@ -8,6 +8,11 @@ interface ProfileRow {
   home_label: string | null
   home_latitude: number | null
   home_longitude: number | null
+  /**
+   * Ausente enquanto a migration 0006 não roda — e `undefined` aqui significa
+   * exatamente o mesmo que `null`: o usuário não informou a autonomia.
+   */
+  autonomy_km?: number | null
 }
 
 export function createSupabaseProfileRepository(
@@ -18,7 +23,18 @@ export function createSupabaseProfileRepository(
     async getProfile() {
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, display_name, home_label, home_latitude, home_longitude')
+        // `*`, e não a lista explícita que o resto do projeto usa.
+        //
+        // O motivo é concreto: nomear `autonomy_km` num select derruba a
+        // consulta INTEIRA enquanto a migration 0006 não tiver rodado, e leva
+        // junto a origem — o produto vira tela de erro por causa de uma coluna
+        // opcional. Medido: "column profiles.autonomy_km does not exist".
+        //
+        // Com `*`, coluna ausente vira `undefined`, que este domínio já trata
+        // como "não informou". Perfil é uma linha pequena e única; o custo de
+        // trazer tudo é irrelevante perto de acoplar a aplicação inteira à ordem
+        // de aplicação de uma migration.
+        .select('*')
         .eq('id', userId)
         .maybeSingle<ProfileRow>()
 
@@ -36,6 +52,18 @@ export function createSupabaseProfileRepository(
         displayName: data.display_name,
         home,
         homeLabel: data.home_label,
+        autonomyKm: data.autonomy_km ?? null,
+      }
+    },
+
+    async setAutonomy(autonomyKm: number | null) {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ autonomy_km: autonomyKm })
+        .eq('id', userId)
+
+      if (error) {
+        throw new Error(`falha ao gravar a autonomia: ${error.message}`)
       }
     },
 

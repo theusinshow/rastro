@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { civilDateInTimeZone } from '@/domain/dates'
 import { MINUTES_PER_STOP, TIME_BUDGET_MINUTES } from '@/domain/discovery'
+import { planRefuelStops, type RefuelPlan } from '@/domain/fuel'
 import type { Coordinates } from '@/domain/geo'
 import {
   ITINERARY_REFUSAL_MESSAGES,
@@ -46,6 +47,11 @@ export interface ProposedItinerary {
   stoppedMinutes: number
   /** Minutos que o usuário pediu. Permite comparar o pedido com o real. */
   budgetMinutes: number
+  /**
+   * Plano de abastecimento. `null` quando a autonomia não foi informada — e aí
+   * o produto não opina sobre combustível.
+   */
+  refuel: RefuelPlan | null
 }
 
 type ProposalOutcome = ProposedItinerary | { ok: false; message: string }
@@ -104,15 +110,17 @@ export async function proposeTripAction(
   }
 
   const measured = await measureOnRoad(profile.home, outcome.stops)
+  const roadKm = measured?.roadKm ?? outcome.totalRoadKm
 
   return {
     ok: true,
     stops: outcome.stops.map((place) => ({ id: place.id, name: place.name })),
-    roadKm: measured?.roadKm ?? outcome.totalRoadKm,
+    roadKm,
     minutes: measured?.minutes ?? outcome.totalRidingMinutes,
     estimated: measured === null,
     stoppedMinutes: outcome.stops.length * MINUTES_PER_STOP,
     budgetMinutes: TIME_BUDGET_MINUTES[input.timeBudget],
+    refuel: planRefuelStops(roadKm, profile.autonomyKm),
   }
 }
 
@@ -141,16 +149,18 @@ export async function measureTripAction(
 
   const itinerary = orderAndMeasure(profile.home, chosen)
   const measured = await measureOnRoad(profile.home, itinerary.stops)
+  const roadKm = measured?.roadKm ?? itinerary.totalRoadKm
 
   return {
     ok: true,
     stops: itinerary.stops.map((place) => ({ id: place.id, name: place.name })),
-    roadKm: measured?.roadKm ?? itinerary.totalRoadKm,
+    roadKm,
     minutes: measured?.minutes ?? itinerary.totalRidingMinutes,
     estimated: measured === null,
     stoppedMinutes: itinerary.stops.length * MINUTES_PER_STOP,
     // Montagem à mão não tem orçamento pedido: não há o que estourar.
     budgetMinutes: 0,
+    refuel: planRefuelStops(roadKm, profile.autonomyKm),
   }
 }
 

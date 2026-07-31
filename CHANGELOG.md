@@ -91,6 +91,12 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Corrigido
 
+- **Você pode informar a autonomia da sua moto, e o roteiro passa a avisar quando
+  a volta não fecha num tanque** — dizendo quantas vezes e por volta de qual
+  quilômetro abastecer. É um número só, o que a moto faz com um tanque, e ele
+  guarda 15% de reserva: rodar até a última gota não é plano. Em branco, o Rastro
+  não opina sobre combustível, porque chutar a autonomia da sua moto seria
+  inventar dado sobre ela
 - **Postos de combustível no mapa**, ao aproximar. Aparecem como anel discreto e
   ganham o nome mais perto ainda — posto é infraestrutura, não destino, e não deve
   disputar atenção com os lugares. Sai dos mesmos dados de mapa que já
