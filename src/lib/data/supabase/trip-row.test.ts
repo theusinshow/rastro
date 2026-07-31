@@ -12,6 +12,7 @@ function stopRow(overrides: Partial<TripStopRow> = {}): TripStopRow {
     longitude: -49,
     kind: 'waypoint',
     arrived_at: null,
+    places: null,
     ...overrides,
   }
 }
@@ -104,5 +105,35 @@ describe('toTripDetailFromRow', () => {
     )
 
     expect(detail.originCoordinates).toBeNull()
+  })
+
+  it('lê o piso do acesso através do lugar da parada', () => {
+    const detail = toTripDetailFromRow(
+      row({
+        trip_stops: [
+          stopRow({
+            places: { place_user_states: [{ access_surface: 'misto' }] },
+          }),
+        ],
+      }),
+    )
+
+    expect(detail.stops[0]?.accessSurface).toBe('misto')
+  })
+
+  // Parada avulsa não tem lugar do catálogo, e lugar sem marcação não tem
+  // estado — os dois casos precisam dar "não sei", nunca quebrar.
+  it('parada sem lugar, ou lugar sem marcação, fica em branco', () => {
+    const detail = toTripDetailFromRow(
+      row({
+        trip_stops: [
+          stopRow({ id: 'avulsa', places: null }),
+          stopRow({ id: 'sem-marca', places: { place_user_states: [] } }),
+        ],
+      }),
+    )
+
+    expect(detail.stops[0]?.accessSurface).toBeNull()
+    expect(detail.stops[1]?.accessSurface).toBeNull()
   })
 })

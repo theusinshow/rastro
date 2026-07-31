@@ -14,6 +14,9 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Adicionado
 
+- A viagem avisa quando **tem chão no caminho**, nomeando as paradas. Só conta o
+  que foi marcado: parada em branco não vira aviso, porque "não sei" não é
+  "terra"
 - **Piso do acesso** no painel do lugar: asfalto, terra, ou os dois. Nasce em
   branco e branco significa *"não sei"* — nunca asfalto. Tocar no piso já
   marcado desmarca, porque marcação errada precisa poder ser desfeita. Vale para

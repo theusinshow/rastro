@@ -1,4 +1,5 @@
 import type { Coordinates, RoutePosition } from './geo'
+import type { AccessSurface } from './place'
 
 export type TripStatus = 'planned' | 'ongoing' | 'completed'
 
@@ -71,6 +72,23 @@ export interface TripDetailStop {
   kind: TripStopKind
   /** Preenchido ao concluir a viagem, para as paradas confirmadas. */
   arrivedAt: string | null
+  /** Piso do acesso, quando alguém marcou. `null` = não informado. */
+  accessSurface: AccessSurface | null
+}
+
+/**
+ * Paradas com chão declarado no acesso, na ordem da viagem.
+ *
+ * Só entra o que foi **marcado**: parada em branco fica de fora, porque "não
+ * sei" não é "asfalto" nem "terra". Um aviso construído sobre ausência de dado
+ * seria pior que aviso nenhum.
+ */
+export function unpavedStops(
+  stops: readonly TripDetailStop[],
+): TripDetailStop[] {
+  return stops.filter(
+    (stop) => stop.accessSurface === 'terra' || stop.accessSurface === 'misto',
+  )
 }
 
 /** O que a lista de viagens precisa. Sem paradas: a lista não as mostra. */

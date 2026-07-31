@@ -1,4 +1,5 @@
 import type { RoutePosition } from '@/domain/geo'
+import type { AccessSurface } from '@/domain/place'
 import type {
   TripDetail,
   TripDetailStop,
@@ -15,7 +16,10 @@ export const TRIP_SELECT = `
   id, slug, title, status, started_at, ended_at,
   origin_label, origin_latitude, origin_longitude,
   distance_km, duration_minutes, notes, route_geojson,
-  trip_stops (id, place_id, order_index, label, latitude, longitude, kind, arrived_at)
+  trip_stops (
+    id, place_id, order_index, label, latitude, longitude, kind, arrived_at,
+    places ( place_user_states ( access_surface ) )
+  )
 `
 
 export interface TripStopRow {
@@ -27,6 +31,15 @@ export interface TripStopRow {
   longitude: number | null
   kind: TripStopKind
   arrived_at: string | null
+  /**
+   * Embed de dois níveis, só pelo piso.
+   *
+   * `places` é objeto (chave estrangeira única) e `place_user_states` é lista,
+   * porque o PostgREST devolve um-para-muitos sempre como lista — mesmo com a
+   * RLS limitando a uma linha por usuário. Parada avulsa, sem lugar do catálogo,
+   * vem com `places` nulo.
+   */
+  places: { place_user_states: { access_surface: AccessSurface | null }[] } | null
 }
 
 export interface TripRow {
@@ -87,6 +100,7 @@ function toDetailStop(row: TripStopRow): TripDetailStop {
     },
     kind: row.kind,
     arrivedAt: row.arrived_at,
+    accessSurface: row.places?.place_user_states[0]?.access_surface ?? null,
   }
 }
 

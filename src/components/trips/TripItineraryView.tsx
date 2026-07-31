@@ -4,7 +4,7 @@ import { formatVisitDate } from '@/domain/dates'
 import { buildElevationProfile } from '@/domain/elevation'
 import { formatDistanceKm, formatDurationMinutes } from '@/domain/geo'
 import { googleMapsRouteUrl } from '@/domain/google-maps-link'
-import { TRIP_STATUS_LABELS, type TripDetail } from '@/domain/trip'
+import { TRIP_STATUS_LABELS, unpavedStops, type TripDetail } from '@/domain/trip'
 import { InlineMessage } from '@/components/ui/InlineMessage'
 import { ElevationProfileView } from './ElevationProfile'
 import { RouteWeather } from './RouteWeather'
@@ -24,6 +24,8 @@ export function TripItineraryView({ trip }: TripItineraryViewProps) {
   const elevation = trip.routeGeoJson
     ? buildElevationProfile(trip.routeGeoJson.coordinates)
     : null
+
+  const unpaved = unpavedStops(trip.stops)
 
   const googleUrl = trip.originCoordinates
     ? googleMapsRouteUrl(
@@ -78,6 +80,16 @@ export function TripItineraryView({ trip }: TripItineraryViewProps) {
       ) : null}
 
       {elevation ? <ElevationProfileView profile={elevation} /> : null}
+
+      {/* Antes da lista, não depois: quem lê isso pode decidir não ir, e a
+          decisão vem antes de conferir a ordem das paradas. */}
+      {unpaved.length > 0 ? (
+        <div className="px-5 pt-4">
+          <InlineMessage tone="info">
+            Tem chão no caminho: {unpaved.map((stop) => stop.label).join(', ')}.
+          </InlineMessage>
+        </div>
+      ) : null}
 
       <ul className={elevation ? '' : 'mt-2'}>
         {trip.stops.map((stop, index) => (
