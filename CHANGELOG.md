@@ -127,7 +127,12 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   descobria com a viagem já criada — o produto errava exatamente no momento da
   decisão
 - **E ele avisa quando a volta não cabe no tempo que você pediu**, somando o tempo
-  parado em cada parada: "esta volta toma 8h29 — mais que as 6h00 que você pediu"
+  parado em cada parada: "esta volta toma 8h29 — mais que as 6h00 que você pediu".
+  Junto do aviso vem o conserto: **"tirar a parada mais distante"**, que é a que
+  mais custa. Antes ele apontava o problema e deixava você adivinhar qual
+  sacrificar
+- Precisar abastecer deixou de ser tratado como alarme e virou nota de
+  planejamento: numa volta de 435 km, parar no posto é o plano, não a falha
 - **Dá para apagar uma viagem.** Antes era possível criar e não era possível
   desfazer. A confirmação diz o que some e, principalmente, o que **não** some: as
   visitas que aquela viagem registrou permanecem no mapa, porque elas são memória

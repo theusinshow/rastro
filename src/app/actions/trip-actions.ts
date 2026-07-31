@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { civilDateInTimeZone } from '@/domain/dates'
 import { MINUTES_PER_STOP, TIME_BUDGET_MINUTES } from '@/domain/discovery'
 import { planRefuelStops, type RefuelPlan } from '@/domain/fuel'
-import type { Coordinates } from '@/domain/geo'
+import { haversineKm, type Coordinates } from '@/domain/geo'
 import {
   ITINERARY_REFUSAL_MESSAGES,
   buildItinerary,
@@ -52,6 +52,14 @@ export interface ProposedItinerary {
    * o produto não opina sobre combustível.
    */
   refuel: RefuelPlan | null
+  /**
+   * A parada mais distante da origem. `null` quando há uma só.
+   *
+   * É a que mais custa em tempo e em combustível, e portanto a primeira
+   * candidata a sair quando a volta não cabe. O cálculo mora aqui porque o
+   * cliente não conhece coordenada de parada nenhuma.
+   */
+  farthestStopId: string | null
 }
 
 type ProposalOutcome = ProposedItinerary | { ok: false; message: string }
@@ -68,6 +76,34 @@ type ProposalInput = Omit<ItineraryRequest, 'origin'>
  *
  * A cota do provedor é de 2.000 chamadas por dia; propor um roteiro custa uma.
  */
+/**
+ * A parada mais distante da origem, em linha reta. `null` quando há uma só.
+ *
+ * Linha reta basta: a pergunta é qual parada sai primeiro, não quanto ela custa
+ * exatamente — e ordem de distância reta e de estrada praticamente não divergem
+ * dentro de uma mesma volta.
+ */
+function farthestStop(
+  origin: Coordinates,
+  stops: readonly { id: string; latitude: number; longitude: number }[],
+): string | null {
+  if (stops.length < 2) return null
+
+  let farthest = stops[0]
+  if (!farthest) return null
+  let worstKm = haversineKm(origin, farthest)
+
+  for (const stop of stops) {
+    const km = haversineKm(origin, stop)
+    if (km > worstKm) {
+      farthest = stop
+      worstKm = km
+    }
+  }
+
+  return farthest.id
+}
+
 async function measureOnRoad(
   origin: Coordinates,
   stops: readonly Coordinates[],
@@ -121,6 +157,7 @@ export async function proposeTripAction(
     stoppedMinutes: outcome.stops.length * MINUTES_PER_STOP,
     budgetMinutes: TIME_BUDGET_MINUTES[input.timeBudget],
     refuel: planRefuelStops(roadKm, profile.autonomyKm),
+    farthestStopId: farthestStop(profile.home, outcome.stops),
   }
 }
 
@@ -161,6 +198,7 @@ export async function measureTripAction(
     // Montagem à mão não tem orçamento pedido: não há o que estourar.
     budgetMinutes: 0,
     refuel: planRefuelStops(roadKm, profile.autonomyKm),
+    farthestStopId: farthestStop(profile.home, itinerary.stops),
   }
 }
 

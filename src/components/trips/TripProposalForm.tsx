@@ -106,6 +106,16 @@ export function TripProposalForm({
     measure(remaining)
   }
 
+  /**
+   * Orçamento pedido, mantido no cliente.
+   *
+   * NÃO vem da resposta: ao remover uma parada a medição passa por
+   * `measureTripAction`, que devolve orçamento zero — e o aviso de tempo
+   * sumiria sozinho justamente depois da ação que deveria testá-lo. O pedido é
+   * do usuário e vive onde ele foi feito.
+   */
+  const budgetMinutes = isManual ? 0 : TIME_BUDGET_MINUTES[timeBudget]
+
   function save() {
     startTransition(async () => {
       const result = await createTripAction({
@@ -287,9 +297,8 @@ export function TripProposalForm({
               apresentado como 3h16 virava 6h53, e o usuário descobria com a
               viagem já criada. O produto mentia no momento da decisão.
             */}
-            {proposal.budgetMinutes > 0 &&
-            proposal.minutes + proposal.stoppedMinutes >
-              proposal.budgetMinutes ? (
+            {budgetMinutes > 0 &&
+            proposal.minutes + proposal.stoppedMinutes > budgetMinutes ? (
               <div className="border-b border-line px-4 py-3">
                 <InlineMessage tone="warn">
                   Com {formatDurationMinutes(proposal.stoppedMinutes)} parado nas{' '}
@@ -297,9 +306,8 @@ export function TripProposalForm({
                   {formatDurationMinutes(
                     proposal.minutes + proposal.stoppedMinutes,
                   )}{' '}
-                  — mais que as{' '}
-                  {formatDurationMinutes(proposal.budgetMinutes)} que você pediu.
-                  Tire uma parada ou escolha mais tempo.
+                  — mais que as {formatDurationMinutes(budgetMinutes)} que você
+                  pediu.
                 </InlineMessage>
               </div>
             ) : null}
@@ -309,12 +317,18 @@ export function TripProposalForm({
               o produto não opina, porque chutar autonomia média seria inventar
               dado sobre a moto de outra pessoa.
             */}
+            {/*
+              `info`, e não `warn`. Precisar abastecer numa volta de 435 km é
+              motociclismo normal, não um problema — e tratar o normal como
+              alarme ensina o usuário a ignorar alarme. O aviso de tempo abaixo
+              é que é `warn`, porque ali o roteiro contradiz o que ele pediu.
+            */}
             {proposal.refuel && !proposal.refuel.fitsInOneTank ? (
               <div className="border-b border-line px-4 py-3">
-                <InlineMessage tone="warn">
+                <InlineMessage tone="info">
                   Não fecha num tanque. Com{' '}
                   {formatDistanceKm(proposal.refuel.usableRangeKm)} km de
-                  autonomia útil, você precisa abastecer{' '}
+                  autonomia útil, você abastece{' '}
                   {proposal.refuel.stops === 1
                     ? 'uma vez'
                     : `${proposal.refuel.stops} vezes`}
@@ -334,6 +348,34 @@ export function TripProposalForm({
                   Cabe num tanque · {formatDistanceKm(proposal.refuel.usableRangeKm)} km
                   úteis
                 </span>
+              </div>
+            ) : null}
+
+            {/*
+              O conserto, e não só a reclamação.
+
+              O aviso de tempo apontava o problema e parava ali, deixando ao
+              usuário descobrir qual parada sacrificar. A mais distante é a que
+              mais custa, então é a primeira candidata — e o servidor sabe qual
+              é, porque só ele conhece as coordenadas.
+
+              Só para o estouro de TEMPO. Tirar uma parada para não abastecer
+              seria o conserto errado: numa volta longa, parar no posto é o
+              plano, não a falha.
+            */}
+            {proposal.farthestStopId &&
+            budgetMinutes > 0 &&
+            proposal.minutes + proposal.stoppedMinutes > budgetMinutes ? (
+              <div className="border-b border-line px-4 py-3">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                  disabled={pending}
+                  onClick={() => removeStop(proposal.farthestStopId!)}
+                >
+                  Tirar a parada mais distante
+                </Button>
               </div>
             ) : null}
 
