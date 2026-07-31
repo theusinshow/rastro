@@ -14,6 +14,12 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Adicionado
 
+- `docs/PROMPT-REDESIGN.md` — o briefing completo para refazer a direção visual
+  do produto do zero: contexto, paleta atual token a token nas duas metades
+  (interface e mapa), inventário de todos os 56 componentes, o sistema de
+  movimento existente, e o registro do que já foi tentado e por quê. Nada disso
+  muda a interface ainda
+
 - A viagem avisa quando **tem chão no caminho**, nomeando as paradas. Só conta o
   que foi marcado: parada em branco não vira aviso, porque "não sei" não é
   "terra"
