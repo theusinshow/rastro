@@ -45,3 +45,17 @@ export function civilDateInTimeZone(
     day: '2-digit',
   }).format(new Date(instantIso))
 }
+
+/**
+ * `08:35` — hora e minuto, no relógio de quem está lendo.
+ *
+ * Sem segundos e sem AM/PM: o produto é brasileiro e a leitura acontece de
+ * relance, com o capacete na mão. Formata no fuso do aparelho de propósito —
+ * quem pergunta "a que horas eu volto" quer a resposta no relógio do pulso, não
+ * em UTC.
+ */
+export function formatClock(instant: Date): string {
+  const horas = String(instant.getHours()).padStart(2, '0')
+  const minutos = String(instant.getMinutes()).padStart(2, '0')
+  return `${horas}:${minutos}`
+}

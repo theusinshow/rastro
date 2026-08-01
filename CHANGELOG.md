@@ -96,6 +96,15 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   passeio de domingo de manhã, que é o caso mais comum do produto, caía no
   buraco entre duas opções: escolher 2 sobrava tempo, escolher 4 chegava tarde
 
+- **O resultado da descoberta agora diz a que horas você volta.** Era o número
+  que decide o passeio de domingo — "tenho até meio-dia" é a restrição real de
+  quem sai de manhã — e ele não estava lá: a pessoa recebia "1h26 ida e volta" e
+  fazia a soma de cabeça, no celular, ao lado da moto. Junto vieram duas outras
+  leituras que também decidem: se a ida e volta **cabe no tanque**, quando você
+  informou a autonomia, e se o acesso é de **terra** — um dado que já estava no
+  banco e nunca aparecia onde a escolha acontece. Sem autonomia informada, o
+  Rastro continua não opinando sobre combustível
+
 - **A descoberta deixou de terminar no vazio.** Você escolhia o tempo, a
   distância, recebia cinco destinos, tocava num deles — e nada acontecia. O
   endereço mudava, o mapa se movia atrás, e a tela continuava a mesma. Agora o

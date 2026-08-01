@@ -13,6 +13,15 @@
 > opinar — os números de contraste, tempo e contagem de cliques vieram de
 > instrumentação, não de julgamento.
 
+> **Estado das correções (rodada 2, mesma data).** Sete achados já foram
+> corrigidos e verificados em navegador: RASTRO-001, 002, 003, 004, 005, 007 e
+> 011. Os números e notas abaixo descrevem o produto **como auditado**, antes
+> das correções — é assim que um relatório de auditoria se lê seis meses depois.
+> Continuam abertos: **RASTRO-006** (postos não existem) e **RASTRO-008**
+> (catálogo só em SC), que são trabalho de produto e não de ajuste; e
+> **RASTRO-009** (chave do MapTiler sem restrição de domínio), que se resolve no
+> painel do serviço, não no código.
+
 ---
 
 ## 1. Resumo executivo

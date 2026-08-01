@@ -41,10 +41,13 @@ const CAMERA_PADDING: PaddingOptions = {
 
 interface DiscoveryViewProps {
   places: ExplorePlace[]
+  /** Autonomia da moto, do perfil. `null` = o produto não opina sobre tanque. */
+  autonomyKm: number | null
 }
 
 function DiscoveryContent({
   places,
+  autonomyKm,
   origin,
 }: DiscoveryViewProps & { origin: Coordinates }) {
   const [query, setQuery] = useState<DiscoveryQuery>({
@@ -159,6 +162,7 @@ function DiscoveryContent({
           suggestion={suggestion}
           onApplySuggestion={applySuggestion}
           nearestKm={nearestKm}
+          autonomyKm={autonomyKm}
           exiting={exiting}
         />
       ) : null}
@@ -239,7 +243,7 @@ function DiscoveryWithoutOrigin() {
   )
 }
 
-export function DiscoveryView({ places }: DiscoveryViewProps) {
+export function DiscoveryView({ places, autonomyKm }: DiscoveryViewProps) {
   const { origin } = useOrigin()
 
   // A descoberta inteira parte de um ponto: distância, tempo de ida e volta e o
@@ -255,7 +259,7 @@ export function DiscoveryView({ places }: DiscoveryViewProps) {
   // `ExploreView`.
   return (
     <Suspense fallback={null}>
-      <DiscoveryContent places={places} origin={origin} />
+      <DiscoveryContent places={places} autonomyKm={autonomyKm} origin={origin} />
     </Suspense>
   )
 }

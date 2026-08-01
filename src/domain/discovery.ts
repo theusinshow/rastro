@@ -266,3 +266,26 @@ export function nearestPlaceKm(
 
   return nearest
 }
+
+/**
+ * A que horas você está de volta.
+ *
+ * É o número que decide o passeio de domingo — "tenho até meio-dia" é a
+ * restrição real de quem sai de manhã — e era justamente o que faltava no
+ * resultado da descoberta (RASTRO-005 da auditoria). Sem ele, a pessoa recebia
+ * "1h26 ida e volta" e fazia a soma de cabeça, no celular, ao lado da moto.
+ *
+ * Soma **uma** parada no destino, e não zero: `estimatedRoundTripMinutes` conta
+ * só o tempo pilotando, e ninguém roda 39 km até uma praia para dar meia-volta
+ * no estacionamento. `MINUTES_PER_STOP` é a mesma constante que o roteiro usa —
+ * se ela for calibrada um dia, as duas telas andam juntas.
+ *
+ * Não arredonda para minuto cheio: quem formata decide isso.
+ */
+export function estimateReturnAt(
+  departure: Date,
+  roundTripMinutes: number,
+): Date {
+  const total = roundTripMinutes + MINUTES_PER_STOP
+  return new Date(departure.getTime() + total * 60_000)
+}

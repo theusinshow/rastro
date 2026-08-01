@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   AVERAGE_SPEED_KMH,
   ROAD_SINUOSITY_FACTOR,
+  estimateReturnAt,
   estimateRidingMinutes,
   estimateRoadKm,
   findDestinations,
@@ -259,5 +260,30 @@ describe('nearestPlaceKm', () => {
 
   it('devolve nulo com catálogo vazio', () => {
     expect(nearestPlaceKm([], ORIGIN)).toBeNull()
+  })
+})
+
+describe('estimateReturnAt', () => {
+  const SAIDA = new Date('2026-08-02T08:00:00-03:00')
+
+  it('soma a pilotagem mais uma parada no destino', () => {
+    const volta = estimateReturnAt(SAIDA, 86)
+    // 86 min de estrada + 30 de parada = 116 min.
+    expect(volta.getTime() - SAIDA.getTime()).toBe(116 * 60_000)
+  })
+
+  /*
+   * Sem a parada, o produto prometeria uma volta que só acontece se a pessoa
+   * der meia-volta no estacionamento do destino. Ninguém roda 39 km para isso, e
+   * um horário de retorno otimista é pior que nenhum: ele é usado para decidir.
+   */
+  it('nunca devolve o tempo de estrada puro', () => {
+    expect(estimateReturnAt(SAIDA, 0).getTime()).toBeGreaterThan(SAIDA.getTime())
+  })
+
+  it('não modifica a data recebida', () => {
+    const copia = new Date(SAIDA)
+    estimateReturnAt(SAIDA, 120)
+    expect(SAIDA.getTime()).toBe(copia.getTime())
   })
 })
