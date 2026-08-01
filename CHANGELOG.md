@@ -40,8 +40,9 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 ### Adicionado
 
 - Spec de **Entrar sem conta** fechada, em
-  `docs/superpowers/specs/2026-08-01-entrar-sem-conta-design.md`. Nada disso
-  funciona ainda. Haverá uma segunda porta na tela de entrada, para que alguém
+  `docs/superpowers/specs/2026-08-01-entrar-sem-conta-design.md`, com o plano de
+  implementação em `docs/superpowers/plans/2026-08-01-entrar-sem-conta.md`. Nada
+  disso funciona ainda. Haverá uma segunda porta na tela de entrada, para que alguém
   possa olhar o Rastro sem ter conta: o mapa chega cheio, porque o catálogo já é
   público, e o visitante experimenta tudo — marcar visitado, montar viagem,
   escrever memória. Só não sobe fotografia, que é a única coisa que deixaria
