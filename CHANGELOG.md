@@ -14,6 +14,18 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Corrigido
 
+- **O mapa não recebia o mouse.** A roda não dava zoom, o arrasto não movia, o
+  clique no vazio não fechava o painel do lugar e o "clique no mapa para marcar
+  o ponto" da tela de origem não marcava nada. A camada onde as telas são
+  desenhadas cobre a tela inteira, e estava capturando o ponteiro em vez de
+  deixá-lo passar para o mapa que fica atrás dela — de 121 pontos medidos na
+  tela, 75 nunca chegavam ao mapa.
+
+  Nada disso dava erro em lugar nenhum: o mapa simplesmente não respondia, e
+  cada peça de interface em volta parecia culpada. Agora a camada é transparente
+  ao ponteiro e cada barra, painel e botão reativa a própria área — sobre o mapa,
+  o mapa é todo seu
+
 - **O mapa entrava torto.** O passeio da tela de entrada deixa a câmera inclinada
   em 55°, com o relevo em 3D, e esse enquadramento atravessava para dentro do
   aplicativo — onde a rotação está desligada de propósito, e portanto não havia

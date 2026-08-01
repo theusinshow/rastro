@@ -63,7 +63,27 @@ export default async function RootLayout({
             </div>
             <MapChrome />
 
-            <div className="relative z-10">{children}</div>
+            {/*
+              A camada das telas é TRANSPARENTE AO PONTEIRO, e quem quer o
+              evento pede.
+
+              Ela é `relative z-10` sobre um mapa `fixed inset-0 z-0`: cobre a
+              viewport inteira, sempre. Com `pointer-events` no padrão, isso
+              fazia dela uma tampa — a roda do mouse não chegava ao canvas e o
+              mapa não dava zoom em lugar nenhum, sem erro e sem aviso. Medido
+              no navegador: 75 de 121 pontos sondados paravam aqui.
+
+              É consequência direta do ADR 0018. Enquanto o mapa era filho desta
+              árvore, o evento subia do canvas e encontrava os handlers do
+              MapLibre por bolhamento; quando ele subiu para cá e virou um irmão
+              atrás, o caminho de volta deixou de existir.
+
+              Quem precisa do ponteiro reativa: `.overlay-panel` (todo painel de
+              toda rota do app), as duas barras de cromo, o lançador da
+              descoberta, o controle de postos e o painel da entrada. O que não
+              é cromo deixa passar.
+            */}
+            <div className="pointer-events-none relative z-10">{children}</div>
           </MapProvider>
         </ThemeProvider>
       </body>

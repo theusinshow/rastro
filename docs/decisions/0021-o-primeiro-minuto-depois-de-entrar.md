@@ -111,7 +111,47 @@ trilha do Explorar. Lia `--panel-narrow` — 100px a menos, herdados de quando a
 trilha era mais estreita —, e o botão nascia descentralizado por causa de um
 token que a trilha não usa mais.
 
-## O defeito que isto revelou
+## Dois defeitos que isto revelou
+
+Os dois têm a **mesma raiz**: o ADR 0018 tirou o mapa de dentro da árvore do
+cromo e o pôs atrás dela. Tudo que dependia de o mapa ser *filho* — herança de
+evento, pilha de câmera — passou a depender de alguém dizer explicitamente o que
+antes acontecia de graça. Nenhum dos dois deu erro, e é por isso que os dois
+sobreviveram tanto tempo.
+
+### O mapa não recebia o ponteiro
+
+`<div className="relative z-10">{children}</div>`, no layout raiz, cobre a
+viewport inteira sobre um mapa `fixed inset-0 z-0`. Com `pointer-events` no
+padrão, ele era uma **tampa**: a roda do mouse não chegava ao canvas e o mapa
+**não dava zoom em lugar nenhum**. O contêiner do grupo `(app)` repetia o
+problema uma camada abaixo — o comentário dele dizia "não intercepta o mapa", mas
+quem tinha `pointer-events-none` era só o overlay de dentro.
+
+Enquanto o mapa era filho dessa árvore, o evento subia do canvas e encontrava os
+handlers do MapLibre por bolhamento. Quando ele virou irmão atrás, o caminho de
+volta deixou de existir.
+
+Medido com `elementFromPoint` numa grade de 121 pontos: **75 paravam na camada
+das telas**, 49 no contêiner do app. Depois da correção sobram 46, e todos são
+cromo de verdade — barras, trilha, botão da descoberta.
+
+Três coisas voltaram a funcionar junto, e nenhuma delas tinha bug próprio:
+
+- **Zoom e arrasto** em qualquer ponto livre do mapa.
+- **Clique no vazio fecha o painel do lugar** — o `handleBackgroundClick` de
+  `PlacesLayer`, com o comentário cuidadoso sobre o anel de favorito, nunca
+  chegou a rodar.
+- **O clique que marca a origem** em `/perfil/origem`. A tela dizia "clique no
+  mapa para marcar o ponto" e o clique não chegava ao mapa; sobrava a busca por
+  endereço, que a auditoria já tinha apontado como o caminho errado para quem
+  está de luva (RASTRO-002).
+
+A regra passa a ser explícita: **a camada das telas é transparente ao ponteiro, e
+quem quer o evento pede.** `.overlay-panel` já pedia; as duas barras de cromo, o
+lançador da descoberta, o controle de postos e o painel da entrada pedem agora.
+
+### O mapa entrava torto
 
 `arrival.ts` existe para que a câmera se assente ao chegar no app, e quem emitia
 o bilhete era o `MapFlyover`, ao pousar. Quando a entrada trocou o sobrevoo pelo

@@ -51,9 +51,14 @@ export function StatusBar() {
   return (
     /* Flutuante como o resto do cromo. Ver ADR 0010. */
     <footer
-      className="chrome-capsule absolute bottom-(--chrome-gap) left-(--chrome-gap)
-                 z-(--z-bar) hidden h-(--status-height) items-center divide-x
-                 divide-line overflow-hidden rounded-full text-ink-faint md:flex"
+      // `pointer-events-auto` pelo mesmo motivo da barra do topo: o contêiner do
+      // cromo deixa o ponteiro passar para o mapa, e cada peça reativa a sua
+      // área. Aqui é uma cápsula pequena num canto — o que ela cobre de mapa é
+      // exatamente o que ela ocupa.
+      className="chrome-capsule pointer-events-auto absolute bottom-(--chrome-gap)
+                 left-(--chrome-gap) z-(--z-bar) hidden h-(--status-height)
+                 items-center divide-x divide-line overflow-hidden rounded-full
+                 text-ink-faint md:flex"
     >
       <Cell className={picking ? 'text-accent' : 'text-ink-muted'}>
         {picking ? 'MIRA ' : '⌖ '}

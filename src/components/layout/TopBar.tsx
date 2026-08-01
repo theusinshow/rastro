@@ -57,7 +57,9 @@ export function TopBar() {
      * cromo que muda de material ao trocar de destino deixa de ser a mesma peça.
      */
     <header
-      className="chrome-capsule absolute inset-x-(--chrome-gap) top-(--chrome-gap)
+      // `pointer-events-auto`: o contêiner do cromo é transparente ao ponteiro
+      // para o mapa receber roda e arrasto, e a barra reativa o que é seu.
+      className="chrome-capsule pointer-events-auto absolute inset-x-(--chrome-gap) top-(--chrome-gap)
                  z-(--z-bar) grid h-(--bar-height) grid-cols-[auto_1fr]
                  grid-rows-[auto_1fr] items-center gap-x-2 rounded-full px-3
                  md:flex md:items-stretch md:gap-5 md:px-4"

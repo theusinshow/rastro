@@ -64,9 +64,14 @@ export default async function EntrarPage({
             quarta posição de tabulação. Mesma correção do P2.8 da auditoria: a
             ordem visual não muda, a de foco melhora três posições. */}
         <div
-          className="relative z-20 flex h-full w-full shrink-0 flex-col
-                     justify-center overflow-y-auto border-line bg-base px-6
-                     py-10 md:w-104 md:border-r md:px-10"
+          // `pointer-events-auto`: a camada das telas é transparente ao
+          // ponteiro para o mapa poder receber roda e arrasto (ver o layout
+          // raiz), e este painel reativa o que é dele — os dois botões de
+          // entrar moram aqui.
+          className="pointer-events-auto relative z-20 flex h-full w-full
+                     shrink-0 flex-col justify-center overflow-y-auto
+                     border-line bg-base px-6 py-10 md:w-104 md:border-r
+                     md:px-10"
         >
           {/* Lockup: é a única tela onde a marca é o elemento principal, e não
               um selo ao lado da navegação.

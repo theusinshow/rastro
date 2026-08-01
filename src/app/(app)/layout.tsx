@@ -39,7 +39,28 @@ export default async function AppLayout({
               continua sendo o cromo do app, e continua transparente por cima
               dela.
             */}
-            <div className="relative h-screen overflow-hidden">
+            {/*
+              `pointer-events-none` no contêiner INTEIRO, e não só no overlay
+              das rotas.
+
+              Este bloco cobre a viewport toda e desenha por cima do mapa. Isso
+              era inofensivo enquanto o mapa era filho dele: o evento subia do
+              canvas e chegava aos handlers do MapLibre por bolhamento. Quando o
+              mapa subiu para o layout raiz (ADR 0018), ele virou um irmão que
+              fica ATRÁS — e o contêiner virou uma tampa de 1440×900 sobre a
+              superfície do produto.
+
+              O efeito, medido no navegador: **a roda do mouse não dava zoom em
+              lugar nenhum do mapa.** 49 de 121 pontos sondados paravam aqui em
+              vez de chegar no canvas. Não havia erro, não havia aviso — o mapa
+              simplesmente não respondia, e cada peça de cromo parecia culpada.
+
+              Agora o contêiner é transparente ao ponteiro e **cada peça reativa
+              o que precisa**: as duas barras porque são controles, o overlay das
+              rotas pelos painéis que moram nele. O que não é cromo deixa o
+              evento passar direto para o mapa.
+            */}
+            <div className="pointer-events-none relative h-screen overflow-hidden">
               <TopBar />
 
               {/* Overlay das rotas. Não intercepta o mapa; cada painel reativa
