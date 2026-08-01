@@ -67,6 +67,11 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Adicionado
 
+- **Os vinte lugares têm foto.** O catálogo inteiro ganhou capa do Wikimedia
+  Commons, cada uma com autor, licença e link para o arquivo original — inclusive
+  os seis lugares novos. Antes disso, o banco tinha **uma** foto de catorze: o
+  arquivo que corrigia isso existia desde julho e nunca tinha sido aplicado
+
 - **Seis lugares novos, e o mapa deixou de ser só o eixo Urubici–Florianópolis.**
   O catálogo tinha catorze lugares concentrados numa faixa do estado, e nada no
   extremo sul, no litoral sul, no alto do planalto ou no Vale do Itajaí. Entram
