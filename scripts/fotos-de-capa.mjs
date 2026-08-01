@@ -36,7 +36,7 @@ const env = Object.fromEntries(
  * tela. Um segundo e meio entre chamadas resolve.
  */
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
-const INTERVALO_MS = 1500
+const INTERVALO_MS = 3000
 
 /** Tira a marcacao HTML que o Commons devolve nos campos de credito. */
 function limparHtml(valor) {
@@ -145,12 +145,8 @@ for (const lugar of lugares) {
   achadas += 1
   console.log(`  ok  ${lugar.name} — ${foto.licenca} — ${foto.autor.slice(0, 40)}`)
   linhas.push(
-    `update places set\n` +
-      `  cover_image_url     = ${aspas(foto.url)},\n` +
-      `  cover_image_author  = ${aspas(foto.autor)},\n` +
-      `  cover_image_license = ${aspas(foto.licenca)},\n` +
-      `  cover_image_source  = ${aspas(foto.origem)}\n` +
-      `where slug = ${aspas(lugar.slug)};`,
+    `  (${aspas(lugar.slug)}, ${aspas(foto.url)}, ${aspas(foto.autor)}, ` +
+      `${aspas(foto.licenca)}, ${aspas(foto.origem)})`,
   )
 
   await sleep(INTERVALO_MS)
@@ -168,7 +164,25 @@ const cabecalho = `-- Fotos de capa do Wikimedia Commons.
 
 `
 
-writeFileSync('supabase/seeds/0002_fotos_de_capa.sql', cabecalho + linhas.join('\n\n') + '\n')
+// UMA instrucao so, e nao uma por lugar. A primeira versao deste arquivo tinha
+// 14 `update` separados, e no SQL Editor rodou apenas o PRIMEIRO -- o editor
+// executa so a instrucao sob o cursor quando ha selecao. Catorze comandos
+// funcionam se quem cola acertar a selecao; um comando funciona sempre, e ou
+// grava tudo ou nao grava nada.
+const corpo = [
+  'update places as p set',
+  '  cover_image_url     = novo.url,',
+  '  cover_image_author  = novo.autor,',
+  '  cover_image_license = novo.licenca,',
+  '  cover_image_source  = novo.origem',
+  'from (values',
+  linhas.join(',\n'),
+  ') as novo (slug, url, autor, licenca, origem)',
+  'where p.slug = novo.slug;',
+  '',
+].join('\n')
+
+writeFileSync('supabase/seeds/0002_fotos_de_capa.sql', cabecalho + corpo)
 
 console.log(
   `\n${achadas} de ${lugares.length} com foto creditada.` +
