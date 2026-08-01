@@ -73,6 +73,18 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Adicionado
 
+- **O roteiro diz onde abastecer, e não só quantas vezes.** O Rastro já sabia
+  que uma volta de 379 km numa moto de 300 pede uma parada por volta dos 255 km.
+  Agora ele diz **que ponto da estrada é esse** e quais postos existem em volta
+  dele — nome, bandeira, horário quando mapeado, e a distância até o ponto onde
+  o tanque acaba.
+
+  Só aparece com traçado real gravado: sem ele, a distância da viagem é
+  estimada por linha reta, e caminhar 255 km sobre uma reta marcaria um ponto
+  onde não passa estrada nenhuma. Sem autonomia informada, o produto continua
+  não opinando. E numa viagem já concluída a seção some, como a previsão do
+  tempo — não há mais o que decidir
+
 - **Os vinte lugares têm foto.** O catálogo inteiro ganhou capa do Wikimedia
   Commons, cada uma com autor, licença e link para o arquivo original — inclusive
   os seis lugares novos. Antes disso, o banco tinha **uma** foto de catorze: o

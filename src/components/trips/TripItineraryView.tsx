@@ -8,18 +8,24 @@ import { TRIP_STATUS_LABELS, unpavedStops, type TripDetail } from '@/domain/trip
 import { InlineMessage } from '@/components/ui/InlineMessage'
 import { Stat } from '@/components/ui/Stat'
 import { ElevationProfileView } from './ElevationProfile'
+import { RouteFuel } from './RouteFuel'
 import { RouteWeather } from './RouteWeather'
 import { TripDeleteAction } from './TripDeleteAction'
 
 interface TripItineraryViewProps {
   trip: TripDetail
+  /** Autonomia da moto, do perfil. `null` = o produto não opina sobre tanque. */
+  autonomyKm: number | null
 }
 
 const ACTION =
   'press inline-flex h-12 items-center justify-center rounded-md px-5 ' +
   'text-body font-medium tracking-[0.02em]'
 
-export function TripItineraryView({ trip }: TripItineraryViewProps) {
+export function TripItineraryView({
+  trip,
+  autonomyKm,
+}: TripItineraryViewProps) {
   // `null` para viagem sem traçado, e também para as gravadas antes de o
   // roteador pedir altimetria: nesses casos a seção simplesmente não existe.
   const elevation = trip.routeGeoJson
@@ -95,6 +101,16 @@ export function TripItineraryView({ trip }: TripItineraryViewProps) {
         // página não espera por ela.
         <Suspense fallback={null}>
           <RouteWeather trip={trip} />
+        </Suspense>
+      ) : null}
+
+      {/* Onde abastecer, no mesmo lugar e sob a mesma regra da previsão: as
+          duas respondem "dá para ir?" antes de sair, e numa viagem concluída
+          não há mais o que decidir. A ordem é a da decisão — primeiro se a
+          serra vai estar fechada, depois se o tanque chega lá. */}
+      {trip.status !== 'completed' ? (
+        <Suspense fallback={null}>
+          <RouteFuel trip={trip} autonomyKm={autonomyKm} />
         </Suspense>
       ) : null}
 

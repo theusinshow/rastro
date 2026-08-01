@@ -6,6 +6,7 @@ import {
   isValidAutonomy,
   planRefuelStops,
   pointAtDistance,
+  refuelPointsAlongRoute,
 } from './fuel'
 
 describe('isValidAutonomy', () => {
@@ -103,5 +104,67 @@ describe('pointAtDistance', () => {
   it('linha com menos de dois pontos não tem posição nenhuma', () => {
     expect(pointAtDistance([[0, 0]], 1)).toBeNull()
     expect(pointAtDistance([], 0)).toBeNull()
+  })
+
+  it('aceita a trinca com altitude que o roteador devolve', () => {
+    // É o formato que chega de `trips.route_geojson` quando a rota foi gravada
+    // com altimetria. A altitude é ignorada: a caminhada é sobre o plano.
+    const comAltitude: [number, number, number][] = [
+      [0, 0, 800],
+      [1, 0, 1200],
+    ]
+
+    expect(pointAtDistance(comAltitude, 55.66)?.longitude).toBeCloseTo(0.5, 2)
+  })
+})
+
+describe('refuelPointsAlongRoute', () => {
+  // Equador: 1 grau ≈ 111,32 km. Três graus ≈ 334 km de linha.
+  const linha: [number, number][] = [
+    [0, 0],
+    [1, 0],
+    [2, 0],
+    [3, 0],
+  ]
+
+  it('marca no traçado cada parada que o plano previu', () => {
+    // 600 km numa moto de 300: paradas em 255 e 510. Só a primeira cabe nesta
+    // linha de 334 km — a segunda é descartada, não grampeada no fim.
+    const plano = planRefuelStops(600, 300)!
+    const pontos = refuelPointsAlongRoute(linha, plano)
+
+    expect(plano.atKm).toEqual([255, 510])
+    expect(pontos).toHaveLength(1)
+    expect(pontos[0]?.atKm).toBe(255)
+    expect(pontos[0]?.coordinates.longitude).toBeCloseTo(255 / 111.32, 1)
+  })
+
+  it('leva o quilômetro junto do ponto: é ele que a tela mostra', () => {
+    const plano = planRefuelStops(500, 300)!
+    const pontos = refuelPointsAlongRoute(linha, plano)
+
+    expect(pontos.map((p) => p.atKm)).toEqual(plano.atKm)
+  })
+
+  it('viagem que cabe no tanque não tem ponto nenhum', () => {
+    const plano = planRefuelStops(200, 300)!
+
+    expect(plano.fitsInOneTank).toBe(true)
+    expect(refuelPointsAlongRoute(linha, plano)).toEqual([])
+  })
+
+  it('descarta o que passa do fim da linha em vez de inventar', () => {
+    // Grampear no destino diria "abasteça na chegada", que é o contrário do
+    // problema.
+    const plano = planRefuelStops(2000, 300)!
+
+    expect(plano.atKm.length).toBeGreaterThan(1)
+    expect(refuelPointsAlongRoute(linha, plano).length).toBeLessThan(
+      plano.atKm.length,
+    )
+  })
+
+  it('linha vazia não produz ponto', () => {
+    expect(refuelPointsAlongRoute([], planRefuelStops(600, 300)!)).toEqual([])
   })
 })
