@@ -14,17 +14,15 @@ import { useTheme } from '@/components/layout/theme-context'
 import { MapFallback, MapLoadError } from './MapFallback'
 import { useMapRegistry } from './map-context'
 
-interface MapCanvasProps {
-  /**
-   * Falso torna o mapa cenário: sem arrastar, sem zoom, e — o que mais importa —
-   * fora da ordem de tabulação, porque o MapLibre só põe `tabindex` no canvas
-   * quando é interativo. Usado na tela de entrada, onde o mapa diz o que o
-   * produto é e não deve competir com o único controle da tela.
-   */
-  interactive?: boolean
-}
-
-export function MapCanvas({ interactive = true }: MapCanvasProps = {}) {
+/**
+ * A superfície do mapa, montada uma vez no layout raiz (ADR 0018).
+ *
+ * Não recebe mais `interactive`: quem decide se o mapa é cenário ou instrumento
+ * é a rota, e isso muda durante a vida da instância — ver `MapChrome` e
+ * `lib/map/interactivity.ts`. Passar pelo construtor voltaria a exigir um mapa
+ * novo a cada mudança, que é exatamente o que este arquivo existe para evitar.
+ */
+export function MapCanvas() {
   const containerRef = useRef<HTMLDivElement>(null)
   const { registerMap, updateView } = useMapRegistry()
   const { theme } = useTheme()
@@ -52,9 +50,10 @@ export function MapCanvas({ interactive = true }: MapCanvasProps = {}) {
       center: [INITIAL_CENTER.longitude, INITIAL_CENTER.latitude],
       zoom: INITIAL_ZOOM,
       attributionControl: { compact: true },
-      interactive,
-      // Sem rotação: o norte fixo é convenção cartográfica e evita
-      // desorientação em uso rápido, que é o caso durante uma viagem.
+      // Sem rotação PELO USUÁRIO: o norte fixo é convenção cartográfica e evita
+      // desorientação em uso rápido, que é o caso durante uma viagem. Não
+      // impede a câmera dirigida por código — é dela que vive o sobrevoo da
+      // entrada, que gira e inclina de propósito.
       dragRotate: false,
       pitchWithRotate: false,
     })
@@ -96,7 +95,7 @@ export function MapCanvas({ interactive = true }: MapCanvasProps = {}) {
       setLoaded(false)
       map.remove()
     }
-  }, [registerMap, updateView, interactive])
+  }, [registerMap, updateView])
 
   /*
    * Troca de tema: `setStyle`, e não mapa novo.

@@ -1,6 +1,5 @@
 import { isSupabaseConfigured } from '@/lib/supabase/server'
-import { MapCanvas } from '@/components/map/MapCanvas'
-import { MapProvider } from '@/components/map/map-context'
+import { MapFlyover } from '@/components/map/MapFlyover'
 import { Button } from '@/components/ui/Button'
 import { Logo } from '@/components/ui/Logo'
 import { signInAsGuestAction, signInWithGoogleAction } from './actions'
@@ -38,15 +37,18 @@ export default async function EntrarPage({
      * produto já visível antes de entrar, e o painel apenas troca de conteúdo
      * depois do login.
      *
-     * O mapa entra sem interação: ele diz o que o produto é, e não deve competir
-     * com o único controle da tela nem ocupar uma parada de tabulação. O
-     * MapLibre só põe `tabindex` no canvas quando é interativo.
+     * O mapa não é montado aqui: ele vive no layout raiz desde o ADR 0018, e é a
+     * MESMA instância que o app recebe depois do login — é isso que permite ao
+     * sobrevoo terminar sem costura. `MapChrome` o deixa sem interação nesta
+     * rota: ele diz o que o produto é, e não deve competir com o único controle
+     * da tela nem ocupar uma parada de tabulação.
      *
      * Abaixo de 768px o painel toma a tela inteira. Numa largura de 375px o que
      * sobraria de mapa não informa nada e só roubaria contraste do texto.
      */
-    <MapProvider>
-      <main className="relative flex h-screen overflow-hidden bg-void">
+    <>
+      <MapFlyover />
+      <main className="relative flex h-screen overflow-hidden">
         {/* O painel vem ANTES do mapa no DOM, e é posicionado por CSS. A
             atribuição do MapLibre é obrigação de licença e traz três paradas de
             foco; renderizada antes, ela empurrava o único botão da tela para a
@@ -149,9 +151,7 @@ export default async function EntrarPage({
             </div>
           ) : null}
         </div>
-
-        <MapCanvas interactive={false} />
       </main>
-    </MapProvider>
+    </>
   )
 }

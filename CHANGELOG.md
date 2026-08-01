@@ -48,6 +48,16 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   sessão, e a barra de cima diz isso o tempo todo. Decisão registrada no
   [ADR 0017](docs/decisions/0017-sessao-anonima-como-entrada-de-visitante.md)
 
+- **A entrada virou um sobrevoo da Serra do Rio do Rastro.** A câmera começa
+  alta e a sudeste, desce girando para o norte ao longo do paredão por onze
+  segundos, e pousa. É a serra de verdade, com o relevo real em três dimensões —
+  nada de vídeo, nada de imagem inventada: o mapa é o mesmo que responde às suas
+  perguntas depois, e ele se apresenta sozinho. Ao entrar **não há corte**: o
+  mapa não recomeça, a câmera só continua da serra até o enquadramento do app.
+  Quem pediu movimento reduzido ao sistema não vê nada disso — o mapa já nasce
+  parado, no ponto de pouso. Ver
+  [ADR 0018](docs/decisions/0018-o-mapa-atravessa-a-entrada.md)
+
 ### Alterado
 
 - Cada página fazia uma ida ao servidor de autenticação **por repositório que
