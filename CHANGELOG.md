@@ -39,6 +39,13 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   quilometragem rodada, agora aparece como `~ 161` com o traço interrompido e
   "linha reta" escrito embaixo
 
+### Corrigido
+
+- Três controles ficavam abaixo do alvo mínimo de 44px no celular: o segmento
+  Lista/Filtros entregava 36px, e o link de trocar o ponto de partida, 12px.
+  Achado varrendo as dez rotas do produto em 390px de largura, não por leitura
+  de código
+
 - `docs/PROMPT-REDESIGN.md` — o briefing completo para refazer a direção visual
   do produto do zero: contexto, paleta atual token a token nas duas metades
   (interface e mapa), inventário de todos os 56 componentes, o sistema de

@@ -110,9 +110,12 @@ export function FilterRail({
             type="button"
             aria-pressed={!editing}
             onClick={() => setEditing(false)}
-            className="press h-9 flex-1 rounded-full text-small font-medium
+            // 44px no celular, que é o piso duro do produto. Medido: com `h-9`
+            // o segmento entregava 36px de alvo — e ele é o controle mais
+            // tocado da tela, num aparelho operado de luva.
+            className="press h-11 flex-1 rounded-full text-small font-medium
                        text-ink-muted aria-pressed:bg-accent
-                       aria-pressed:font-bold aria-pressed:text-on-accent"
+                       aria-pressed:font-bold aria-pressed:text-on-accent md:h-9"
           >
             Lista
           </button>
@@ -120,10 +123,10 @@ export function FilterRail({
             type="button"
             aria-pressed={editing}
             onClick={() => setEditing(true)}
-            className="press flex h-9 flex-1 items-center justify-center gap-2
+            className="press flex h-11 flex-1 items-center justify-center gap-2
                        rounded-full text-small font-medium text-ink-muted
                        aria-pressed:bg-accent aria-pressed:font-bold
-                       aria-pressed:text-on-accent"
+                       aria-pressed:text-on-accent md:h-9"
           >
             Filtros
             {activeCount > 0 ? (

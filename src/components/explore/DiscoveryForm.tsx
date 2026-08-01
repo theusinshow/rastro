@@ -47,7 +47,7 @@ export function DiscoveryForm({ query, onChange, onSubmit }: DiscoveryFormProps)
             </p>
             <Link
               href="/perfil/origem"
-              className="mt-1 inline-block text-micro text-ink-faint
+              className="mt-1 inline-flex min-h-11 items-center text-micro text-ink-faint
                          transition-colors hover:text-ink-muted"
             >
               Mudar ponto de partida
