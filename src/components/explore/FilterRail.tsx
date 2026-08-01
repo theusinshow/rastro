@@ -58,7 +58,7 @@ interface FilterRailProps {
  * de 861px**. Medido no navegador: a seção "Situação" ficava cortada ao meio e
  * seus quatro controles não apareciam na tela, havia três regiões rolando por
  * dentro de uma coluna de 232px, e a lista de lugares sobrava com 287px
- * mostrando 4 de 14.
+ * mostrando 4 dos 14 lugares que o catálogo tinha então.
  *
  * A prioridade estava invertida. **Filtrar é um momento; ler o recorte é o
  * estado** — e a lista é o único caminho de teclado até um lugar, além de ser a

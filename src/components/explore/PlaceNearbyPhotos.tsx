@@ -31,8 +31,9 @@ function formatDistance(meters: number): string {
  *   arquivo aparece: é com ele que se julga.
  *
  * As duas convivem porque uma sozinha não serve. Só por coordenada, **dez dos
- * catorze lugares do catálogo não teriam foto nenhuma** — o litoral inteiro,
- * incluindo a Lagoa da Conceição. Foi medido antes de escrever isto.
+ * catorze lugares que o catálogo tinha na época não teriam foto nenhuma** — o
+ * litoral inteiro, incluindo a Lagoa da Conceição. Foi medido antes de escrever
+ * isto, e é a medição que sustenta a decisão, não o tamanho do catálogo.
  *
  * Autor e licença aparecem em toda foto porque a licença CC exige — não é
  * enfeite, é condição de uso. Foto sem licença declarada nem chega aqui.

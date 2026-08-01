@@ -22,8 +22,8 @@ describe('tourShotFor', () => {
   })
 
   /*
-   * Chegar sempre pelo mesmo lado faz catorze lugares diferentes parecerem o
-   * mesmo lugar. Este teste falha se alguém fixar o ângulo.
+   * Chegar sempre pelo mesmo lado faz lugares diferentes parecerem o mesmo
+   * lugar. Este teste falha se alguém fixar o ângulo.
    */
   it('varia o ângulo de aproximação entre lugares vizinhos', () => {
     const angulos = [0, 1, 2, 3].map((i) => tourShotFor(SERRA, i).bearing)

@@ -49,9 +49,10 @@ export interface PlaceFeatureCollection {
  * excluiu.
  *
  * A fonte recebia antes a lista já filtrada, e o MapLibre não consegue
- * interpolar uma feature que deixou de existir: marcar "Cachoeira" fazia 13 dos
- * 14 pins sumirem em um quadro, sem que o usuário tivesse como saber se removeu
- * demais ou se o mapa quebrou. Quem decide o recorte continua sendo
+ * interpolar uma feature que deixou de existir: marcar "Cachoeira" fazia quase
+ * todos os pins sumirem em um quadro — 13 dos 14 que o catálogo tinha na
+ * medição —, sem que o usuário tivesse como saber se removeu demais ou se o
+ * mapa quebrou. Quem decide o recorte continua sendo
  * `filterPlaces` no domínio; o que muda é que o recorte chega aqui como a
  * propriedade `matched` em vez de como ausência.
  *
@@ -174,7 +175,7 @@ function weightFactor(): ExpressionSpecification {
  *
  * **A interpolação por `zoom` precisa ser a expressão mais externa.** Aninhá-la
  * dentro do `*` é inválido na especificação de estilo, e o MapLibre rejeita a
- * camada inteira em silêncio: os catorze pins simplesmente não desenhavam, sem
+ * camada inteira em silêncio: os pins simplesmente não desenhavam, sem
  * erro no console e sem falha no `load`. Por isso o peso multiplica cada parada
  * da escala, em vez de multiplicar a escala inteira.
  */

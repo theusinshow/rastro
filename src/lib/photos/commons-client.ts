@@ -9,9 +9,9 @@ import type { Coordinates } from '@/domain/geo'
  *   distância**, e o casamento é por texto: procurar "Santo Amaro da Imperatriz"
  *   devolve o hospital do município junto. Medido.
  *
- * As duas convivem porque uma sozinha não serve: por coordenada, dez dos catorze
- * lugares do catálogo não têm foto nenhuma; por nome, todos têm. O que não pode
- * é apresentar as duas como a mesma coisa.
+ * As duas convivem porque uma sozinha não serve: medido quando o catálogo tinha
+ * catorze lugares, dez não tinham foto nenhuma por coordenada; por nome, todos
+ * tinham. O que não pode é apresentar as duas como a mesma coisa.
  */
 export type CommonsMatch = 'coordenada' | 'nome'
 
@@ -43,8 +43,8 @@ export interface CommonsPhoto {
 export interface CommonsClient {
   /**
    * Fotos do lugar: primeiro as que têm coordenada, depois as que casam pelo
-   * nome. `name` é obrigatório porque, sem ele, dez dos catorze lugares do
-   * catálogo não teriam foto nenhuma.
+   * nome. `name` é obrigatório porque, sem ele, dez dos catorze lugares que o
+   * catálogo tinha na medição não teriam foto nenhuma.
    */
   forPlace(point: Coordinates, name: string): Promise<CommonsPhoto[]>
 }

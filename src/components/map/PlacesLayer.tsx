@@ -75,7 +75,7 @@ export function PlacesLayer({
    *
    * Escuta `styledata` pelo mesmo motivo que o traçado da viagem: trocar de tema
    * chama `setStyle`, e `setStyle` derruba TODAS as camadas nossas junto. Sem
-   * esta escuta, alternar dia/noite apagava os catorze pins do mapa e não havia
+   * esta escuta, alternar dia/noite apagava todos os pins do mapa e não havia
    * erro em lugar nenhum — o mesmo modo de falha silenciosa que já apareceu
    * neste arquivo antes.
    *
@@ -119,8 +119,9 @@ export function PlacesLayer({
     return cleanup
   }, [map, theme])
 
-  // Dados e crossfade do recorte. Sem o crossfade, marcar um filtro faz treze
-  // dos catorze pins sumirem num quadro e o tamanho da mudança fica ilegível.
+  // Dados e crossfade do recorte. Sem o crossfade, marcar um filtro faz quase
+  // todos os pins sumirem num quadro — medido em treze de catorze — e o tamanho
+  // da mudança fica ilegível.
   //
   // Este é um dos dois movimentos que sobrevivem a `prefers-reduced-motion`:
   // é a única evidência de que o recorte mudou, e opacidade sem deslocamento é

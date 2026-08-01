@@ -20,7 +20,9 @@ export const HOVER_GROW_MS = 140
  *
  * O MapLibre reavalia a expressão a cada `setPaintProperty`, e é assim que a
  * interpolação chega ao WebGL: a biblioteca ignora `*-transition` quando o
- * valor depende de `['get', ...]`. Com catorze pontos o custo é irrelevante.
+ * valor depende de `['get', ...]`. Com um catálogo na casa das dezenas de
+ * pontos o custo é irrelevante — e é essa premissa, e não o número de hoje, que
+ * precisa ser revista se ele um dia chegar aos milhares.
  */
 export function applyMatchFade(map: MapLibreMap, progress: number): void {
   if (!map.getLayer(PLACE_LAYERS.core)) return

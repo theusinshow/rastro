@@ -101,11 +101,18 @@ Colunas não óbvias:
   **O default do schema é `true`, mas lugar criado por usuário grava `false`
   explicitamente** — o default serve ao catálogo curado; rede social está fora
   de escopo declarado.
-- **Os catorze lugares do seed têm `source = 'mock'` e isso é deliberado.**
-  Coordenadas e descrições continuam aproximadas depois da migração, e apagar a
-  marca ao entrar no banco seria a forma mais silenciosa de quebrar a regra do
-  `CLAUDE.md` sobre não apresentar dado de desenvolvimento como verificado. Ver
-  `supabase/seeds/0001_places.sql`.
+- **`source` guarda quanto se pode confiar em cada lugar, e o catálogo tem duas
+  levas com graus diferentes.** Apagar essa marca ao entrar no banco seria a
+  forma mais silenciosa de quebrar a regra do `CLAUDE.md` sobre não apresentar
+  dado de desenvolvimento como verificado.
+
+  | Leva | `source` | Coordenada | Descrição |
+  | --- | --- | --- | --- |
+  | `0001_places.sql` | `mock` | aproximada | não conferida |
+  | `0003_lugares_de_santa_catarina.sql` | `imported` | geocodificada e conferida como município em SC | texto nosso, a partir de leitura |
+
+  Nenhuma das duas foi conferida por quem esteve lá. `imported` diz que o
+  **ponto** veio de um gazetteer, não que o lugar foi visitado.
 - Não há coluna de distância nem de tempo estimado até o lugar: ambos
   dependem de qual é a origem de quem consulta, e são calculados em tempo de
   leitura por `src/domain/geo.ts` — nunca persistidos.

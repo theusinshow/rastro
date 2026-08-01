@@ -15,7 +15,7 @@ ficaram dessas viagens?".
 ## Concluído — fase de persistência e identidade
 
 - Migration `0001` aplicada contra um Postgres real. As oito tabelas existem.
-- Supabase conectado, com os catorze lugares vindos do banco.
+- Supabase conectado, com o catálogo vindo do banco.
 - Autenticação pelo Google; `DEV_USER_ID` não existe mais.
 - Origem por usuário, escolhida clicando no mapa (`profiles.home_*`).
 - Ações de escrita do painel: favorito, quero conhecer e histórico de visitas.

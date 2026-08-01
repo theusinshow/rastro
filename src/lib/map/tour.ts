@@ -35,8 +35,8 @@ export interface TourCamera {
   /**
    * Ângulos de aproximação, em rodízio.
    *
-   * Chegar sempre pelo mesmo lado faz catorze lugares diferentes parecerem o
-   * mesmo lugar. São **determinísticos** de propósito: `Math.random()` faria o
+   * Chegar sempre pelo mesmo lado faz lugares diferentes parecerem o mesmo
+   * lugar. São **determinísticos** de propósito: `Math.random()` faria o
    * passeio ser irreprodutível entre execuções, e este código roda também no
    * ambiente de teste.
    */

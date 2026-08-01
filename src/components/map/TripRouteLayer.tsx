@@ -38,8 +38,9 @@ export function TripRouteLayer({ trip, cameraPadding }: TripRouteLayerProps) {
 
     function apply(): boolean {
       // O estilo precisa estar carregado: `addLayer` antes disso é descartado, e
-      // o MapLibre não avisa — foi assim que 14 pins ficaram invisíveis neste
-      // repositório com lint, typecheck e testes limpos.
+      // o MapLibre não avisa — foi assim que os pins do catálogo inteiro
+      // ficaram invisíveis neste repositório, com lint, typecheck e testes
+      // limpos.
       if (!map || !map.isStyleLoaded()) return false
 
       if (!map.getSource(TRIP_ROUTE_SOURCE_ID)) {

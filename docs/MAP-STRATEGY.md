@@ -246,17 +246,18 @@ propriedades.
 
 O motivo é técnico e decisivo: o MapLibre não consegue interpolar uma feature
 que deixou de existir. Alimentando a fonte com a lista já filtrada, marcar
-"Cachoeira" fazia treze dos catorze pins desaparecerem em um quadro — e a única
-confirmação de que algo aconteceu era um `0 / 14` de 10px no rodapé de uma
-coluna.
+"Cachoeira" fazia quase todos os pins desaparecerem em um quadro — treze dos
+catorze que o catálogo tinha na medição — e a única confirmação de que algo
+aconteceu era uma contagem de 10px no rodapé de uma coluna.
 
 E há uma segunda armadilha: **o MapLibre também não transiciona propriedade de
 pintura dirigida por dados.** O código da biblioteca é explícito — *"transitions
 to data-driven properties are not supported"* — e salta direto para o valor
 final. Declarar `circle-opacity-transition` numa expressão com `['get', ...]`
 não faz nada. Por isso a interpolação roda em `src/lib/map/paint.ts`, com
-`requestAnimationFrame` reescrevendo a expressão a cada quadro. Com catorze
-pontos o custo é irrelevante.
+`requestAnimationFrame` reescrevendo a expressão a cada quadro. Com um catálogo
+na casa das dezenas de pontos o custo é irrelevante; é essa premissa que precisa
+ser revista se ele chegar aos milhares, e não o número de hoje.
 
 O tween só começa depois que a fonte termina de carregar (`sourcedata` com
 `isSourceLoaded`), porque `setData` analisa o GeoJSON num worker: começar antes

@@ -191,7 +191,8 @@ Do primeiro byte servido até o pin aparecer no mapa:
    **A fonte recebe todos os lugares, sempre.** O recorte chega como a
    propriedade booleana `matched` de cada feature, e não como ausência: o
    MapLibre não consegue interpolar uma feature que deixou de existir, e sem
-   isso marcar um filtro faria treze dos catorze pins sumirem em um quadro.
+   isso marcar um filtro faria quase todos os pins sumirem em um quadro —
+   medido em treze de catorze, quando o catálogo tinha esse tamanho.
    Quem decide o recorte continua sendo `filterPlaces`, no domínio; o que muda
    é como o resultado é representado no mapa. `previouslyMatched` é o recorte
    anterior, e existe só para que o crossfade saiba quem entrou e quem saiu.
