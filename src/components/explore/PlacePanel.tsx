@@ -17,6 +17,7 @@ import { PlaceNearbyPhotos } from './PlaceNearbyPhotos'
 import { PlacePhotos } from './PlacePhotos'
 import { PlaceStateControls } from './PlaceStateControls'
 import { PlaceSurface } from './PlaceSurface'
+import { PlaceTips } from './PlaceTips'
 import { PlaceVisits } from './PlaceVisits'
 import { VisitStatusBadge } from './VisitStatusBadge'
 
@@ -73,13 +74,18 @@ export function PlacePanel({ place, onClose, exiting }: PlacePanelProps) {
         ) : (
           <div className="border-b border-line px-5 py-3">
             <span className="instrument-label">
-              {/* O singular só apareceu quando o contador deixou de ser sempre
+              {/* "Suas" não é detalhe: logo abaixo há uma seção com dezenas de
+                  fotos do Commons, e um "sem fotografias" ali em cima ao lado
+                  delas seria contraditório na mesma tela. O contador é das
+                  SUAS fotos.
+
+                  O singular só apareceu quando o contador deixou de ser sempre
                   zero: com uma foto, o texto dizia "1 fotografias". */}
               {place.photoCount === 0
-                ? 'Sem fotografias'
+                ? 'Nenhuma foto sua'
                 : place.photoCount === 1
-                  ? '1 fotografia'
-                  : `${place.photoCount} fotografias`}
+                  ? '1 foto sua'
+                  : `${place.photoCount} fotos suas`}
             </span>
           </div>
         )}
@@ -115,6 +121,9 @@ export function PlacePanel({ place, onClose, exiting }: PlacePanelProps) {
         </div>
 
         <PlaceStateControls place={place} />
+        {/* Antes do piso e das visitas: é o que se lê ANTES de ir, e o resto do
+            painel é o registro de quem já foi. */}
+        <PlaceTips slug={place.slug} />
         <PlaceSurface place={place} />
         <PlaceVisits place={place} />
         <PlacePhotos key={`fotos-${place.slug}`} placeId={place.id} />
@@ -124,6 +133,7 @@ export function PlacePanel({ place, onClose, exiting }: PlacePanelProps) {
           key={place.slug}
           latitude={place.latitude}
           longitude={place.longitude}
+          name={place.name}
         />
 
         {place.description ? (

@@ -44,6 +44,19 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   no claro a rodovia é a via mais **escura**, porque o que faz a estrada ser o
   conteúdo é a distância do fundo, não a claridade
 
+- **"Antes de ir"** no painel do lugar: o que se sabe da subida, do frio, da
+  neblina e da hora certa de sair, escrito para doze dos catorze lugares. É
+  orientação, e a tela diz isso — sai da fonte de medição, entra na de texto e
+  ganha o filete de citação, o mesmo do relato de uma visita. Nada de horário de
+  funcionamento nem de estado da estrada: isso muda sem avisar, e dica velha faz
+  rodar 200 km à toa
+- **Fotos de todos os lugares**, e não só dos que têm coordenada. A busca por
+  nome entrou ao lado da busca por proximidade porque, medido, dez dos catorze
+  lugares do catálogo não tinham foto nenhuma — o litoral inteiro, incluindo a
+  Lagoa da Conceição. As duas procedências ficam distinguíveis: a foto com
+  coordenada mostra a distância, a achada pelo nome mostra o nome do arquivo,
+  porque ela pode ser de outro ponto do município
+
 ### Corrigido
 
 - Três controles ficavam abaixo do alvo mínimo de 44px no celular: o segmento
