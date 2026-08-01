@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import type { PaddingOptions } from 'maplibre-gl'
 import type { ShowcasePlace } from '@/lib/data/showcase'
 import { CATEGORY_LABELS } from '@/domain/place'
+import { markArrival } from '@/lib/map/arrival'
 import { runTour, showStopImmediately } from '@/lib/map/tour'
 import { useReducedMotion } from '@/lib/motion/use-reduced-motion'
 import { useMapInstance } from './map-context'
@@ -34,6 +35,26 @@ export function EntranceTour({ places }: { places: ShowcasePlace[] }) {
 
     const first = places[0]
     if (!first) return
+
+    /*
+     * O bilhete para o aplicativo — e ele estava faltando.
+     *
+     * `arrival.ts` existe para que a câmera se assente ao chegar no app, e quem
+     * o emitia era o `MapFlyover`, ao pousar. Quando a entrada trocou o sobrevoo
+     * pelo passeio, o bilhete parou de ser emitido: `consumeArrival()` passou a
+     * devolver `false` sempre, e a volta ao enquadramento do `MapChrome` virou
+     * código morto.
+     *
+     * A consequência era visível e ninguém tinha por onde notar: o passeio deixa
+     * a câmera INCLINADA em 55° com o relevo 3D ligado, e entrar levava esse
+     * enquadramento para dentro do produto. O mapa do aplicativo aparecia torto,
+     * numa aplicação onde a rotação está desligada justamente para o norte ser
+     * fixo — e sem gesto nenhum capaz de endireitá-lo.
+     *
+     * Marcado na montagem, e não ao terminar, porque este passeio é contínuo:
+     * ele não pousa, ele é interrompido por quem entra.
+     */
+    markArrival()
 
     if (reducedMotion || !running) {
       // Sem viagem: o produto ainda se apresenta, com um lugar de verdade na

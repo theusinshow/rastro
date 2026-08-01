@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useState, useTransition } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { formatCoordinate, type Coordinates } from '@/domain/geo'
 import { searchAddressAction } from '@/app/actions/geocoding-actions'
@@ -32,6 +33,16 @@ export function OriginSetup({ autonomyKm }: OriginSetupProps) {
   const [autonomy, setAutonomy] = useState(
     autonomyKm === null ? '' : String(autonomyKm),
   )
+
+  /**
+   * Primeira vez é quem ainda não tem origem nenhuma gravada.
+   *
+   * É lido do estado do servidor, e não de um parâmetro na URL, porque é a
+   * mesma condição que mandou a pessoa para cá depois de entrar
+   * (`destinationAfterEntry`) — duas fontes para o mesmo fato divergiriam no dia
+   * em que uma delas mudasse.
+   */
+  const firstTime = current === null
 
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<GeocodedPlace[] | null>(null)
@@ -117,12 +128,28 @@ export function OriginSetup({ autonomyKm }: OriginSetupProps) {
       <PointPicker onPick={handlePick} />
 
       <OverlayPanel side="right">
-        <div className="flex flex-1 flex-col gap-4 overflow-y-auto px-5 py-4">
+        {/* `min-h-0` para o rodapé de ações caber: sem isto o conteúdo empurra a
+            coluna e os botões saem da tela em vez de a lista rolar. */}
+        <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-5 py-4">
           <div>
             <span className="instrument-label">Ponto de partida</span>
+            {/*
+              Duas frases, porque são duas situações.
+
+              Quem chega aqui logo depois de entrar não sabe por que o produto
+              está perguntando o endereço dele, e "toda distância parte daqui" é
+              abstrato demais para justificar um formulário na primeira tela. A
+              versão de primeira vez diz o que a resposta COMPRA — os destinos
+              que cabem numa tarde, a conta de ida e volta —, que é o que a
+              pessoa veio buscar.
+
+              Quem voltou aqui pelo menu já sabe o que está fazendo, e a frase
+              curta não gasta o tempo dele.
+            */}
             <p className="mt-1.5 text-body leading-relaxed text-ink-muted">
-              Busque o endereço ou clique no mapa. Toda distância e todo cálculo
-              de tempo do Rastro partem daqui.
+              {firstTime
+                ? 'De onde você sai de moto? É a partir daqui que o Rastro acha os destinos que cabem na sua tarde, mede a ida e a volta e mostra os postos no caminho.'
+                : 'Busque o endereço ou clique no mapa. Toda distância e todo cálculo de tempo do Rastro partem daqui.'}
             </p>
           </div>
 
@@ -254,6 +281,20 @@ export function OriginSetup({ autonomyKm }: OriginSetupProps) {
             </Field>
           </div>
 
+        </div>
+
+        {/*
+          As ações saem da área que rola e viram rodapé fixo.
+
+          Medido em 1440×900: com tudo numa coluna só, "Definir origem" ficava
+          cortado na borda inferior e a saída não aparecia sem rolar — numa tela
+          que passou a ser a PRIMEIRA que se vê depois de entrar. Uma saída que
+          exige rolar para ser descoberta não é saída.
+
+          É o mesmo desenho de `PlacePanel` e do painel de postos: conteúdo rola,
+          ação fica.
+        */}
+        <div className="flex shrink-0 flex-col gap-2 border-t border-line px-5 py-4">
           {error ? <InlineMessage tone="error">{error}</InlineMessage> : null}
 
           <Button
@@ -266,6 +307,32 @@ export function OriginSetup({ autonomyKm }: OriginSetupProps) {
           >
             {pending ? 'Gravando…' : 'Definir origem'}
           </Button>
+
+          {/*
+            A SAÍDA. Só na primeira vez, que é quando ela é necessária.
+
+            Esta tela passou a ser a primeira coisa que se vê depois de entrar, e
+            uma primeira tela sem saída é um muro — exatamente o padrão que a
+            auditoria derrubou na Descoberta (RASTRO-003). O produto continua
+            inteiro sem origem: o mapa abre, os lugares aparecem, a lista
+            funciona. O que some é o que depende de um ponto de partida, e some
+            dizendo por quê.
+
+            Peso de link, e não de botão: ela não disputa com "Definir origem",
+            que é o caminho que resolve o problema da pessoa.
+
+            Quem chegou aqui pelo menu já tem a barra de cima para sair, e um
+            "Depois" ali seria um terceiro jeito de fazer a mesma coisa.
+          */}
+          {firstTime ? (
+            <Link
+              href="/"
+              className="press flex h-11 items-center justify-center rounded-full
+                         text-small text-ink-faint hover:text-ink-muted"
+            >
+              Depois — ir para o mapa
+            </Link>
+          ) : null}
         </div>
       </OverlayPanel>
     </>

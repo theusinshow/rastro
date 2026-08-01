@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { FLY_MS, HOLD_MS, tourShotFor } from './tour'
+import {
+  FLY_MS,
+  HOLD_MS,
+  TOUR_INSTRUMENT,
+  TOUR_SCENERY,
+  tourShotFor,
+} from './tour'
 
 const SERRA = { latitude: -28.39, longitude: -49.54 }
 
@@ -31,6 +37,45 @@ describe('tourShotFor', () => {
   it('dá a volta no rodízio em vez de sair da lista', () => {
     expect(tourShotFor(SERRA, 4).bearing).toBe(tourShotFor(SERRA, 0).bearing)
     expect(Number.isFinite(tourShotFor(SERRA, 99).bearing)).toBe(true)
+  })
+})
+
+describe('perfil de instrumento', () => {
+  /*
+   * A razão de existir um segundo perfil.
+   *
+   * `MapCanvas` desliga a rotação PARA O USUÁRIO — o norte fixo é decisão de
+   * cartografia. Um passeio que gira dentro do app deixaria o mapa torto no
+   * instante em que a pessoa tocasse nele, e ela não teria como endireitar.
+   */
+  it('não gira: o norte é fixo dentro do aplicativo', () => {
+    for (const i of [0, 1, 2, 3, 17]) {
+      expect(tourShotFor(SERRA, i, TOUR_INSTRUMENT).bearing).toBe(0)
+    }
+  })
+
+  it('não inclina: não há o que desfazer quando o gesto interrompe', () => {
+    expect(tourShotFor(SERRA, 0, TOUR_INSTRUMENT).pitch).toBe(0)
+  })
+
+  it('não liga o relevo 3D, ao contrário do cenário da entrada', () => {
+    expect(TOUR_INSTRUMENT.terrainExaggeration).toBeNull()
+    expect(TOUR_SCENERY.terrainExaggeration).not.toBeNull()
+  })
+
+  it('abre mais que o da entrada: apresenta o catálogo, não um lugar', () => {
+    expect(TOUR_INSTRUMENT.zoom).toBeLessThan(TOUR_SCENERY.zoom)
+  })
+
+  it('continua apontando para o lugar certo, em lng/lat', () => {
+    expect(tourShotFor(SERRA, 2, TOUR_INSTRUMENT).center).toEqual([
+      SERRA.longitude,
+      SERRA.latitude,
+    ])
+  })
+
+  it('o perfil de cenário continua sendo o padrão', () => {
+    expect(tourShotFor(SERRA, 0)).toEqual(tourShotFor(SERRA, 0, TOUR_SCENERY))
   })
 })
 

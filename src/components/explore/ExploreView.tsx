@@ -11,6 +11,7 @@ import { focusPlace } from '@/lib/map/camera'
 import { FuelPanel } from '@/components/fuel/FuelPanel'
 import { FuelToggle } from '@/components/fuel/FuelToggle'
 import { useFuelStations } from '@/components/fuel/use-fuel-stations'
+import { ExploreTour } from '@/components/map/ExploreTour'
 import { FuelStationsLayer } from '@/components/map/FuelStationsLayer'
 import { useMapInstance } from '@/components/map/map-context'
 import { PlacesLayer } from '@/components/map/PlacesLayer'
@@ -188,6 +189,17 @@ function ExploreContent({ places }: ExploreViewProps) {
         visible={visible}
         hoveredSlug={hoveredSlug}
         cameraPadding={CAMERA_PADDING}
+      />
+
+      {/* O passeio pelos lugares, que antes só existia na tela de entrada.
+          Só roda com o mapa livre — com um lugar aberto na URL a câmera já tem
+          um trabalho, e disputar com ela seria arrancar da pessoa o lugar que
+          ela pediu para ver. Termina no primeiro gesto e não volta. */}
+      <ExploreTour
+        places={places}
+        active={slug === null}
+        cameraPadding={CAMERA_PADDING}
+        onFocus={setHoveredSlug}
       />
 
       {fuel.active ? (

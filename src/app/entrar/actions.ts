@@ -2,6 +2,7 @@
 
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
+import { destinationAfterEntry } from '@/domain/onboarding'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 
 export async function signInWithGoogleAction(formData: FormData): Promise<void> {
@@ -55,11 +56,24 @@ export async function signInAsGuestAction(formData: FormData): Promise<void> {
   const next = formData.get('proximo')
   // Só caminho relativo, e `//` fora: mesma proteção contra redirecionamento
   // aberto que `signInWithGoogleAction` faz acima.
-  redirect(
+  const requested =
     typeof next === 'string' && next.startsWith('/') && !next.startsWith('//')
       ? next
-      : '/',
-  )
+      : '/'
+
+  /*
+   * `hasOrigin: false`, sempre — e não é atalho.
+   *
+   * A sessão anônima acabou de nascer: o usuário existe há um instante e o
+   * gatilho da migration 0002 criou um perfil vazio. Não há origem a consultar,
+   * e uma ida ao banco para confirmar isso seria perguntar algo que a linha
+   * acima já garante.
+   *
+   * O visitante recebe a mesma pergunta de quem tem conta porque tem o mesmo
+   * problema: sem partida, metade do produto responde `—`. E recebe a mesma
+   * saída — a tela não prende ninguém.
+   */
+  redirect(destinationAfterEntry({ hasOrigin: false, requested }))
 }
 
 export async function signOutAction(): Promise<void> {

@@ -12,6 +12,15 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ## [Não lançado]
 
+### Corrigido
+
+- **O mapa entrava torto.** O passeio da tela de entrada deixa a câmera inclinada
+  em 55°, com o relevo em 3D, e esse enquadramento atravessava para dentro do
+  aplicativo — onde a rotação está desligada de propósito, e portanto não havia
+  gesto nenhum capaz de endireitar o mapa. O sinal que mandava a câmera se
+  assentar ao chegar existia, mas tinha deixado de ser emitido quando a entrada
+  trocou o sobrevoo pelo passeio
+
 ### Infraestrutura
 
 - O Rastro está no ar em **rastro-one.vercel.app**, ligado ao GitHub: daqui em
@@ -21,6 +30,13 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   primeiro (`NODE_ENV`) já a devolve como 404 no ar
 
 ### Alterado
+
+- O botão **"Para onde vamos hoje?"** ficou maior e deixou de ser translúcido:
+  virou a mesma peça em relevo da barra do topo. Com o mapa passeando por trás,
+  uma superfície semitransparente ficava legível sobre um enquadramento e cinza
+  sobre o seguinte — e ele é a resposta à pergunta central do produto, não o
+  lugar de economizar contraste. Decisões em
+  [ADR 0021](docs/decisions/0021-o-primeiro-minuto-depois-de-entrar.md)
 
 - **Direção visual nova.** A superfície esquentou um grau, a tinta clareou um
   passo e o âmbar subiu em direção ao farol. O motivo não é gosto: o texto
@@ -38,6 +54,29 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   "Filtrar" solto: os dois modos não são um principal e um secundário
 
 ### Adicionado
+
+- **A entrada pergunta de onde você sai.** Quem entra sem ponto de partida cai
+  direto na tela que pergunta por ele, em vez de chegar a um mapa onde o raio
+  está indisponível, a distância de cada lugar some e a descoberta mostra um
+  muro. Era a mesma pergunta feita em quatro telas diferentes; agora é uma, no
+  momento em que faz sentido.
+
+  Não é muro: tem um "Depois — ir para o mapa" à vista, e o produto continua
+  inteiro sem origem. Quem já definiu a sua entra direto, e quem entrou para
+  chegar a uma viagem específica chega nela — a pergunta é de primeira vez, não
+  de toda vez
+
+- **O mapa passeia pelos lugares também depois de entrar.** A câmera desce sobre
+  um lugar do catálogo, segura, e vai para o próximo — o mesmo movimento que já
+  existia na tela de entrada, que sumia justamente para quem tinha acabado de
+  decidir usar o produto.
+
+  **Ele acaba no primeiro gesto seu, e não volta.** Um toque, um arrasto, uma
+  rolagem, uma tecla — qualquer coisa. Aqui o mapa é ferramenta, e ferramenta que
+  se mexe sozinha enquanto você a usa não é apresentação, é defeito. Por dentro
+  do app a câmera também não inclina nem gira, ao contrário da tela de entrada: o
+  norte é fixo neste produto, e um passeio que virasse o mapa deixaria você sem
+  como endireitá-lo
 
 - **Postos de combustível no mapa.** O botão "Postos", no alto da área de mapa,
   mostra os postos reais em volta de um ponto — a sua origem, o lugar que você
