@@ -59,7 +59,7 @@ export function DiscoveryLauncher() {
        * navegação faria o olho tratar o botão como dado.
        */
       className="chrome-capsule chrome-press press pointer-events-auto absolute
-                 bottom-[calc(var(--sheet-height)+var(--status-height)+var(--chrome-gap)*3)]
+                 bottom-[calc(var(--nav-height)+var(--safe-bottom)+var(--sheet-height)+var(--attrib-height)+var(--chrome-gap)*3)]
                  left-1/2 flex -translate-x-1/2 items-center gap-4 rounded-xl
                  border-accent px-6 py-4 whitespace-nowrap
                  hover:border-accent-strong hover:bg-accent/10

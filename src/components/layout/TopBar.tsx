@@ -5,43 +5,10 @@ import { usePathname } from 'next/navigation'
 import { signOutAction } from '@/app/entrar/actions'
 import { Logo } from '@/components/ui/Logo'
 import { cn } from '@/lib/utils/cn'
-import { NavIcon, type NavIconName } from './nav-icons'
+import { NavIcon } from './nav-icons'
+import { NAV_ITEMS, isActive } from './nav-items'
 import { ThemeToggle } from './ThemeToggle'
 import { useViewer } from './viewer-context'
-
-/**
- * Uma cor por destino, e a MESMA cor sempre.
- *
- * É o que faz a cor virar identificador de lugar na aplicação em vez de
- * enfeite: quem chega em Viagens reconhece o oliva antes de ler a palavra. Os
- * quatro matizes são vizinhos e têm a mesma leveza — nenhum azul de SaaS.
- */
-const NAV_ITEMS = [
-  { href: '/', label: 'Explorar', icon: 'explorar', tint: 'nav-explorar' },
-  {
-    href: '/descobrir',
-    label: 'Descobrir',
-    icon: 'descobrir',
-    tint: 'nav-descobrir',
-  },
-  { href: '/viagens', label: 'Viagens', icon: 'viagens', tint: 'nav-viagens' },
-  {
-    href: '/memorias',
-    label: 'Memórias',
-    icon: 'memorias',
-    tint: 'nav-memorias',
-  },
-] as const satisfies ReadonlyArray<{
-  href: string
-  label: string
-  icon: NavIconName
-  tint: string
-}>
-
-function isActive(pathname: string, href: string): boolean {
-  if (href === '/') return pathname === '/'
-  return pathname.startsWith(href)
-}
 
 export function TopBar() {
   const pathname = usePathname()
@@ -59,10 +26,13 @@ export function TopBar() {
     <header
       // `pointer-events-auto`: o contêiner do cromo é transparente ao ponteiro
       // para o mapa receber roda e arrasto, e a barra reativa o que é seu.
+      //
+      // Uma linha em toda largura. Era uma grade de duas linhas abaixo de 768px
+      // para caber a navegação; com os destinos na barra inferior do celular,
+      // sobra marca e ações, que cabem lado a lado em 366px.
       className="chrome-capsule pointer-events-auto absolute inset-x-(--chrome-gap) top-(--chrome-gap)
-                 z-(--z-bar) grid h-(--bar-height) grid-cols-[auto_1fr]
-                 grid-rows-[auto_1fr] items-center gap-x-2 rounded-full px-3
-                 md:flex md:items-stretch md:gap-5 md:px-4"
+                 z-(--z-bar) flex h-(--bar-height) items-stretch gap-2
+                 rounded-full px-3 md:gap-5 md:px-4"
     >
       <Link
         href="/"
@@ -86,13 +56,14 @@ export function TopBar() {
         className="hidden h-6.5 w-px shrink-0 self-center bg-line-strong md:block"
       />
 
-      {/* Abaixo de 768px a navegação desce para a segunda linha da grade e ocupa
-          a largura inteira. Espremida ao lado da marca e das ações, ela cortava
-          "Descobrir" no meio da palavra. */}
+      {/* Só a partir de 768px. No celular os mesmos quatro destinos moram na
+          barra inferior, ao alcance do polegar — ver `BottomNav`. Aqui não é
+          `hidden md:block` num contêiner: o `<nav>` inteiro sai do documento,
+          para não haver duas regiões de navegação na árvore de acessibilidade
+          anunciando o mesmo. */}
       <nav
         aria-label="Navegação principal"
-        className="col-span-2 row-start-2 min-w-0 self-stretch overflow-x-auto
-                   scrollbar-none md:col-span-1 md:row-start-auto"
+        className="hidden min-w-0 self-stretch md:block"
       >
         <ul className="flex h-full items-center gap-1">
           {NAV_ITEMS.map((item) => {
@@ -115,12 +86,12 @@ export function TopBar() {
                   }
                   className={cn(
                     'press flex whitespace-nowrap rounded-full',
-                    // No celular o rótulo desce para baixo do glifo. Lado a
-                    // lado, os quatro destinos somam 442px numa barra de 340 —
-                    // medido, "Memórias" ficava fora da tela. Empilhado, cada
-                    // item cabe em ~78px e os quatro entram sem rolagem.
-                    'h-14 flex-col items-center justify-center gap-1 px-2.5',
-                    'text-micro md:h-10 md:flex-row md:gap-2 md:px-3.5 md:text-small',
+                    // Glifo e rótulo lado a lado: só existe a partir de 768px,
+                    // onde há largura para isso. O empilhamento que resolvia o
+                    // aperto do celular mudou de endereço junto com a navegação,
+                    // e agora vive no `BottomNav`.
+                    'h-10 flex-row items-center justify-center gap-2 px-3.5',
+                    'text-small',
                     active
                       ? // Preenchido na cor do destino, com um brilho curto da
                         // própria cor. O rótulo vira a tinta escura porque o
@@ -144,10 +115,7 @@ export function TopBar() {
 
       {/* Criar lugar é AÇÃO, não destino: sai da gramática da navegação e é o
           único bloco de âmbar cheio da barra. */}
-      <div
-        className="col-start-2 row-start-1 ml-auto flex shrink-0 items-center
-                   gap-2 md:col-start-auto md:row-start-auto md:gap-3"
-      >
+      <div className="ml-auto flex shrink-0 items-center gap-2 md:gap-3">
         <Link
           href="/lugar/novo"
           // h-11 e não h-10: 44px é o piso de alvo, e este produto é usado

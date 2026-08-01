@@ -295,11 +295,27 @@
        isso, mudar a altura de uma barra faria o painel passar por baixo dela em
        silêncio. */
     --chrome-gap: 0.75rem; /* folga da borda e entre peças de cromo */
-    /* Duas linhas abaixo de 768px: numa barra de 366px não cabem a marca, os
-       quatro destinos, "Novo lugar" e "Sair". Rolar na horizontal cortava
-       "Descobrir" no meio da palavra. */
-    --bar-height: 6.5rem;
+    /* Uma linha só, em toda largura. Eram duas abaixo de 768px, porque numa
+       barra de 366px não cabiam a marca, os quatro destinos, "Novo lugar" e
+       "Sair" — e a segunda linha custava 104px de altura, 12% da tela, para
+       carregar navegação. Com os destinos na barra INFERIOR do celular
+       (`BottomNav`), a de cima volta a ser marca e ações. */
+    --bar-height: 3.5rem;
     --status-height: 2.25rem; /* barra de status */
+
+    /* Barra de navegação do celular. Some a partir de 768px, onde os destinos
+       voltam para a barra do topo. */
+    --nav-height: 4rem;
+
+    /* Altura do controle de atribuição do MapLibre. Existe como token porque o
+       lançador da descoberta precisa ficar acima dele no celular — ver a regra
+       de `.maplibregl-ctrl-bottom-right` no fim deste arquivo. */
+    --attrib-height: 2.625rem;
+
+    /* A faixa que o iPhone reserva ao indicador de gesto. Sem ela, os quatro
+       alvos da barra inferior ficam parcialmente embaixo dele — e um alvo de
+       44px vira 44px menos o que o sistema comeu. Zero onde não existe. */
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
 
     /* Foco — um token só, aplicado a 100% dos controles. Estava hardcoded na
        regra `:focus-visible` e não dava para referenciar em lugar nenhum. */
@@ -539,10 +555,12 @@
     position: absolute;
     z-index: var(--z-panel);
     inset-inline: var(--chrome-gap);
-    /* Abaixo de 768px o mostrador não existe, e a folha desce até a folga da
-       borda. Descontar uma barra que não está ali deixaria 48px de mapa morto
-       embaixo da folha, na tela que menos tem espaço. */
-    bottom: var(--chrome-gap);
+    /* Abaixo de 768px a folha pousa sobre a barra de navegação, e não sobre a
+       borda: o mostrador não existe aqui, mas os quatro destinos existem, e uma
+       folha por cima deles esconderia a navegação inteira do celular. */
+    bottom: calc(
+      var(--nav-height) + var(--safe-bottom) + var(--chrome-gap) * 2
+    );
     display: flex;
     max-height: var(--sheet-height);
     flex-direction: column;
@@ -591,13 +609,10 @@
   }
 
   @media (min-width: 768px) {
-    :root {
-      /* Uma linha só: a partir daqui tudo cabe lado a lado. */
-      --bar-height: 3.5rem;
-    }
-
     /* Entre as duas barras flutuantes, com a mesma folga. As alturas vêm dos
-       tokens: mudar uma barra sem isto faria o painel passar por baixo dela. */
+       tokens: mudar uma barra sem isto faria o painel passar por baixo dela.
+       A barra inferior de navegação não existe aqui — some em `md` —, então o
+       que o painel desconta embaixo volta a ser só o mostrador. */
     .overlay-panel {
       --panel-shift-y: 0px;
 
@@ -814,4 +829,29 @@
 .maplibregl-map .maplibregl-ctrl-attrib-button {
   /* O glifo default é preto sobre branco e desaparece numa interface escura. */
   filter: invert(1) brightness(0.62);
+}
+
+/*
+ * NO CELULAR A ATRIBUIÇÃO SOBE PARA CIMA DA FOLHA.
+ *
+ * Ela mora no canto inferior direito, e abaixo de 768px esse canto não é mais
+ * mapa: a folha inferior ocupa a metade de baixo da tela e a barra de navegação
+ * o que sobra. Medido antes de a barra existir — a atribuição já estava coberta
+ * por um botão da lista de lugares, e continuou coberta depois, pela navegação.
+ *
+ * Isso não é defeito de layout, é **licença descumprida**: o MapTiler e o
+ * OpenStreetMap exigem o crédito visível, e um crédito atrás de um painel opaco
+ * não é visível. O produto trata isso a sério em toda foto do Commons; o mapa
+ * não pode ser a exceção.
+ *
+ * A posição nova é a borda inferior da FAIXA DE MAPA — que é, nessa largura, o
+ * canto inferior do mapa de fato.
+ */
+@media (max-width: 767px) {
+  .maplibregl-map .maplibregl-ctrl-bottom-right {
+    bottom: calc(
+      var(--nav-height) + var(--safe-bottom) + var(--sheet-height) +
+        var(--chrome-gap)
+    );
+  }
 }

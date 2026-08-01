@@ -5,6 +5,7 @@ import { VisiblePlacesProvider } from '@/components/explore/visible-places-conte
 import { OriginProvider } from '@/components/layout/origin-context'
 import { ViewerProvider } from '@/components/layout/viewer-context'
 import { StatusBar } from '@/components/layout/StatusBar'
+import { BottomNav } from '@/components/layout/BottomNav'
 import { TopBar } from '@/components/layout/TopBar'
 import { PickerProvider } from '@/components/map/picker-context'
 
@@ -73,6 +74,12 @@ export default async function AppLayout({
               <div className="pointer-events-none absolute inset-0 z-(--z-panel)">
                 {children}
               </div>
+
+              {/* Navegacao do celular: some a partir de 768px, onde os
+                  destinos voltam para a barra do topo. Fora do overlay das
+                  rotas, como as outras pecas de cromo — ela nao pertence a
+                  rota nenhuma. */}
+              <BottomNav />
 
               <StatusBar />
             </div>

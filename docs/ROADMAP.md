@@ -42,12 +42,11 @@ ficaram dessas viagens?".
   viagem, quilometragem por moto, regiões exploradas. `docs/DATA-MODEL.md`
   já documenta, em "Perguntas que o schema já responde", a consulta em
   linguagem natural para cada uma.
-- **Navegação mobile própria.** A folha inferior já existe: abaixo de 768px
-  `OverlayPanel` deixa de ser painel lateral e vira bottom sheet
-  (`src/app/globals.css`), e a navegação principal rola na horizontal em vez
-  de cortar itens. O que falta é uma navegação desenhada para o toque — a
-  barra do desktop rolando lateralmente resolve não quebrar, não é o alvo
-  final.
+- ~~**Navegação mobile própria.**~~ Feito. Os quatro destinos moram numa barra
+  inferior abaixo de 768px, ao alcance do polegar, e a barra do topo voltou a
+  uma linha só. O sintoma registrado aqui — "a barra rola na horizontal" — já
+  tinha sido resolvido pelo empilhamento glifo/rótulo; o problema real era
+  alcance, e alcance não se resolve rolando.
 - **Leitura de EXIF** para posicionar fotos no mapa automaticamente —
   `trip_photos.latitude`/`longitude`/`taken_at`/`exif` já existem no schema,
   preparadas e não populadas ainda (ver `docs/DATA-MODEL.md`).
