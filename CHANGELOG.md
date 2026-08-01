@@ -60,6 +60,19 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Alterado
 
+- **O mapa ganhou vida, e os pins pararam de mentir.** Dois pins que significam
+  coisas opostas — "já fui" e "quero ir" — eram praticamente a mesma mancha na
+  tela: mediam 1,19 de contraste um do outro no tema escuro e 1,006 no claro,
+  onde tinham literalmente o mesmo brilho. Quem enxerga cor normalmente
+  precisava de esforço; quem tem daltonismo vermelho-verde via um pin só. Agora
+  "já fui" recua para um oliva fechado e "quero ir" fica no âmbar claro — o que
+  também acerta o sentido, porque o lugar que você ainda quer conhecer deve
+  chamar mais que o que você já riscou da lista. E o mapa em volta deixou de ser
+  um vazio preto: o **mar e as lagoas aparecem**, as serras ganharam relevo de
+  verdade — a sombra do terreno era preto puro sobre fundo quase preto — e a
+  estrada de chão parou de sumir no fundo. Ver
+  [ADR 0019](docs/decisions/0019-contraste-medido-na-paleta-do-mapa.md)
+
 - Cada página fazia uma ida ao servidor de autenticação **por repositório que
   lia** — quem abre um lugar e seu estado pessoal pagava duas viagens de rede
   para descobrir duas vezes quem é a mesma pessoa. A sessão agora é lida uma vez
