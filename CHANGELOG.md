@@ -39,6 +39,16 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Adicionado
 
+- Spec de **Entrar sem conta** fechada, em
+  `docs/superpowers/specs/2026-08-01-entrar-sem-conta-design.md`. Nada disso
+  funciona ainda. Haverá uma segunda porta na tela de entrada, para que alguém
+  possa olhar o Rastro sem ter conta: o mapa chega cheio, porque o catálogo já é
+  público, e o visitante experimenta tudo — marcar visitado, montar viagem,
+  escrever memória. Só não sobe fotografia, que é a única coisa que deixaria
+  arquivo permanente, e a recusa é do banco e não do botão escondido. Nada do
+  que o visitante faz sobrevive à sessão, e a barra de cima diz isso o tempo
+  todo
+
 - A **régua** por baixo de todo número: sólida quando foi medido, tracejada
   quando é conta (e aí o valor vem com `~` na frente), pontilhada quando ninguém
   sabe. É a faixa central da estrada, que já era a marca e já era o traçado da
