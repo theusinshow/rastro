@@ -48,6 +48,13 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   sessão, e a barra de cima diz isso o tempo todo. Decisão registrada no
   [ADR 0017](docs/decisions/0017-sessao-anonima-como-entrada-de-visitante.md)
 
+### Alterado
+
+- Cada página fazia uma ida ao servidor de autenticação **por repositório que
+  lia** — quem abre um lugar e seu estado pessoal pagava duas viagens de rede
+  para descobrir duas vezes quem é a mesma pessoa. A sessão agora é lida uma vez
+  por requisição
+
 ### Corrigido
 
 - O README mandava criar o banco rodando duas migrations, e existem oito. Quem
