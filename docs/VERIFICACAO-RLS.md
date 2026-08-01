@@ -222,7 +222,7 @@ Rode de novo ao mexer em qualquer política de Storage.
 
 ---
 
-## Visitante — fotografia fechada
+## Visitante — fotografia fechada — verificada em 01/08/2026
 
 > **Cuidado com a palavra.** Em todo o resto deste documento, "anônimo" significa
 > *requisição sem sessão nenhuma* — o papel `anon` do Postgres. Aqui o conceito é
@@ -238,12 +238,12 @@ e `photos_own`, que continuam valendo inteiras.
 node scripts/verificar-visitante-rls.mjs
 ```
 
-Quatro combinações — duas identidades × dois alvos:
+Quatro combinações — duas identidades × dois alvos. Resultado de 01/08/2026:
 
-| Identidade | Alvo | Esperado |
+| Identidade | Alvo | Resultado |
 |---|---|---|
-| Visitante | upload no bucket `fotos`, **pasta própria** | recusado |
-| Visitante | insert em `photos` | recusado, `42501` |
+| Visitante | upload no bucket `fotos`, **pasta própria** | recusado, `new row violates row-level security policy` |
+| Visitante | insert em `photos` | recusado, pela política `photos_insert_nao_visitante` |
 | Com conta | upload no bucket `fotos` | **aceito** |
 | Com conta | insert em `photos` | **aceito** |
 
