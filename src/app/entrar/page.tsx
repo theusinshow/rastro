@@ -1,5 +1,6 @@
 import { isSupabaseConfigured } from '@/lib/supabase/server'
-import { MapFlyover } from '@/components/map/MapFlyover'
+import { EntranceTour } from '@/components/map/EntranceTour'
+import { listShowcasePlaces } from '@/lib/data/showcase'
 import { Button } from '@/components/ui/Button'
 import { Logo } from '@/components/ui/Logo'
 import { signInAsGuestAction, signInWithGoogleAction } from './actions'
@@ -30,6 +31,15 @@ export default async function EntrarPage({
   const { proximo, erro, detalhe } = await searchParams
   const configured = isSupabaseConfigured()
 
+  /*
+   * O catálogo público, lido SEM sessão — é o que o passeio da câmera visita.
+   *
+   * Devolve `[]` quando o Supabase não está configurado ou o banco não responde,
+   * e aí a entrada mostra o mapa parado. A tela de login não pode depender de
+   * uma consulta para existir.
+   */
+  const showcase = configured ? await listShowcasePlaces() : []
+
   return (
     /*
      * A entrada usa a MESMA estrutura do aplicativo: mapa como superfície,
@@ -47,7 +57,6 @@ export default async function EntrarPage({
      * sobraria de mapa não informa nada e só roubaria contraste do texto.
      */
     <>
-      <MapFlyover />
       <main className="relative flex h-screen overflow-hidden">
         {/* O painel vem ANTES do mapa no DOM, e é posicionado por CSS. A
             atribuição do MapLibre é obrigação de licença e traz três paradas de
@@ -163,6 +172,12 @@ export default async function EntrarPage({
               ) : null}
             </div>
           ) : null}
+
+          {/* Fica por último no painel de propósito: o passeio dá vontade de
+              entrar, mas quem manda entrar são os botões acima. Um bloco que
+              troca de conteúdo sozinho já chama atenção sem precisar de posição
+              melhor. */}
+          <EntranceTour places={showcase} />
         </div>
       </main>
     </>

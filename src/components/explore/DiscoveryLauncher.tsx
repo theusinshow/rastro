@@ -26,16 +26,36 @@ export function DiscoveryLauncher() {
       href="/descobrir"
       className="press pointer-events-auto absolute
                  bottom-[calc(var(--sheet-height)+var(--status-height)+var(--chrome-gap)*3)]
-                 left-1/2 flex -translate-x-1/2 items-center gap-3 rounded-lg
-                 border border-accent bg-base/85 px-5 py-3 text-small
-                 font-semibold tracking-[0.16em] whitespace-nowrap text-accent
-                 uppercase backdrop-blur-sm hover:bg-accent/10
+                 left-1/2 flex -translate-x-1/2 items-center gap-4 rounded-lg
+                 border border-accent bg-base/85 px-5 py-3 whitespace-nowrap
+                 backdrop-blur-sm hover:bg-accent/10
                  md:bottom-[calc(var(--status-height)+var(--chrome-gap)*2)]
                  md:left-[calc(var(--panel-narrow)+var(--chrome-gap))]
                  md:right-(--chrome-gap) md:mx-auto md:w-fit md:translate-x-0"
     >
-      Para onde vamos?
-      <span aria-hidden>→</span>
+      {/*
+        Duas linhas, e não uma.
+
+        A pergunta sozinha não dizia o que o botão entrega — quem chega não sabe
+        se vai abrir um formulário longo, um mapa de tudo ou uma resposta. A
+        segunda linha é a promessa, no vocabulário do produto: o que você
+        informa, e o que volta.
+      */}
+      <span className="flex flex-col gap-0.5 text-left">
+        <span
+          className="text-small font-semibold tracking-[0.16em] text-accent
+                     uppercase"
+        >
+          Para onde vamos hoje?
+        </span>
+        <span className="text-micro leading-snug text-ink-faint normal-case">
+          Tempo, distância e o destino que cabe
+        </span>
+      </span>
+
+      <span aria-hidden className="text-lead leading-none text-accent">
+        →
+      </span>
     </Link>
   )
 }

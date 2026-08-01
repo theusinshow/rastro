@@ -751,6 +751,16 @@
     }
   }
 
+  /* O lugar em foco no passeio da entrada, trocando a cada parada da câmera.
+     Sem o fade o texto trocaria seco no meio do voo, e a troca leria como
+     defeito em vez de continuação do movimento.
+
+     Herda `--dur-base` e o zeramento sob movimento reduzido junto com todo o
+     resto — ali o passeio nem chega a rodar. */
+  .fade-in-item {
+    animation: fade-in var(--dur-base) var(--ease-out-quart) backwards;
+  }
+
   /* O glifo do destino que acabou de assumir redesenha o próprio traço. É
      informação — diz qual destino mudou —, e por isso vale um movimento que
      nenhum outro ícone do produto tem. */

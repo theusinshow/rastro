@@ -54,6 +54,18 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   sessão, e a barra de cima diz isso o tempo todo. Decisão registrada no
   [ADR 0017](docs/decisions/0017-sessao-anonima-como-entrada-de-visitante.md)
 
+- **A entrada virou um passeio pelos lugares.** A câmera desce sobre um lugar
+  do catálogo, segura alguns segundos e vai para o próximo, em ciclo — e ao lado
+  aparece o nome dele, a categoria, a cidade e a linha escrita à mão sobre o que
+  esperar. *"Vila litorânea entre morros, com enseadas abrigadas."* Esse
+  conhecimento é o que o Rastro tem e o Google Maps não, e até agora ele só
+  aparecia depois de entrar. Quem só quer entrar tem **Parar**; quem pediu
+  movimento reduzido ao sistema vê um lugar só, parado
+
+- **O botão da descoberta diz o que entrega.** Era só a pergunta "para onde
+  vamos?"; agora tem uma segunda linha — *tempo, distância e o destino que
+  cabe* — porque perguntar sem dizer o que volta faz o clique parecer um risco
+
 - **A entrada virou um sobrevoo da Serra do Rio do Rastro.** A câmera começa
   alta e a sudeste, desce girando para o norte ao longo do paredão por onze
   segundos, e pousa. É a serra de verdade, com o relevo real em três dimensões —
