@@ -42,16 +42,40 @@ duas pastas de apoio de `src/lib/` explicitadas):
 | `src/lib/data/` | `domain`, `lib/supabase` | componentes |
 | `src/lib/map/` | `domain` | componentes de página |
 | `src/lib/routing/` | `domain` | `lib/data`, `lib/supabase`, componentes |
+| `src/lib/fuel-stations/` | `domain` | `lib/data`, `lib/supabase`, componentes |
 | `src/app/actions/` | `domain`, `lib` | componentes |
 | `src/lib/motion/` | React | `domain`, `lib/data`, `lib/map`, componentes |
 | `src/lib/utils/` | nada do projeto | qualquer coisa do projeto |
 | `src/components/` | `domain`, `lib` | outros repositórios diretamente |
 
-`src/lib/routing/` é a única pasta que fala com um serviço externo que não é o
-Supabase nem o MapTiler. Ela expõe **uma função** que devolve `null` como única
-forma de falha, e nunca lança: assim o modo degradado do produto — estimar a
-distância em vez de medi-la — é um `if` no chamador, e não um segundo caminho de
-código. Ver [ADR 0013](./decisions/0013-openrouteservice-para-tracado.md).
+`src/lib/routing/`, `src/lib/weather/`, `src/lib/photos/` e
+`src/lib/fuel-stations/` são as pastas que falam com serviços externos que não
+são o Supabase nem o MapTiler. Cada uma expõe **um contrato** — uma interface,
+uma função de fábrica em `index.ts` que decide se a integração existe, e um
+adapter concreto —, e **nenhuma delas lança**.
+
+As três primeiras usam `null` (ou `[]`) como única forma de falha: o modo
+degradado do produto é silencioso, e vira um `if` no chamador em vez de um
+segundo caminho de código. Ver
+[ADR 0013](./decisions/0013-openrouteservice-para-tracado.md) e
+[ADR 0015](./decisions/0015-open-meteo-para-condicao-na-estrada.md).
+
+`src/lib/fuel-stations/` é a exceção deliberada: a falha é **nomeada**
+(`FuelSearchFailure`), porque ali não existe modo degradado — quem apertou
+"Postos" pediu uma coisa só, e precisa saber se vale tentar de novo. Ela também
+é a única com uma metade de navegador (`browser.ts`, que fala com a nossa rota)
+separada da metade de servidor (`index.ts`, que lê a chave), pela mesma razão
+que separa `browser.ts` de `server.ts` no Supabase. Ver
+[ADR 0020](./decisions/0020-geoapify-para-postos-de-combustivel.md).
+
+### `src/app/api/` — a fronteira de leitura medida
+
+Uma rota só, `api/fuel-stations`, e ela existe porque uma Server Action não
+cobre três coisas de que a busca de postos precisa: **cancelamento** pelo
+chamador, **cache por URL** e **erro nomeado com código HTTP**. Toda outra
+consulta de cliente a serviço externo — Wikimedia Commons, geocodificação —
+continua sendo Server Action. A rota é protegida por sessão de graça, porque
+`src/proxy.ts` cobre tudo que não está em `PUBLIC_PATHS`. Ver ADR 0020.
 
 `src/lib/motion/` é a única pasta fora de `src/components/` que contém hooks
 React, e isso é deliberado: `useReducedMotion` e `useExitTransition` são
@@ -305,4 +329,5 @@ uma decisão registrada em silêncio.
 | [0008](./decisions/0008-rls-como-fronteira-de-autorizacao.md) | RLS como fronteira de autorização | Os repositórios não recebem `userId` nem repetem `.eq('user_id', …)`: o banco filtra por `auth.uid()`. Uma autoridade só, e a verificação das políticas vira roteiro manual em `docs/VERIFICACAO-RLS.md`. |
 | [0011](./decisions/0011-icones-na-navegacao-principal.md) | Ícones na navegação principal | Exceção estreita à regra de "ícone só quando substitui texto": quatro glifos desenhados à mão, sempre com rótulo ao lado, só na navegação. Em caixa alta com tracking os quatro destinos somavam 442px numa barra de 340 e não cabiam — e gastavam no menu o vocabulário reservado à medição. |
 | [0010](./decisions/0010-cromo-flutuante-sobre-mapa-sangrando.md) | Cromo flutuante sobre mapa sangrando | O mapa ocupa a viewport inteira e barras e painéis flutuam por cima, com folga e raio. O produto declarava o mapa como estrutura e o desenhava como o buraco no meio das barras. Meia adoção não existe: se um flutua, todos flutuam. |
+| [0020](./decisions/0020-geoapify-para-postos-de-combustivel.md) | Geoapify para postos de combustível | Postos vêm da Places API atrás de `/api/fuel-stations`, com a chave só no servidor; a falha é nomeada em vez de `null` porque não há modo degradado; o posto é **losango** e não disco, porque separar serviço de destino só por cor foi o defeito que o ADR 0019 mediu; nada busca sozinho ao mover o mapa. |
 | [0009](./decisions/0009-direcao-visual-couro-e-instrumento.md) | Direção visual: couro e instrumento | Substitui paleta, teto de raio e tipografia. Superfície de couro queimado, escala de raio de 8 a 36px, Archivo + JetBrains Mono, piso de corpo de 17px. O estilo cartográfico foi refeito junto porque o MapLibre não lê variável CSS. Preservados: hairline no lugar de sombra, nenhum card com conteúdo primário, mono para todo dado numérico, e a política de movimento inteira. |

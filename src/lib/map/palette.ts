@@ -53,6 +53,19 @@ export interface PinPalette {
   hollow: string
   /** Anel do pin selecionado: a cor da tinta. */
   bone: string
+  /**
+   * Posto de combustível — o único mark do mapa que **não é destino**.
+   *
+   * É o azul de carta náutica que a navegação já usa em Memórias, e não uma cor
+   * nova: a família do produto é a mesma em todo lugar. Fica fora da faixa
+   * quente dos três estados de visita de propósito — serviço não compete com
+   * destino —, e a distinção principal nem é a cor: posto é **losango**, e os
+   * destinos são discos. Ver `fuel-icon.ts`.
+   *
+   * O risco medido desta escolha é confundir com a água, e o teste de contraste
+   * cobre exatamente isso.
+   */
+  fuel: string
 }
 
 /**
@@ -148,6 +161,9 @@ const ESCURO: ThemePalette = {
     unvisited: '#a4988a',
     hollow: '#1f1a16',
     bone: '#efe7d9',
+    // 7.5:1 do fundo e 4.9:1 da água. O segundo número é o que importa aqui:
+    // um azul sobre um mapa é candidato natural a virar rio.
+    fuel: '#8fa9c2',
   },
   trip: { asphalt: '#f0b34a', centerLine: '#16120f' },
 }
@@ -212,6 +228,10 @@ const CLARO: ThemePalette = {
     unvisited: '#635a4e',
     hollow: '#f4efe6',
     bone: '#211d18',
+    // Inverte junto com o resto do tema: sobre areia, o azul de carta náutica
+    // precisa ESCURECER para existir — a mesma regra das quatro vias. 5.9:1 do
+    // fundo e 4.5:1 da água clara.
+    fuel: '#3f5a75',
   },
   trip: { asphalt: '#b87615', centerLine: '#f4efe6' },
 }

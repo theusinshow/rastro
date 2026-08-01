@@ -30,3 +30,31 @@ export function googleMapsRouteUrl(
 
   return url.toString()
 }
+
+/**
+ * Rota de um ponto só: daqui até ali, sem volta.
+ *
+ * O irmão de ida e volta acima serve ao passeio, que sai de casa e volta para
+ * casa. Este serve ao trecho: o posto de combustível é uma parada no meio do
+ * caminho, e ninguém quer voltar para casa depois de abastecer.
+ *
+ * `origin` é opcional porque a partida pode não existir — quem ainda não definiu
+ * origem no perfil continua tendo a rota, e o Google usa a localização do
+ * aparelho como faz em qualquer link de direção. Fabricar uma partida aqui
+ * traçaria uma rota a partir de um lugar que não é o de ninguém.
+ */
+export function googleMapsDirectionUrl(
+  destination: Coordinates,
+  origin: Coordinates | null = null,
+): string {
+  const point = (coordinates: Coordinates) =>
+    `${coordinates.latitude},${coordinates.longitude}`
+
+  const url = new URL('https://www.google.com/maps/dir/')
+  url.searchParams.set('api', '1')
+  url.searchParams.set('travelmode', 'driving')
+  if (origin) url.searchParams.set('origin', point(origin))
+  url.searchParams.set('destination', point(destination))
+
+  return url.toString()
+}

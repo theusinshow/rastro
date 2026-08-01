@@ -127,6 +127,19 @@ function verificar(nome: string, palette: ThemePalette) {
       expect(degraus[3]!).toBeGreaterThanOrEqual(7)
     })
 
+    /*
+     * O posto é o único mark do mapa que não é destino, e é azul.
+     *
+     * Contra o fundo, porque ele precisa existir. E contra a ÁGUA, porque é
+     * onde mora o risco desta escolha: um azul sobre um mapa é candidato
+     * natural a virar rio. A forma já separa posto de destino — losango contra
+     * disco —, mas nenhuma forma salva um mark que some dentro da baía.
+     */
+    it('o posto se destaca do fundo do mapa e não se confunde com a água', () => {
+      expect(contrastRatio(pin.fuel, map.background)).toBeGreaterThanOrEqual(UI)
+      expect(contrastRatio(pin.fuel, map.water)).toBeGreaterThanOrEqual(UI)
+    })
+
     it('a faixa central do traçado corta o asfalto em vez de somar a ele', () => {
       expect(
         contrastRatio(palette.trip.centerLine, palette.trip.asphalt),

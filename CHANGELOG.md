@@ -39,6 +39,26 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Adicionado
 
+- **Postos de combustível no mapa.** O botão "Postos", no alto da área de mapa,
+  mostra os postos reais em volta de um ponto — a sua origem, o lugar que você
+  acabou de abrir, ou o centro do mapa, se você ainda não definiu origem
+  nenhuma. A lista vem do mais perto para o mais longe, cada posto abre com o
+  endereço e o horário que existirem, e "traçar rota até aqui" leva ao Google
+  com a partida já preenchida. O Rastro já sabia dizer que a sua volta exige uma
+  parada para abastecer; agora ele sabe dizer **onde**.
+
+  No mapa o posto é um **losango**, e não um disco como os lugares do catálogo:
+  serviço não é destino, e separar os dois só por cor foi exatamente o defeito
+  que a medição de contraste da paleta já tinha pegado nos pins. A forma
+  sobrevive ao sol na tela, ao vidro do capacete e ao daltonismo.
+
+  Nada busca sozinho. Arrastar o mapa não dispara requisição nenhuma — aparece
+  um "buscar nesta área" quando você se afastou o bastante, e a decisão continua
+  sua. Sem chave configurada, o botão continua na tela e diz que a busca não
+  está disponível, em vez de girar para sempre. Dado do OpenStreetMap via
+  Geoapify, com o crédito que as duas licenças exigem. Decisão registrada no
+  [ADR 0020](docs/decisions/0020-geoapify-para-postos-de-combustivel.md)
+
 - **O Rastro agora sabe onde você está.** Um toque em "usar minha localização"
   define o ponto de partida — antes, a única forma era digitar um endereço e
   escolher num resultado de busca, no exato cenário em que a pessoa está de pé
