@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { civilDateInTimeZone, formatVisitDate } from './dates'
+import { civilDateInTimeZone, formatClock, formatVisitDate } from './dates'
 
 describe('formatVisitDate', () => {
   it('formata no vocabulário de diário de viagem', () => {
@@ -48,5 +48,17 @@ describe('civilDateInTimeZone', () => {
     )
 
     expect(formatVisitDate(civil)).toBe('30 JUL 2026')
+  })
+})
+
+describe('formatClock', () => {
+  it('formata com dois dígitos em hora e minuto', () => {
+    expect(formatClock(new Date(2026, 7, 2, 8, 5))).toBe('08:05')
+    expect(formatClock(new Date(2026, 7, 2, 14, 30))).toBe('14:30')
+  })
+
+  it('usa 24 horas, e não AM/PM', () => {
+    expect(formatClock(new Date(2026, 7, 2, 23, 59))).toBe('23:59')
+    expect(formatClock(new Date(2026, 7, 2, 0, 0))).toBe('00:00')
   })
 })

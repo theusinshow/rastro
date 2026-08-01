@@ -60,10 +60,14 @@ export function estimateRidingMinutes(roadKm: number): number {
   return (roadKm / AVERAGE_SPEED_KMH) * 60
 }
 
-export type TimeBudget = '2h' | '4h' | '6h' | 'dia-inteiro'
+export type TimeBudget = '2h' | '3h' | '4h' | '6h' | 'dia-inteiro'
 
 export const TIME_BUDGET_MINUTES: Record<TimeBudget, number> = {
   '2h': 120,
+  // Três horas era o buraco: o passeio de domingo de manhã, que é o cenário mais
+  // comum do produto, não tinha opção. Quem tinha três horas escolhia duas e
+  // sobrava tempo, ou quatro e chegava atrasado.
+  '3h': 180,
   '4h': 240,
   '6h': 360,
   'dia-inteiro': 600,
@@ -71,6 +75,7 @@ export const TIME_BUDGET_MINUTES: Record<TimeBudget, number> = {
 
 export const TIME_BUDGET_LABELS: Record<TimeBudget, string> = {
   '2h': '2 horas',
+  '3h': '3 horas',
   '4h': '4 horas',
   '6h': '6 horas',
   'dia-inteiro': 'Dia inteiro',
@@ -146,7 +151,12 @@ export function findDestinations(
 }
 
 /** O que precisaria mudar na consulta para que ela devolvesse algo. */
-export type DiscoveryRelaxation = 'maxDistanceKm' | 'timeBudget' | 'categories'
+export type DiscoveryRelaxation =
+  | 'maxDistanceKm'
+  | 'timeBudget'
+  | 'categories'
+  | 'onlyUnvisited'
+  | 'onlyFavorites'
 
 export interface DiscoverySuggestion {
   relaxation: DiscoveryRelaxation
@@ -156,7 +166,13 @@ export interface DiscoverySuggestion {
   count: number
 }
 
-const TIME_BUDGETS_ASCENDING: TimeBudget[] = ['2h', '4h', '6h', 'dia-inteiro']
+const TIME_BUDGETS_ASCENDING: TimeBudget[] = [
+  '2h',
+  '3h',
+  '4h',
+  '6h',
+  'dia-inteiro',
+]
 
 /**
  * A menor ampliação de limite que faria a busca devolver algo. `null` quando
@@ -195,10 +211,81 @@ export function suggestBroaderQuery(
     attempts.push({ relaxation: 'categories', query: { ...query, categories: [] } })
   }
 
+  /*
+   * Os dois alternadores também entram, e faltavam.
+   *
+   * Sem eles, quando nenhuma outra folga resolvia, a interface caía num texto
+   * fixo mandando "remover o filtro de favoritos ou o de não visitados" — mesmo
+   * quando nenhum dos dois estava ligado. Conselho impossível de seguir. Agora,
+   * se desligá-los resolve, isso vira um botão que resolve; e se não resolve,
+   * nada é sugerido, e quem chama sabe que a causa é outra. Ver RASTRO-007.
+   */
+  if (query.onlyUnvisited) {
+    attempts.push({
+      relaxation: 'onlyUnvisited',
+      query: { ...query, onlyUnvisited: false },
+    })
+  }
+
+  if (query.onlyFavorites) {
+    attempts.push({
+      relaxation: 'onlyFavorites',
+      query: { ...query, onlyFavorites: false },
+    })
+  }
+
   for (const attempt of attempts) {
     const count = findDestinations(places, attempt.query).length
     if (count > 0) return { ...attempt, count }
   }
 
   return null
+}
+
+/**
+ * Distância de estrada estimada até o lugar mais próximo do catálogo,
+ * ignorando **todo** filtro.
+ *
+ * Existe para separar dois vazios que a interface tratava como um só: "seus
+ * filtros estão apertados demais" e "não há nada perto de você". O segundo é o
+ * caso de quem abre o Rastro fora de Santa Catarina, e a resposta honesta não é
+ * mandar mexer em filtro — é dizer a que distância está o lugar mais próximo.
+ *
+ * `null` quando o catálogo está vazio.
+ */
+export function nearestPlaceKm(
+  places: readonly ExplorePlace[],
+  origin: Coordinates,
+): number | null {
+  let nearest: number | null = null
+
+  for (const place of places) {
+    const km = estimateRoadKm(haversineKm(origin, place))
+    if (nearest === null || km < nearest) nearest = km
+  }
+
+  return nearest
+}
+
+/**
+ * A que horas você está de volta.
+ *
+ * É o número que decide o passeio de domingo — "tenho até meio-dia" é a
+ * restrição real de quem sai de manhã — e era justamente o que faltava no
+ * resultado da descoberta (RASTRO-005 da auditoria). Sem ele, a pessoa recebia
+ * "1h26 ida e volta" e fazia a soma de cabeça, no celular, ao lado da moto.
+ *
+ * Soma **uma** parada no destino, e não zero: `estimatedRoundTripMinutes` conta
+ * só o tempo pilotando, e ninguém roda 39 km até uma praia para dar meia-volta
+ * no estacionamento. `MINUTES_PER_STOP` é a mesma constante que o roteiro usa —
+ * se ela for calibrada um dia, as duas telas andam juntas.
+ *
+ * Não arredonda para minuto cheio: quem formata decide isso.
+ */
+export function estimateReturnAt(
+  departure: Date,
+  roundTripMinutes: number,
+): Date {
+  const total = roundTripMinutes + MINUTES_PER_STOP
+  return new Date(departure.getTime() + total * 60_000)
 }

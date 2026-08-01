@@ -79,5 +79,32 @@ export function createMapTilerGeocodingClient(apiKey: string): GeocodingClient {
         return []
       }
     },
+
+    async reverse(coordinates) {
+      try {
+        // O MapTiler inverte a ordem: `lng,lat`, e não `lat,lng`. Trocar os dois
+        // não dá erro — devolve um lugar no meio do oceano, calado.
+        const ponto = `${coordinates.longitude},${coordinates.latitude}`
+        const url = new URL(`${ENDPOINT}/${ponto}.json`)
+        url.searchParams.set('key', apiKey)
+        url.searchParams.set('language', 'pt')
+        url.searchParams.set('limit', '1')
+
+        const response = await fetch(url, {
+          signal: AbortSignal.timeout(TIMEOUT_MS),
+        })
+        if (!response.ok) return null
+
+        const body: unknown = await response.json()
+        const features = (body as { features?: MapTilerFeature[] })?.features
+        const first = Array.isArray(features) ? features[0] : undefined
+        if (!first) return null
+
+        const label = toLabel(first)
+        return label.length > 0 ? label : null
+      } catch {
+        return null
+      }
+    },
   }
 }

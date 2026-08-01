@@ -75,13 +75,26 @@ export default async function EntrarPage({
             <span className="type-wordmark text-title">Rastro</span>
           </span>
 
+          {/*
+            Lidera com HOJE, e não com o passado.
+
+            A frase anterior — "o mapa da sua vida sobre duas rodas", seguida de
+            "onde você já esteve... as histórias que ficaram" — gastava dois
+            terços do texto no que já aconteceu. É bonita e é verdadeira, mas
+            define a expectativa errada: quem chega aqui está de moto e quer
+            sair, e a pergunta que o produto existe para responder é "para
+            onde".
+
+            A memória continua na frase, no fim, que é onde ela entra na vida de
+            quem usa: primeiro você vai, depois fica a história. Ver RASTRO-004.
+          */}
           <h1 className="mt-8 text-title font-medium text-ink">
-            O mapa da sua vida sobre duas rodas
+            Para onde você vai hoje?
           </h1>
 
           <p className="mt-3 text-body leading-relaxed text-ink-muted">
-            Onde você já esteve, o que ainda quer conhecer, e as histórias que
-            ficaram dessas viagens.
+            Diga de onde parte e quanto tempo tem. O Rastro acha o destino, mede
+            a ida e a volta — e guarda o que ficou de cada viagem.
           </p>
 
           {configured ? (

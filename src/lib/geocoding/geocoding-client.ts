@@ -18,4 +18,16 @@ export interface GeocodedPlace {
  */
 export interface GeocodingClient {
   search(query: string): Promise<GeocodedPlace[]>
+  /**
+   * Coordenada → nome do lugar. O caminho inverso da busca.
+   *
+   * Existe para a geolocalização do aparelho: ela entrega latitude e longitude,
+   * e "-27.6448, -48.6646" não é um ponto de partida que alguém reconheça na
+   * lista de viagens seis meses depois.
+   *
+   * Falha como o resto deste módulo: `null`, nunca exceção. Sem nome, a
+   * interface usa um rótulo genérico e a origem continua utilizável — perder o
+   * nome não pode custar a coordenada, que é o dado que importa.
+   */
+  reverse(coordinates: Coordinates): Promise<string | null>
 }

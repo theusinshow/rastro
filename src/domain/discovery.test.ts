@@ -2,12 +2,15 @@ import { describe, expect, it } from 'vitest'
 import {
   AVERAGE_SPEED_KMH,
   ROAD_SINUOSITY_FACTOR,
+  estimateReturnAt,
   estimateRidingMinutes,
   estimateRoadKm,
   findDestinations,
+  nearestPlaceKm,
   suggestBroaderQuery,
 } from './discovery'
 import type { DiscoveryQuery } from './discovery'
+import { haversineKm } from './geo'
 import type { ExplorePlace } from './place'
 
 const ORIGIN = { latitude: -27.6455, longitude: -48.67 }
@@ -181,9 +184,106 @@ describe('suggestBroaderQuery', () => {
     expect(suggestion?.query.categories).toEqual([])
   })
 
-  it('devolve null quando nenhuma ampliação de limite resolve', () => {
-    expect(
-      suggestBroaderQuery([distante], query({ onlyFavorites: true })),
-    ).toBeNull()
+  /*
+   * Este teste afirmava `null` para um lugar distante COM `onlyFavorites`
+   * ligado — e passava porque a função ignorava os alternadores. Ignorá-los era
+   * o defeito: `null` significava tanto "nada resolve" quanto "só desligar um
+   * alternador resolve", e a interface tratava os dois como o segundo.
+   *
+   * Agora `null` significa uma coisa só. O caso do alternador que resolve
+   * ganhou teste próprio abaixo; aqui fica o que de fato não tem saída.
+   */
+  it('devolve null quando nem os alternadores resolvem', () => {
+    expect(suggestBroaderQuery([distante], query())).toBeNull()
+  })
+})
+
+describe('suggestBroaderQuery — os alternadores também são folga', () => {
+  /*
+   * A auditoria (RASTRO-007) encontrou a interface mandando "remova o filtro de
+   * favoritos ou o de não visitados" num caso em que nenhum dos dois estava
+   * ligado — conselho impossível de seguir. A causa era esta função não
+   * considerar os alternadores, e por isso devolver `null` tanto quando eles
+   * resolveriam quanto quando nada resolvia.
+   */
+  it('oferece incluir os já visitados quando é isso que devolve destino', () => {
+    const visitado = place({ slug: 'v', visitStatus: 'visitado' })
+    const sugestao = suggestBroaderQuery([visitado], query({ onlyUnvisited: true }))
+
+    expect(sugestao?.relaxation).toBe('onlyUnvisited')
+    expect(sugestao?.count).toBe(1)
+    expect(sugestao?.query.onlyUnvisited).toBe(false)
+  })
+
+  it('oferece sair dos favoritos quando é isso que devolve destino', () => {
+    const comum = place({ slug: 'c', isFavorite: false })
+    const sugestao = suggestBroaderQuery([comum], query({ onlyFavorites: true }))
+
+    expect(sugestao?.relaxation).toBe('onlyFavorites')
+    expect(sugestao?.count).toBe(1)
+  })
+
+  it('não inventa folga quando o catálogo está longe demais', () => {
+    // São Paulo fica a ~500 km de Palhoça: nenhum ajuste de filtro alcança.
+    const distante = place({ slug: 'sp', latitude: -23.5614, longitude: -46.6559 })
+
+    expect(suggestBroaderQuery([distante], query())).toBeNull()
+  })
+})
+
+describe('nearestPlaceKm', () => {
+  it('mede o mais próximo em quilometragem de estrada, e não em linha reta', () => {
+    const perto = place({ slug: 'p', latitude: -27.7, longitude: -48.7 })
+    const longe = place({ slug: 'l', latitude: -23.5614, longitude: -46.6559 })
+    const km = nearestPlaceKm([longe, perto], ORIGIN)
+
+    expect(km).not.toBeNull()
+    expect(km).toBeCloseTo(estimateRoadKm(haversineKm(ORIGIN, perto)), 6)
+  })
+
+  /*
+   * O número que a interface mostra quando nenhum filtro explica o vazio. Se
+   * ele ignorasse os filtros pela metade, diria uma distância que não é a do
+   * lugar mais próximo — e voltaria a dar conselho errado, por outro caminho.
+   */
+  it('ignora estado de visita, favorito e categoria', () => {
+    const visitadoEPerto = place({
+      slug: 'vp', latitude: -27.66, longitude: -48.68,
+      visitStatus: 'visitado', isFavorite: true, category: 'praia',
+    })
+    const naoVisitadoELonge = place({ slug: 'nl', latitude: -26, longitude: -49 })
+
+    expect(nearestPlaceKm([visitadoEPerto, naoVisitadoELonge], ORIGIN)).toBeCloseTo(
+      estimateRoadKm(haversineKm(ORIGIN, visitadoEPerto)), 6,
+    )
+  })
+
+  it('devolve nulo com catálogo vazio', () => {
+    expect(nearestPlaceKm([], ORIGIN)).toBeNull()
+  })
+})
+
+describe('estimateReturnAt', () => {
+  const SAIDA = new Date('2026-08-02T08:00:00-03:00')
+
+  it('soma a pilotagem mais uma parada no destino', () => {
+    const volta = estimateReturnAt(SAIDA, 86)
+    // 86 min de estrada + 30 de parada = 116 min.
+    expect(volta.getTime() - SAIDA.getTime()).toBe(116 * 60_000)
+  })
+
+  /*
+   * Sem a parada, o produto prometeria uma volta que só acontece se a pessoa
+   * der meia-volta no estacionamento do destino. Ninguém roda 39 km para isso, e
+   * um horário de retorno otimista é pior que nenhum: ele é usado para decidir.
+   */
+  it('nunca devolve o tempo de estrada puro', () => {
+    expect(estimateReturnAt(SAIDA, 0).getTime()).toBeGreaterThan(SAIDA.getTime())
+  })
+
+  it('não modifica a data recebida', () => {
+    const copia = new Date(SAIDA)
+    estimateReturnAt(SAIDA, 120)
+    expect(SAIDA.getTime()).toBe(copia.getTime())
   })
 })

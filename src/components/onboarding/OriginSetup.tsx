@@ -10,6 +10,7 @@ import type { GeocodedPlace } from '@/lib/geocoding'
 import { OverlayPanel } from '@/components/layout/OverlayPanel'
 import { useOrigin } from '@/components/layout/origin-context'
 import { PointPicker } from '@/components/map/PointPicker'
+import { useMyLocation } from './use-my-location'
 import { Button } from '@/components/ui/Button'
 import { Field, Input } from '@/components/ui/Field'
 import { InlineMessage } from '@/components/ui/InlineMessage'
@@ -34,6 +35,28 @@ export function OriginSetup({ autonomyKm }: OriginSetupProps) {
 
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<GeocodedPlace[] | null>(null)
+
+  /*
+   * A partida vinda do próprio aparelho — o que faltava e era o maior atrito do
+   * produto: a única forma de dizer de onde se parte era digitar um endereço,
+   * no cenário em que a pessoa está de pé ao lado da moto, de luva.
+   *
+   * Aqui ela só PREENCHE o formulário: quem grava continua sendo o botão de
+   * confirmar, porque a pessoa ainda pode querer ajustar o pino ou o nome.
+   */
+  const {
+    locate,
+    locating,
+    error: locationError,
+  } = useMyLocation({
+    onLocated: useCallback((coordinates: Coordinates, nome: string) => {
+      setPoint(coordinates)
+      setLabel(nome)
+      setResults(null)
+      setQuery('')
+    }, []),
+  })
+
   const [searching, startSearch] = useTransition()
 
   // Identidade estável: sem `useCallback`, o efeito do PointPicker remonta a
@@ -101,6 +124,27 @@ export function OriginSetup({ autonomyKm }: OriginSetupProps) {
               Busque o endereço ou clique no mapa. Toda distância e todo cálculo
               de tempo do Rastro partem daqui.
             </p>
+          </div>
+
+          {/* Antes da busca de propósito: é a única forma de definir a partida
+              sem digitar nada, e o cenário de uso deste produto é alguém parado
+              ao lado da moto, de luva. Digitar endereço é a alternativa, não o
+              caminho principal. Ver RASTRO-002 da auditoria. */}
+          <div className="flex flex-col gap-2 border-t border-line pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={locate}
+              disabled={locating}
+            >
+              {locating ? 'Localizando…' : 'Usar minha localização'}
+            </Button>
+
+            {/* A recusa NÃO bloqueia: a mensagem diz o que houve e aponta a
+                busca logo abaixo, que nunca depende de permissão nenhuma. */}
+            {locationError ? (
+              <InlineMessage tone="info">{locationError}</InlineMessage>
+            ) : null}
           </div>
 
           <div className="flex flex-col gap-2 border-t border-line pt-4">

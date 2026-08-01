@@ -19,3 +19,19 @@ export async function searchAddressAction(
   if (!client) return []
   return client.search(query)
 }
+
+/**
+ * Nome do lugar de uma coordenada. Serve à geolocalização do aparelho.
+ *
+ * Nunca lança e nunca bloqueia: sem nome, quem chama usa um rótulo genérico e
+ * segue com a coordenada, que é o dado que a descoberta precisa. Perder o nome
+ * é aceitável; perder a origem inteira porque um serviço não respondeu, não.
+ */
+export async function reverseGeocodeAction(
+  latitude: number,
+  longitude: number,
+): Promise<string | null> {
+  const client = getGeocodingClient()
+  if (!client) return null
+  return client.reverse({ latitude, longitude })
+}
