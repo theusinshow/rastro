@@ -128,12 +128,39 @@ no navegador.
   divergir amanhã.
 - O mapa como estrutura, sangrando sob todo o cromo.
 
+## A variante clara
+
+Implementada logo depois, a pedido do dono, e ela obrigou a uma decisão que a
+escura escondia: **o acento se parte em dois papéis**. `--color-accent` é a cor
+de texto, régua e borda; `--color-accent-fill` é a de preenchimento, com
+`--color-on-accent` medido sobre o segundo. Com um token só, todo botão sólido
+ficaria com tinta quase preta sobre marrom escuro.
+
+A cartografia clara foi **derivada aqui**, e não entregue: o handoff deu o mapa de
+dia como filtro CSS sobre tiles do OSM, um atalho de protótipo que ele mesmo manda
+descartar. A derivação inverte o que precisa inverter — a rodovia passa a ser a
+via mais **escura**, porque o que faz a estrada ser o conteúdo é a distância do
+fundo, não a claridade — e reduz o exagero do relevo de 0.38 para 0.28, porque
+sombra sobre areia pesa mais que sombra sobre carvão.
+
+As duas paletas vivem lado a lado em `src/lib/map/palette.ts`, no mesmo arquivo,
+para que acrescentar uma cor sem acrescentar a irmã seja erro de tipo.
+
+O tema vem de cookie lido no **servidor** e escrito no `<html>` antes de qualquer
+pintura: resolver no cliente daria um quadro inteiro no tema errado a cada carga.
+
+### Duas armadilhas, para não se repetirem
+
+- **`setStyle` derruba todas as camadas nossas.** Os pins registravam uma vez por
+  instância de mapa e sumiriam ao trocar de tema. Passaram a escutar `styledata`,
+  como o traçado da viagem já fazia — mesmo modo de falha silenciosa.
+- **O preenchimento do destino ativo é constante entre os temas**; só o glifo do
+  inativo escurece. É o que faz a cor ser identificador de lugar na aplicação em
+  vez de enfeite.
+
 ## Pendência
 
-- [ ] **Variante clara.** O designer entregou a variante clara completa e com
-      contraste medido, e ela não foi implementada. Não estava no pedido, e ela
-      exige uma segunda cartografia inteira — o mapa não herda tema por CSS.
-      Está em `claude-design/.../tokens.css`, pronta para quando o dono pedir.
+- [ ] Nenhuma.
 
 ## Gatilho de revisão
 
