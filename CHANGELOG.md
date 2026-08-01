@@ -12,6 +12,14 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ## [Não lançado]
 
+### Infraestrutura
+
+- O Rastro está no ar em **rastro-one.vercel.app**, ligado ao GitHub: daqui em
+  diante, todo push na `main` publica sozinho. As duas variáveis da entrada de
+  desenvolvimento **não** foram configuradas em produção de propósito — a
+  ausência delas é o segundo dos três portões que fecham aquela rota, e o
+  primeiro (`NODE_ENV`) já a devolve como 404 no ar
+
 ### Alterado
 
 - **Direção visual nova.** A superfície esquentou um grau, a tinta clareou um

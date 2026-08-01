@@ -45,3 +45,4 @@ yarn-error.log*
 # Handoff de design: a pasta extraida e a fonte da verdade; o zip e copia binaria.
 claude-design/**/*.zip
 claude-design/*.zip
+.vercel
