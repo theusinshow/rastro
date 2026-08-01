@@ -86,6 +86,16 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Corrigido
 
+- **A primeira tela pergunta "para onde você vai hoje?".** Antes ela dizia "o
+  mapa da sua vida sobre duas rodas" e gastava dois terços do texto no que já
+  aconteceu — bonito e verdadeiro, mas era a expectativa errada para quem chega
+  de moto querendo sair. A memória continua na frase, no fim, que é onde ela
+  entra na vida de quem usa: primeiro você vai, depois fica a história
+
+- **"3 horas" entrou na escolha de tempo.** Havia 2, 4, 6 e dia inteiro — e o
+  passeio de domingo de manhã, que é o caso mais comum do produto, caía no
+  buraco entre duas opções: escolher 2 sobrava tempo, escolher 4 chegava tarde
+
 - **A descoberta deixou de terminar no vazio.** Você escolhia o tempo, a
   distância, recebia cinco destinos, tocava num deles — e nada acontecia. O
   endereço mudava, o mapa se movia atrás, e a tela continuava a mesma. Agora o

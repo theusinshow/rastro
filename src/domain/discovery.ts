@@ -60,10 +60,14 @@ export function estimateRidingMinutes(roadKm: number): number {
   return (roadKm / AVERAGE_SPEED_KMH) * 60
 }
 
-export type TimeBudget = '2h' | '4h' | '6h' | 'dia-inteiro'
+export type TimeBudget = '2h' | '3h' | '4h' | '6h' | 'dia-inteiro'
 
 export const TIME_BUDGET_MINUTES: Record<TimeBudget, number> = {
   '2h': 120,
+  // Três horas era o buraco: o passeio de domingo de manhã, que é o cenário mais
+  // comum do produto, não tinha opção. Quem tinha três horas escolhia duas e
+  // sobrava tempo, ou quatro e chegava atrasado.
+  '3h': 180,
   '4h': 240,
   '6h': 360,
   'dia-inteiro': 600,
@@ -71,6 +75,7 @@ export const TIME_BUDGET_MINUTES: Record<TimeBudget, number> = {
 
 export const TIME_BUDGET_LABELS: Record<TimeBudget, string> = {
   '2h': '2 horas',
+  '3h': '3 horas',
   '4h': '4 horas',
   '6h': '6 horas',
   'dia-inteiro': 'Dia inteiro',
@@ -161,7 +166,13 @@ export interface DiscoverySuggestion {
   count: number
 }
 
-const TIME_BUDGETS_ASCENDING: TimeBudget[] = ['2h', '4h', '6h', 'dia-inteiro']
+const TIME_BUDGETS_ASCENDING: TimeBudget[] = [
+  '2h',
+  '3h',
+  '4h',
+  '6h',
+  'dia-inteiro',
+]
 
 /**
  * A menor ampliação de limite que faria a busca devolver algo. `null` quando
