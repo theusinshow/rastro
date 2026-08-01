@@ -80,6 +80,23 @@ export function EntranceTour({ places }: { places: ShowcasePlace[] }) {
       {/* `key` no nome: remonta o bloco a cada troca, e o fade de entrada do
           sistema roda de novo. Sem isto o texto trocaria seco no meio do voo. */}
       <div key={place.slug} className="fade-in-item mt-2">
+        {/* Sem `next/image`: a origem é o Wikimedia, e configurar o otimizador
+            para um domínio externo custaria mais do que entrega numa imagem que
+            já vem redimensionada em 1600px pelo próprio Commons.
+
+            `aspect-video` reserva o espaço antes de a imagem chegar — é o que
+            substitui o skeleton, proibido pelo ADR 0009. Nada pula. */}
+        {place.coverImageUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={place.coverImageUrl}
+            alt=""
+            loading="lazy"
+            className="mb-2.5 aspect-video w-full rounded-sm border border-line
+                       object-cover"
+          />
+        ) : null}
+
         <p className="text-body text-ink">{place.name}</p>
         <p className="instrument-value mt-0.5 text-micro text-ink-faint">
           {CATEGORY_LABELS[place.category]} · {place.municipality} ·{' '}
@@ -88,6 +105,30 @@ export function EntranceTour({ places }: { places: ShowcasePlace[] }) {
         {place.description ? (
           <p className="mt-1.5 text-small leading-relaxed text-ink-muted">
             {place.description}
+          </p>
+        ) : null}
+
+        {/* O crédito NÃO é enfeite: CC BY e CC BY-SA liberam a foto sob a
+            condição de atribuir. Sem esta linha, publicar a imagem
+            descumpre a licença — por isso ela vive coladinha na foto e não
+            num rodapé distante. */}
+        {place.coverImageUrl && place.coverImageAuthor ? (
+          <p className="mt-1.5 text-micro leading-snug text-ink-faint">
+            Foto de {place.coverImageAuthor}
+            {place.coverImageLicense ? ` · ${place.coverImageLicense}` : ''}
+            {place.coverImageSource ? (
+              <>
+                {' · '}
+                <a
+                  href={place.coverImageSource}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-accent underline-offset-2 hover:underline"
+                >
+                  Wikimedia Commons
+                </a>
+              </>
+            ) : null}
           </p>
         ) : null}
       </div>

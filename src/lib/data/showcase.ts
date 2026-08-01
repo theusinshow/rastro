@@ -11,6 +11,12 @@ export interface ShowcasePlace {
   description: string
   latitude: number
   longitude: number
+  /** Foto de capa. `null` quando não há. */
+  coverImageUrl: string | null
+  /** Autor e licença andam JUNTOS com a URL: CC BY e CC BY-SA obrigam creditar. */
+  coverImageAuthor: string | null
+  coverImageLicense: string | null
+  coverImageSource: string | null
 }
 
 /**
@@ -34,8 +40,11 @@ export async function listShowcasePlaces(): Promise<ShowcasePlace[]> {
     const supabase = await createServerSupabaseClient()
     const { data, error } = await supabase
       .from('places')
+      // Uma string literal única, e não concatenação: o `@supabase/supabase-js`
+      // infere o tipo da linha a partir do LITERAL do select, e uma soma de
+      // pedaços faz a inferência cair para um tipo de erro genérico.
       .select(
-        'slug, name, municipality, state_code, category, description, latitude, longitude',
+        'slug, name, municipality, state_code, category, description, latitude, longitude, cover_image_url, cover_image_author, cover_image_license, cover_image_source',
       )
       .eq('is_public', true)
       .order('name')
@@ -51,6 +60,10 @@ export async function listShowcasePlaces(): Promise<ShowcasePlace[]> {
       description: String(row.description ?? ''),
       latitude: Number(row.latitude),
       longitude: Number(row.longitude),
+      coverImageUrl: (row.cover_image_url as string | null) ?? null,
+      coverImageAuthor: (row.cover_image_author as string | null) ?? null,
+      coverImageLicense: (row.cover_image_license as string | null) ?? null,
+      coverImageSource: (row.cover_image_source as string | null) ?? null,
     }))
   } catch {
     return []

@@ -54,6 +54,13 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   sessão, e a barra de cima diz isso o tempo todo. Decisão registrada no
   [ADR 0017](docs/decisions/0017-sessao-anonima-como-entrada-de-visitante.md)
 
+- **Os lugares agora têm fotografia.** Catorze de catorze, do Wikimedia
+  Commons, todas com licença livre — e todas com o crédito ao lado, porque CC BY
+  e CC BY-SA liberam a foto sob a condição de atribuir o autor. Foto sem autor
+  ou sem licença é descartada pelo script: sem poder creditar, não há permissão
+  para publicar. São fotos de terceiros, e continuam distintas das suas, que
+  seguem sendo as únicas que contam no mapa
+
 - **A entrada virou um passeio pelos lugares.** A câmera desce sobre um lugar
   do catálogo, segura alguns segundos e vai para o próximo, em ciclo — e ao lado
   aparece o nome dele, a categoria, a cidade e a linha escrita à mão sobre o que
