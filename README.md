@@ -174,6 +174,40 @@ MapLibre desenha no canto.
 | `npm run lint`      | Roda o ESLint (`--max-warnings=0`)           |
 | `npm run typecheck` | Verifica os tipos com `tsc --noEmit`         |
 | `npm test`          | Roda os testes com Vitest                    |
+| `npm run smoke`     | Abre o produto num navegador e confere o mapa |
+
+### O teste de fumaça
+
+`npm test` prova funções puras e roda em menos de um segundo. Ele não alcança —
+por construção — se a roda do mouse chega ao mapa, se as camadas sobrevivem a uma
+troca de tema ou se a câmera entra plana: nada disso é uma função, é o produto de
+pé. Três defeitos reais viveram nesse ponto cego.
+
+```bash
+npm run smoke
+```
+
+Sete casos, um minuto, num Chromium de verdade. **Cada um nasceu de um defeito
+que esteve em produção** — não há caso escrito por imaginação.
+
+Para rodar você precisa de:
+
+1. **`NEXT_PUBLIC_RASTRO_E2E=1` no `.env.local`.** É o que expõe a instância do
+   mapa para o teste poder perguntar o que não existe no DOM. Sem isso o primeiro
+   caso falha dizendo exatamente o que acrescentar.
+2. **Supabase, MapTiler e uma sessão.** Ele entra por `/entrar-dev`, então as
+   duas variáveis `RASTRO_DEV_LOGIN_*` precisam estar preenchidas.
+3. Um servidor de desenvolvimento — ele reaproveita o que estiver de pé, ou sobe
+   um.
+
+Por isso ele **não** está na definição de concluído do `CLAUDE.md`: depende de
+ambiente, e uma etapa que não roda em toda máquina não pode bloquear entrega.
+Rode antes de mexer no mapa, na entrada ou em qualquer camada. Ver
+[ADR 0022](docs/decisions/0022-um-teste-que-abre-o-produto.md).
+
+> **Ao acrescentar um caso:** reverta o defeito que ele existe para pegar e
+> confirme que ele **falha**. Um teste que passa não prova que pegaria — e um dos
+> sete só virou rede depois de ser reescrito duas vezes por causa disso.
 
 ## Documentação
 

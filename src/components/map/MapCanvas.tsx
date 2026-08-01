@@ -89,6 +89,33 @@ export function MapCanvas() {
 
     mapRef.current = map
 
+    /*
+     * A instância exposta para o teste de fumaça — e só para ele.
+     *
+     * O mapa desenha em WebGL: fonte, camada, inclinação e rumo não existem no
+     * DOM, e nenhum deles pode ser conferido por seletor. Três defeitos reais
+     * deste repositório viveram exatamente nesse ponto cego — as camadas
+     * sumindo ao trocar de tema, a câmera entrando inclinada, o ponteiro não
+     * chegando ao mapa —, e todos passavam por lint, typecheck e a suíte
+     * inteira. Sem esta porta não há como um teste perguntar o que só o MapLibre
+     * sabe.
+     *
+     * Dois portões, e qualquer um sozinho já fecha, como em `/entrar-dev`:
+     *
+     * 1. `NODE_ENV` de produção. `next build` resolve isto para `false` e a
+     *    condição inteira vira código morto que o empacotador remove.
+     * 2. A variável, que vive só em `.env.local` — ignorado pelo git.
+     *
+     * Não é uma API: nada do produto lê `__rastroMap`, e apagar esta linha não
+     * muda comportamento nenhum. Ver ADR 0022.
+     */
+    if (
+      process.env.NODE_ENV !== 'production' &&
+      process.env.NEXT_PUBLIC_RASTRO_E2E === '1'
+    ) {
+      ;(window as unknown as { __rastroMap?: maplibregl.Map }).__rastroMap = map
+    }
+
     return () => {
       mapRef.current = null
       registerMap(null)

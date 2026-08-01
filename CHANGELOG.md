@@ -45,6 +45,18 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Infraestrutura
 
+- **Um teste que abre o produto.** `npm run smoke` sobe um Chromium de verdade e
+  confere o que nenhum teste de função pura alcança: se a roda do mouse chega ao
+  mapa, se as camadas sobrevivem a uma troca de tema, se a câmera entra plana, se
+  a capa do lugar carrega.
+
+  Nasceu porque **três defeitos reais desta leva passavam por lint, typecheck e
+  os 443 testes** — os três encontrados à mão, num navegador. Cada um dos sete
+  casos vem de um defeito que esteve no ar; nenhum foi escrito por imaginação. E
+  cada um foi provado revertendo a correção e exigindo que ele falhasse — um
+  deles precisou ser reescrito duas vezes porque passava com o defeito presente.
+  Ver [ADR 0022](docs/decisions/0022-um-teste-que-abre-o-produto.md)
+
 - O Rastro está no ar em **rastro-one.vercel.app**, ligado ao GitHub: daqui em
   diante, todo push na `main` publica sozinho. As duas variáveis da entrada de
   desenvolvimento **não** foram configuradas em produção de propósito — a
