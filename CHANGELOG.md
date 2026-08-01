@@ -48,6 +48,13 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   sessão, e a barra de cima diz isso o tempo todo. Decisão registrada no
   [ADR 0017](docs/decisions/0017-sessao-anonima-como-entrada-de-visitante.md)
 
+### Corrigido
+
+- O README mandava criar o banco rodando duas migrations, e existem oito. Quem
+  montasse o projeto do zero terminava com um esquema de julho — sem fotos, sem
+  viagens concluídas, sem autonomia e sem piso de acesso. A lista agora está
+  inteira e em ordem
+
 - A **régua** por baixo de todo número: sólida quando foi medido, tracejada
   quando é conta (e aí o valor vem com `~` na frente), pontilhada quando ninguém
   sabe. É a faixa central da estrada, que já era a marca e já era o traçado da

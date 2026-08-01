@@ -37,14 +37,14 @@ ele escreve já era privado por política, e lugar criado por usuário já nasci
 
 **2. A única escrita fechada é a fotografia, e quem fecha é o banco.** Duas
 políticas restritivas na migração 0008, uma em `storage.objects` e outra em
-`trip_photos`.
+`photos` — a tabela que a migração 0004 renomeou a partir de `trip_photos`.
 
 São as duas, e não só a do Storage, porque `addPhotoAction` grava o arquivo no
 bucket *e* uma linha na tabela: barrar um lado só deixaria lixo pela metade —
 arquivo sem linha, ou linha apontando para arquivo que não existe.
 
 São **restritivas**, e não mais duas permissivas, porque restritivas entram com
-`AND` sobre as que já existem: `fotos_insert_own` e `trip_photos_own` continuam
+`AND` sobre as que já existem: `fotos_insert_own` e `photos_own` continuam
 valendo inteiras e não precisam ser reescritas para ganhar uma condição.
 
 O `coalesce` nas duas não é defensivo, é obrigatório: para quem entrou pelo
