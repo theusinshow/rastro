@@ -222,6 +222,66 @@ Rode de novo ao mexer em qualquer política de Storage.
 
 ---
 
+## Visitante — fotografia fechada — verificada em 01/08/2026
+
+> **Cuidado com a palavra.** Em todo o resto deste documento, "anônimo" significa
+> *requisição sem sessão nenhuma* — o papel `anon` do Postgres. Aqui o conceito é
+> o oposto: um usuário **autenticado sem identidade**, criado por
+> `signInAnonymously()`. Neste bloco ele se chama **visitante**, e nunca anônimo.
+> Ver [ADR 0017](./decisions/0017-sessao-anonima-como-entrada-de-visitante.md).
+
+As duas políticas restritivas da migration `0008` fecham a única escrita que
+deixaria arquivo permanente. Restritivas entram com `AND` sobre `fotos_insert_own`
+e `photos_own`, que continuam valendo inteiras.
+
+```
+node scripts/verificar-visitante-rls.mjs
+```
+
+Quatro combinações — duas identidades × dois alvos. Resultado de 01/08/2026:
+
+| Identidade | Alvo | Resultado |
+|---|---|---|
+| Visitante | upload no bucket `fotos`, **pasta própria** | recusado, `new row violates row-level security policy` |
+| Visitante | insert em `photos` | recusado, pela política `photos_insert_nao_visitante` |
+| Com conta | upload no bucket `fotos` | **aceito** |
+| Com conta | insert em `photos` | **aceito** |
+
+**As duas últimas linhas são o ponto.** Um roteiro que só verificasse as recusas
+passaria feliz com uma política que barra todo mundo — e é exatamente o que
+acontece sem o `coalesce` da `0008`: para quem entrou por provedor a claim
+`is_anonymous` não vem no JWT, `null = false` dá `null`, e `null` é negação.
+
+O visitante escreve na **própria** pasta de propósito. Se o roteiro usasse a
+pasta de outro, a recusa poderia vir da política antiga (`fotos_insert_own`) e
+nada teria sido provado sobre a nova.
+
+O script também confirma que o visitante **favorita** normalmente. Sem isso, uma
+sessão completamente quebrada passaria nas duas recusas pelo motivo errado.
+
+Rode de novo ao mexer em qualquer política de `photos` ou de Storage.
+
+### Faxina de visitantes
+
+Rodar à mão; não há cron, e um punhado de sessões não justifica um.
+
+```sql
+-- A ORDEM E OBRIGATORIA. `places.created_by` e `on delete set null`: apagar o
+-- usuario primeiro deixa os lugares dele com `created_by` nulo e `is_public`
+-- falso -- invisiveis para todo mundo, inclusive para quem vier limpar depois,
+-- e permanentes. Os lugares saem antes.
+delete from places
+where created_by in (
+  select id from auth.users
+  where is_anonymous and created_at < now() - interval '30 days'
+);
+
+delete from auth.users
+where is_anonymous and created_at < now() - interval '30 days';
+```
+
+---
+
 ## Se algum bloco falhar
 
 Um resultado diferente do esperado é uma **falha de segurança real**, não um

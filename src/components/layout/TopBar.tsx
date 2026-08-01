@@ -7,6 +7,7 @@ import { Logo } from '@/components/ui/Logo'
 import { cn } from '@/lib/utils/cn'
 import { NavIcon, type NavIconName } from './nav-icons'
 import { ThemeToggle } from './ThemeToggle'
+import { useViewer } from './viewer-context'
 
 /**
  * Uma cor por destino, e a MESMA cor sempre.
@@ -44,6 +45,7 @@ function isActive(pathname: string, href: string): boolean {
 
 export function TopBar() {
   const pathname = usePathname()
+  const { isGuest } = useViewer()
 
   return (
     /*
@@ -161,6 +163,19 @@ export function TopBar() {
 
         <ThemeToggle />
 
+        {/* O estado de visitante mora aqui porque é aqui que a identidade já
+            mora — não é selo na navegação nem faixa no topo, e nenhum dos dois
+            caberia sem roubar altura do mapa, que o ADR 0010 trata como escasso.
+
+            Abaixo de 640px o rótulo some e sobra o botão: a palavra "Entrar"
+            ali já denuncia que não há conta, e a barra não tem largura para os
+            dois. Ver ADR 0017. */}
+        {isGuest ? (
+          <span className="instrument-label hidden text-ink-faint sm:inline">
+            Visitante
+          </span>
+        ) : null}
+
         {/* Hairline separando a saída do resto. Sair não é navegação: é o fim
             da sessão, e não deve morar encostado no que se clica sempre. */}
         <span aria-hidden className="h-5 w-px bg-line-strong" />
@@ -172,7 +187,17 @@ export function TopBar() {
                        whitespace-nowrap text-ink-faint hover:bg-overlay
                        hover:text-ink-muted md:h-10"
           >
-            Sair
+            {/* Para um visitante, sair e entrar são o mesmo gesto: a ação
+                encerra a sessão e cai em `/entrar`, que é exatamente o destino
+                prometido. Nomear o destino vale mais que nomear a porta. */}
+            {isGuest ? (
+              <>
+                <span className="sm:hidden">Entrar</span>
+                <span className="hidden sm:inline">Entrar com conta</span>
+              </>
+            ) : (
+              'Sair'
+            )}
           </button>
         </form>
       </div>

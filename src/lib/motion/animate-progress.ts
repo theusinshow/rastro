@@ -4,6 +4,22 @@ export function easeOutQuart(t: number): number {
 }
 
 /**
+ * Parte parada, cruza em ritmo parelho, encosta devagar.
+ *
+ * Existe porque as curvas de saída deste arquivo servem a interface, onde o
+ * movimento deve terminar rápido e sair da frente: `easeOutQuart` gasta 96% do
+ * caminho na primeira metade do tempo. Isso é certo para um painel que abre e
+ * errado para um trajeto que a pessoa está *assistindo* — ali a pressa vira um
+ * borrão seguido de quase nada acontecendo.
+ */
+export function easeInOutSine(t: number): number {
+  // `(1 - cos) / 2`, e não a forma `-(cos - 1) / 2` que costuma aparecer: a
+  // segunda devolve zero NEGATIVO em `t = 0`. Dá no mesmo para interpolar, mas
+  // vaza `-0` para quem comparar com `Object.is`.
+  return (1 - Math.cos(Math.PI * t)) / 2
+}
+
+/**
  * Interpola um progresso de 0 a 1 e entrega cada quadro a quem sabe aplicá-lo.
  *
  * Existe porque o MapLibre ignora `*-transition` em qualquer propriedade de

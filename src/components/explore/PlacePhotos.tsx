@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useEffect, useState, useTransition } from 'react'
 import {
   addPhotoAction,
@@ -7,7 +8,9 @@ import {
   listPhotosAction,
 } from '@/app/actions/photo-actions'
 import { formatVisitDate } from '@/domain/dates'
+import { canUploadPhotos } from '@/domain/guest'
 import { ACCEPTED_IMAGE_TYPES, isAcceptedImageType } from '@/domain/photo'
+import { useViewer } from '@/components/layout/viewer-context'
 import { readExif } from '@/lib/images/exif'
 import { resizeToJpeg } from '@/lib/images/resize'
 import { buildStoragePath } from '@/lib/images/storage-path'
@@ -39,6 +42,10 @@ export function PlacePhotos({ placeId }: PlacePhotosProps) {
   const [busy, setBusy] = useState(false)
   const [confirming, setConfirming] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
+
+  // A decisão vem do domínio, e não de um `isGuest` lido aqui: componente
+  // visual não decide elegibilidade.
+  const canUpload = canUploadPhotos(useViewer())
 
   useEffect(() => {
     let cancelled = false
@@ -223,29 +230,42 @@ export function PlacePhotos({ placeId }: PlacePhotosProps) {
         </ul>
       ) : null}
 
-      <label className="mt-3 block">
-        <span className="sr-only">Adicionar fotografias</span>
-        <input
-          type="file"
-          accept={ACCEPTED_IMAGE_TYPES.join(',')}
-          multiple
-          disabled={busy}
-          onChange={(event) => {
-            // Copia ANTES de limpar: a FileList é viva e zerar o campo a
-            // esvaziaria antes de o upload assíncrono chegar a lê-la.
-            const escolhidos = Array.from(event.target.files ?? [])
-            // Zera o campo para que escolher o MESMO arquivo de novo dispare
-            // outro evento — sem isto, tentar de novo após um erro não faz nada.
-            event.target.value = ''
-            if (escolhidos.length > 0) void upload(escolhidos)
-          }}
-          className="press block w-full cursor-pointer rounded-sm border
-                     border-line-strong bg-void px-4 py-3 text-small text-ink-muted
-                     file:mr-3 file:rounded-sm file:border-0 file:bg-overlay
-                     file:px-3 file:py-1.5 file:text-small file:text-ink
-                     hover:border-ink-faint disabled:opacity-(--disabled-opacity)"
-        />
-      </label>
+      {canUpload ? (
+        <label className="mt-3 block">
+          <span className="sr-only">Adicionar fotografias</span>
+          <input
+            type="file"
+            accept={ACCEPTED_IMAGE_TYPES.join(',')}
+            multiple
+            disabled={busy}
+            onChange={(event) => {
+              // Copia ANTES de limpar: a FileList é viva e zerar o campo a
+              // esvaziaria antes de o upload assíncrono chegar a lê-la.
+              const escolhidos = Array.from(event.target.files ?? [])
+              // Zera o campo para que escolher o MESMO arquivo de novo dispare
+              // outro evento — sem isto, tentar de novo após um erro não faz
+              // nada.
+              event.target.value = ''
+              if (escolhidos.length > 0) void upload(escolhidos)
+            }}
+            className="press block w-full cursor-pointer rounded-sm border
+                       border-line-strong bg-void px-4 py-3 text-small text-ink-muted
+                       file:mr-3 file:rounded-sm file:border-0 file:bg-overlay
+                       file:px-3 file:py-1.5 file:text-small file:text-ink
+                       hover:border-ink-faint disabled:opacity-(--disabled-opacity)"
+          />
+        </label>
+      ) : (
+        /* O motivo fica escrito onde a pessoa tentaria agir. Sem modal, sem
+           toast, sem tooltip de hover — os três são proibidos pelo ADR 0016, e
+           nenhum deles sobreviveria a um toque de luva no acostamento. */
+        <p className="mt-3 border-t border-line pt-3 text-small leading-relaxed text-ink-muted">
+          Envio de fotografia precisa de conta.{' '}
+          <Link href="/entrar" className="text-accent">
+            Entrar com conta
+          </Link>
+        </p>
+      )}
 
       {busy ? (
         <p className="mt-2 text-small text-ink-faint">Subindo…</p>

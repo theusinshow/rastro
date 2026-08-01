@@ -32,9 +32,16 @@ conta, nem lugares, nem nada gravado.
    para `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_ANON_KEY` no
    `.env.local`. A chave `service_role` não é usada em lugar nenhum e não deve
    entrar no repositório.
-2. No **SQL Editor**, executar nesta ordem:
+2. No **SQL Editor**, executar **nesta ordem** — cada migration supõe as
+   anteriores aplicadas:
    - `supabase/migrations/0001_initial_schema.sql`
    - `supabase/migrations/0002_profile_on_signup.sql`
+   - `supabase/migrations/0003_complete_trip.sql`
+   - `supabase/migrations/0004_photos.sql`
+   - `supabase/migrations/0005_photos_storage.sql`
+   - `supabase/migrations/0006_autonomy.sql`
+   - `supabase/migrations/0007_access_surface.sql`
+   - `supabase/migrations/0008_visitante.sql`
    - `supabase/seeds/0001_places.sql`
 
    Conferir com `select count(*) from places;` — deve dar **14**.
@@ -48,6 +55,10 @@ conta, nem lugares, nem nada gravado.
    - Em **Authentication → URL Configuration**, definir *Site URL* como
      `http://localhost:3000` e acrescentar `http://localhost:3000/auth/callback`
      em *Redirect URLs*.
+4. Ligar a entrada de visitante em **Authentication → Sign In / Providers →
+   Allow anonymous sign-ins**. É ela que sustenta o "Entrar sem conta" — sem
+   isso o botão aparece e a entrada falha dizendo exatamente esta chave. Ver
+   [ADR 0017](docs/decisions/0017-sessao-anonima-como-entrada-de-visitante.md).
 
 No primeiro login o app pede seu ponto de partida: um clique no mapa. Todas as
 distâncias e estimativas de tempo saem daí.

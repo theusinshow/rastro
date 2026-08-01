@@ -3,6 +3,9 @@ import { cookies } from 'next/headers'
 import { Archivo, JetBrains_Mono } from 'next/font/google'
 import { DEFAULT_THEME, THEME_COOKIE, isTheme } from '@/lib/theme'
 import { ThemeProvider } from '@/components/layout/theme-context'
+import { MapCanvas } from '@/components/map/MapCanvas'
+import { MapChrome } from '@/components/map/MapChrome'
+import { MapProvider } from '@/components/map/map-context'
 import './globals.css'
 
 /**
@@ -42,7 +45,27 @@ export default async function RootLayout({
     >
       {/* A família vem de `body` em `globals.css`, junto do piso de 17px. */}
       <body>
-        <ThemeProvider initial={theme}>{children}</ThemeProvider>
+        <ThemeProvider initial={theme}>
+          {/*
+            O mapa vive AQUI, e não no grupo `(app)`. Ver ADR 0018.
+
+            O ADR 0002 já mantinha a instância viva ao navegar entre as rotas do
+            app; o que faltava era a entrada, que ficava de fora do grupo e
+            montava a própria. Do jeito antigo, entrar destruía um mapa e criava
+            outro — e é essa costura que o sobrevoo da entrada não podia ter.
+
+            O `MapProvider` precisa envolver `children` também: é dele que a
+            entrada tira a instância para dirigir o sobrevoo.
+          */}
+          <MapProvider>
+            <div className="fixed inset-0 z-0 bg-void">
+              <MapCanvas />
+            </div>
+            <MapChrome />
+
+            <div className="relative z-10">{children}</div>
+          </MapProvider>
+        </ThemeProvider>
       </body>
     </html>
   )

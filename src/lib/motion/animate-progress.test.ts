@@ -1,5 +1,30 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { animateProgress, easeOutQuart } from './animate-progress'
+import {
+  animateProgress,
+  easeInOutSine,
+  easeOutQuart,
+} from './animate-progress'
+
+describe('easeInOutSine', () => {
+  it('vai de zero a um', () => {
+    expect(easeInOutSine(0)).toBe(0)
+    expect(easeInOutSine(1)).toBeCloseTo(1)
+  })
+
+  it('está na metade do caminho na metade do tempo', () => {
+    expect(easeInOutSine(0.5)).toBeCloseTo(0.5)
+  })
+
+  /*
+   * A razão de a curva existir. `easeOutQuart` já cumpriu 96% do trajeto
+   * quando passou metade do tempo — num sobrevoo isso é um borrão seguido de
+   * nada. Este teste falha se alguém trocar a curva por uma de saída.
+   */
+  it('não gasta o trajeto na primeira metade, como as curvas de saída fazem', () => {
+    expect(easeOutQuart(0.5)).toBeGreaterThan(0.9)
+    expect(easeInOutSine(0.5)).toBeLessThan(0.6)
+  })
+})
 
 /**
  * `animateProgress` roda sobre `requestAnimationFrame`, que o ambiente `node`
