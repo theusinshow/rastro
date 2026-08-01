@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import type { GeoJSONSource, MapLayerMouseEvent } from 'maplibre-gl'
 import type { FuelStation } from '@/domain/fuel-stations'
 import {
@@ -12,6 +12,7 @@ import {
   buildFuelLayers,
   buildFuelStationsGeoJson,
 } from '@/lib/map/fuel-layers'
+import { onStyleReady } from '@/lib/map/style-lifecycle'
 import { useTheme } from '@/components/layout/theme-context'
 import { useMapInstance } from './map-context'
 
@@ -46,14 +47,30 @@ export function FuelStationsLayer({
   const map = useMapInstance()
   const { theme } = useTheme()
 
+  /*
+   * Os postos atuais, alcançáveis de dentro do efeito de registro.
+   *
+   * Mesmo defeito que o `PlacesLayer` tinha: a escuta de `styledata` recoloca a
+   * fonte ao trocar de tema, mas a recolocaria **vazia** — o efeito de dados
+   * depende de `[map, stations, selectedId]`, e nenhum dos três muda quando o
+   * tema muda. Os losangos sumiriam do mapa com a lista ainda cheia ao lado.
+   */
+  const stationsRef = useRef(stations)
+  const selectedRef = useRef(selectedId)
+  useEffect(() => {
+    stationsRef.current = stations
+    selectedRef.current = selectedId
+  }, [stations, selectedId])
+
   // Registro das imagens, da fonte e das camadas. `theme` é dependência, e não
   // `ref`: as imagens do losango carregam a paleta dentro dos pixels, então
   // trocar de tema exige refazê-las, não só recolocá-las.
   useEffect(() => {
     if (!map) return
 
+    // Idempotente por contrato. Ver `onStyleReady`.
     function apply(): void {
-      if (!map || !map.isStyleLoaded()) return
+      if (!map) return
 
       for (const { id, icon } of buildFuelIcons(theme)) {
         // `setStyle` limpa o registro de imagens junto com as camadas, então a
@@ -63,9 +80,11 @@ export function FuelStationsLayer({
       }
 
       if (!map.getSource(FUEL_SOURCE_ID)) {
+        // Com os postos ATUAIS, e nao vazia: e esta linha que os devolve
+        // depois de uma troca de tema.
         map.addSource(FUEL_SOURCE_ID, {
           type: 'geojson',
-          data: buildFuelStationsGeoJson([]),
+          data: buildFuelStationsGeoJson(stationsRef.current, selectedRef.current),
         })
       }
       for (const layer of buildFuelLayers(theme)) {
@@ -73,17 +92,12 @@ export function FuelStationsLayer({
       }
     }
 
-    function onStyleData() {
-      apply()
-    }
-
-    apply()
-    map.on('styledata', onStyleData)
+    const stop = onStyleReady(map, apply)
 
     return () => {
+      stop()
       // O mapa pode já ter sido destruído pelo MapCanvas.
       if (!map || !map.getStyle()) return
-      map.off('styledata', onStyleData)
       for (const id of Object.values(FUEL_LAYERS)) {
         if (map.getLayer(id)) map.removeLayer(id)
       }

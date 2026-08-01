@@ -14,6 +14,16 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Corrigido
 
+- **Trocar de tema apagava o mapa.** Os pins do catálogo, o traçado da viagem e
+  os marcadores de posto sumiam ao alternar dia e noite, e não voltavam — só
+  recarregando a página. O mapa é redesenhado do zero a cada troca de tema, e o
+  código que devolve as nossas camadas esperava um sinal que nunca chegava a
+  tempo.
+
+  Havia uma correção anterior para isso que nunca chegou a funcionar, e a razão
+  ficou registrada junto da regra, agora num lugar só e com teste — três camadas
+  cometiam o mesmo engano de três formas diferentes
+
 - **O mapa não recebia o mouse.** A roda não dava zoom, o arrasto não movia, o
   clique no vazio não fechava o painel do lugar e o "clique no mapa para marcar
   o ponto" da tela de origem não marcava nada. A camada onde as telas são
@@ -78,6 +88,10 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   Agora ele diz **que ponto da estrada é esse** e quais postos existem em volta
   dele — nome, bandeira, horário quando mapeado, e a distância até o ponto onde
   o tanque acaba.
+
+  E o ponto aparece **no mapa**, marcado sobre o traçado com o quilômetro ao
+  lado: um anel de tinta cortando o asfalto, que é literalmente o que um tanque
+  vazio é. Sem ele, "km 315" era um número que você não conseguia localizar.
 
   Só aparece com traçado real gravado: sem ele, a distância da viagem é
   estimada por linha reta, e caminhar 255 km sobre uma reta marcaria um ponto

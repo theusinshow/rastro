@@ -24,6 +24,7 @@ import {
   applyMatchFade,
   applySelectionRing,
 } from '@/lib/map/paint'
+import { onStyleReady } from '@/lib/map/style-lifecycle'
 import { animateProgress } from '@/lib/motion/animate-progress'
 import { useReducedMotion } from '@/lib/motion/use-reduced-motion'
 import { useSelectedPlace } from '@/components/explore/use-selected-place'
@@ -71,13 +72,37 @@ export function PlacesLayer({
   } | null>(null)
 
   /*
+   * O recorte atual, alcançável de dentro do efeito de REGISTRO.
+   *
+   * Sem isto, trocar de tema apagava os pins — e o `styledata` deste arquivo,
+   * acrescentado justamente para evitar esse defeito, não bastava. A escuta
+   * recolocava a fonte, mas a recolocava **vazia**: o efeito de dados abaixo tem
+   * `[map, places, matched]` como dependências, e nenhuma das três muda quando o
+   * tema muda. A fonte voltava, o `setData` não, e o mapa ficava sem pin
+   * nenhum, sem erro em lugar nenhum.
+   *
+   * Refs, e não dependências do efeito de registro: incluir `places` ali faria
+   * a fonte e as seis camadas serem destruídas e recriadas a cada filtro.
+   */
+  const placesRef = useRef(places)
+  const matchedRef = useRef(matched)
+  useEffect(() => {
+    placesRef.current = places
+    matchedRef.current = matched
+  }, [places, matched])
+
+  /*
    * Registro da fonte e das camadas.
    *
-   * Escuta `styledata` pelo mesmo motivo que o traçado da viagem: trocar de tema
+   * `onStyleReady` pelo mesmo motivo que o traçado da viagem: trocar de tema
    * chama `setStyle`, e `setStyle` derruba TODAS as camadas nossas junto. Sem
-   * esta escuta, alternar dia/noite apagava todos os pins do mapa e não havia
+   * essa escuta, alternar dia/noite apagava todos os pins do mapa e não havia
    * erro em lugar nenhum — o mesmo modo de falha silenciosa que já apareceu
    * neste arquivo antes.
+   *
+   * Aqui havia uma escuta de `styledata` que **não bastava**, e o motivo está
+   * documentado em `onStyleReady`: a guarda `isStyleLoaded()` no topo do
+   * registro rejeitava justamente os eventos que a escuta existia para pegar.
    *
    * `theme` é dependência aqui, e não `ref`: as camadas precisam ser
    * reconstruídas com a paleta nova, não só recolocadas.
@@ -85,38 +110,35 @@ export function PlacesLayer({
   useEffect(() => {
     if (!map) return
 
-    function apply(): boolean {
-      if (!map || !map.isStyleLoaded()) return false
-      if (map.getSource(PLACES_SOURCE_ID)) return true
+    // Idempotente por contrato: roda agora, roda a cada estilo novo, e pode
+    // rodar mais de uma vez para o mesmo. Ver `onStyleReady`.
+    function apply(): void {
+      if (!map) return
+      if (map.getSource(PLACES_SOURCE_ID)) return
 
+      // Com o recorte ATUAL, e não vazia. Na primeira montagem os refs ainda
+      // são o estado inicial e o efeito de dados assume logo em seguida; numa
+      // remontagem por troca de tema, é esta linha que devolve os pins.
       map.addSource(PLACES_SOURCE_ID, {
         type: 'geojson',
-        data: buildPlacesGeoJson([], new Set()),
+        data: buildPlacesGeoJson(placesRef.current, matchedRef.current),
       })
       for (const layer of buildPlaceLayers(theme)) {
         map.addLayer(layer)
       }
-      return true
     }
 
-    function cleanup() {
+    const stop = onStyleReady(map, apply)
+
+    return () => {
+      stop()
       // O mapa pode já ter sido destruído pelo MapCanvas.
       if (!map || !map.getStyle()) return
-      map.off('styledata', onStyleData)
       for (const id of Object.values(PLACE_LAYERS)) {
         if (map.getLayer(id)) map.removeLayer(id)
       }
       if (map.getSource(PLACES_SOURCE_ID)) map.removeSource(PLACES_SOURCE_ID)
     }
-
-    function onStyleData() {
-      apply()
-    }
-
-    apply()
-    map.on('styledata', onStyleData)
-
-    return cleanup
   }, [map, theme])
 
   // Dados e crossfade do recorte. Sem o crossfade, marcar um filtro faz quase

@@ -39,7 +39,11 @@ export default async function ViagemPage({
   return (
     <>
       <h1 className="sr-only">{trip.title}</h1>
-      <TripRouteLayer trip={trip} cameraPadding={CAMERA_PADDING} />
+      <TripRouteLayer
+        trip={trip}
+        cameraPadding={CAMERA_PADDING}
+        autonomyKm={profile?.autonomyKm ?? null}
+      />
       <OverlayPanel side="right">
         <TripItineraryView
           trip={trip}

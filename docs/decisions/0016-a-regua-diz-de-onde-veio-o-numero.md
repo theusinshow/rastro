@@ -154,6 +154,24 @@ pintura: resolver no cliente daria um quadro inteiro no tema errado a cada carga
 - **`setStyle` derruba todas as camadas nossas.** Os pins registravam uma vez por
   instância de mapa e sumiriam ao trocar de tema. Passaram a escutar `styledata`,
   como o traçado da viagem já fazia — mesmo modo de falha silenciosa.
+
+  > **Correção posterior: esta escuta não bastava, e o defeito continuou de pé.**
+  >
+  > Dentro dela havia um `if (!map.isStyleLoaded()) return`, e `isStyleLoaded()`
+  > não significa "dá para acrescentar camada" — significa "o estilo **e as
+  > fontes dele** terminaram de carregar", que acontece bem depois. Medido no
+  > navegador ao alternar dia e noite: `styledata` e `style.load` chegam os dois
+  > com `isStyleLoaded() === false`, e depois deles não vem mais nada. A guarda
+  > rejeitava exatamente os eventos que a escuta existia para pegar.
+  >
+  > Na prática, os pins **continuaram sumindo** ao trocar de tema, e o traçado da
+  > viagem junto — este por um segundo motivo, que a escuta dele se desregistrava
+  > após o primeiro sucesso. Nada disso deu erro, e nenhum teste alcançava.
+  >
+  > O sinal correto é `style.load`, e a condição correta é o estilo **existir**.
+  > A regra está isolada em `src/lib/map/style-lifecycle.ts`, com teste — três
+  > camadas cometeram o mesmo engano de três formas, e centralizar é o que
+  > impede a quarta.
 - **O preenchimento do destino ativo é constante entre os temas**; só o glifo do
   inativo escurece. É o que faz a cor ser identificador de lugar na aplicação em
   vez de enfeite.
