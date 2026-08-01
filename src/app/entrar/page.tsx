@@ -3,7 +3,7 @@ import { MapCanvas } from '@/components/map/MapCanvas'
 import { MapProvider } from '@/components/map/map-context'
 import { Button } from '@/components/ui/Button'
 import { Logo } from '@/components/ui/Logo'
-import { signInWithGoogleAction } from './actions'
+import { signInAsGuestAction, signInWithGoogleAction } from './actions'
 
 const ERROR_MESSAGES: Record<string, string> = {
   oauth: 'Não foi possível iniciar a entrada pelo Google.',
@@ -15,6 +15,12 @@ const ERROR_MESSAGES: Record<string, string> = {
     'Isso costuma ser o Client Secret do provedor Google no painel do Supabase.',
   'sem-codigo': 'A volta do Google veio sem o código de autorização.',
   troca: 'O código de autorização não foi aceito. Tente entrar de novo.',
+  // Nomear a chave exata do painel é o que torna o erro acionável, pelo mesmo
+  // critério da mensagem `provedor` acima.
+  visitante:
+    'A entrada de visitante está desligada no projeto. Ligue em ' +
+    'Authentication → Sign In / Providers → Allow anonymous sign-ins, no ' +
+    'painel do Supabase.',
 }
 
 export default async function EntrarPage({
@@ -77,14 +83,43 @@ export default async function EntrarPage({
           </p>
 
           {configured ? (
-            <form action={signInWithGoogleAction} className="mt-8">
-              <input type="hidden" name="proximo" value={proximo ?? '/'} />
-              {/* `solid`: é a única ação da tela. Estava `outline`, que o
-                  sistema reserva para ação secundária. */}
-              <Button type="submit" variant="solid" size="lg" className="w-full">
-                Entrar com o Google
-              </Button>
-            </form>
+            <>
+              <form action={signInWithGoogleAction} className="mt-8">
+                <input type="hidden" name="proximo" value={proximo ?? '/'} />
+                {/* `solid`: é a ação principal da tela. A segunda porta, abaixo,
+                    não disputa esse peso — quem vai usar o produto entra por
+                    aqui. */}
+                <Button
+                  type="submit"
+                  variant="solid"
+                  size="lg"
+                  className="w-full"
+                >
+                  Entrar com o Google
+                </Button>
+              </form>
+
+              {/* Visivelmente segunda: `outline` é o peso que o sistema reserva
+                  para ação secundária. Ver ADR 0017. */}
+              <form action={signInAsGuestAction} className="mt-3">
+                <input type="hidden" name="proximo" value={proximo ?? '/'} />
+                <Button
+                  type="submit"
+                  variant="outline"
+                  size="lg"
+                  className="w-full"
+                >
+                  Entrar sem conta
+                </Button>
+              </form>
+
+              {/* O trato dito ANTES de ser aceito. A barra de cima repete depois
+                  de entrar, mas quem escolhe merece saber o que escolheu. */}
+              <p className="mt-3 text-small leading-relaxed text-ink-faint">
+                Sem conta você vê e experimenta tudo, mas não sobe fotografia — e
+                nada do que fizer fica salvo.
+              </p>
+            </>
           ) : (
             <p className="mt-8 border-t border-line pt-4 text-small leading-relaxed text-ink-muted">
               O banco de dados não está configurado. Defina{' '}
