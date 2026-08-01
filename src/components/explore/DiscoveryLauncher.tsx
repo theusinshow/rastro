@@ -14,14 +14,26 @@ import Link from 'next/link'
  * `max-height`: mudar a altura da folha num lugar só move o botão junto, em
  * vez de os dois números divergirem em silêncio.
  *
- * A partir de 768px ele centraliza **na área de mapa**, não na viewport: a
- * trilha empurra o centro óptico para a direita, e centralizar na página deixava
- * o botão visivelmente à esquerda do mapa que ele comanda.
+ * A partir de 768px ele centraliza **na faixa de mapa que sobra entre os dois
+ * painéis** — não na viewport, e não só à direita da trilha.
  *
- * O deslocamento lê `--panel-base`, que é a largura real da trilha do Explorar.
- * Estava lendo `--panel-narrow` — 100px a menos, herdados de quando a trilha era
- * mais estreita —, e o botão nascia descentralizado por causa de um token que a
- * trilha não usa mais.
+ * Os dois lados são descontados, e o direito é o que faltava: com a trilha em
+ * `--panel-base` de um lado e o painel de lugar em `--panel-wide` do outro,
+ * ignorar o segundo fazia o botão nascer numa faixa que não existe. Medido em
+ * 1440px depois de ele crescer: **115px do botão terminavam embaixo do painel
+ * de lugar**, e a pergunta central do produto aparecia cortada no meio.
+ *
+ * É a mesma conta que `CAMERA_PADDING` já faz em `ExploreView` — lá o padding
+ * reserva 420+24 à direita para o pin selecionado não terminar sob o painel.
+ * Botão e câmera passam a concordar sobre onde o mapa realmente está visível.
+ *
+ * A faixa é reservada mesmo sem painel aberto. É deliberado: um CTA que muda de
+ * posição quando um painel abre chamaria mais atenção para o próprio movimento
+ * do que para o destino.
+ *
+ * O deslocamento à esquerda lê `--panel-base`, a largura real da trilha. Estava
+ * lendo `--panel-narrow` — 100px a menos, herdados de quando a trilha era mais
+ * estreita.
  */
 export function DiscoveryLauncher() {
   return (
@@ -52,8 +64,9 @@ export function DiscoveryLauncher() {
                  border-accent px-6 py-4 whitespace-nowrap
                  hover:border-accent-strong hover:bg-accent/10
                  md:bottom-[calc(var(--status-height)+var(--chrome-gap)*2)]
-                 md:left-[calc(var(--panel-base)+var(--chrome-gap))]
-                 md:right-(--chrome-gap) md:mx-auto md:w-fit md:translate-x-0
+                 md:left-[calc(var(--panel-base)+var(--chrome-gap)*2)]
+                 md:right-[calc(var(--panel-wide)+var(--chrome-gap)*2)]
+                 md:mx-auto md:w-fit md:translate-x-0
                  md:gap-6 md:px-8 md:py-5"
     >
       {/*

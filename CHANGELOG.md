@@ -43,6 +43,12 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Alterado
 
+- O botão **"Para onde vamos hoje?"** deixou de ser cortado pelo painel do
+  lugar. Ele centraliza na faixa de mapa que sobra entre as duas colunas, e não
+  mais numa faixa que ignorava a da direita — depois de crescer, 115px dele
+  terminavam embaixo do painel, com a pergunta central do produto partida no
+  meio
+
 - O botão **"Para onde vamos hoje?"** ficou maior e deixou de ser translúcido:
   virou a mesma peça em relevo da barra do topo. Com o mapa passeando por trás,
   uma superfície semitransparente ficava legível sobre um enquadramento e cinza
