@@ -39,6 +39,12 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Adicionado
 
+- **O Rastro agora sabe onde você está.** Um toque em "usar minha localização"
+  define o ponto de partida — antes, a única forma era digitar um endereço e
+  escolher num resultado de busca, no exato cenário em que a pessoa está de pé
+  ao lado da moto, de luva, querendo sair. Negar a permissão não trava nada: a
+  mensagem diz o que aconteceu e a busca por endereço continua ali
+
 - **Entrar sem conta.** A tela de entrada ganha uma segunda porta: dá para olhar
   o Rastro sem ter conta. O mapa chega cheio, porque o catálogo de lugares
   sempre foi público, e o visitante experimenta o produto inteiro — marcar
@@ -79,6 +85,23 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   por requisição
 
 ### Corrigido
+
+- **A descoberta deixou de terminar no vazio.** Você escolhia o tempo, a
+  distância, recebia cinco destinos, tocava num deles — e nada acontecia. O
+  endereço mudava, o mapa se movia atrás, e a tela continuava a mesma. Agora o
+  destino abre com tudo que ele tem: o que saber antes de ir, a rota e o
+  roteiro. Fechar devolve a lista, sem refazer a busca
+
+- **A tela de descoberta parou de ser um muro para quem chega.** Quem nunca
+  definiu uma partida via um parágrafo e um link para outra tela. Agora resolve
+  ali mesmo, num toque
+
+- **O "nenhum destino encontrado" parou de dar conselho impossível.** Ele mandava
+  remover o filtro de favoritos ou o de não visitados mesmo quando nenhum dos
+  dois estava ligado — e o problema nunca foi filtro. Agora, quando ajuste
+  nenhum resolve, ele diz a verdade: a que distância está o lugar mais próximo
+  do catálogo, e que o Rastro ainda cobre só Santa Catarina. Quando um filtro
+  *é* a causa, ele virou botão que resolve com um clique
 
 - O README mandava criar o banco rodando duas migrations, e existem oito. Quem
   montasse o projeto do zero terminava com um esquema de julho — sem fotos, sem

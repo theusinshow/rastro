@@ -25,6 +25,10 @@ function suggestionLabel(suggestion: DiscoverySuggestion): string {
       return `Considerar ${TIME_BUDGET_LABELS[suggestion.query.timeBudget]} — ${destinos}`
     case 'categories':
       return `Aceitar qualquer categoria — ${destinos}`
+    case 'onlyUnvisited':
+      return `Incluir lugares já visitados — ${destinos}`
+    case 'onlyFavorites':
+      return `Incluir lugares fora dos favoritos — ${destinos}`
   }
 }
 
@@ -35,6 +39,13 @@ interface DiscoveryResultsProps {
   /** Menor ampliação de limite que devolveria destinos. */
   suggestion: DiscoverySuggestion | null
   onApplySuggestion: (query: DiscoveryQuery) => void
+  /**
+   * Distância até o lugar mais próximo do catálogo, ignorando todo filtro.
+   *
+   * É o que distingue "seus filtros estão apertados" de "não há nada perto de
+   * você". Sem ela, o vazio dava um conselho que não tinha como funcionar.
+   */
+  nearestKm: number | null
   exiting?: boolean
 }
 
@@ -44,6 +55,7 @@ export function DiscoveryResults({
   onHover,
   suggestion,
   onApplySuggestion,
+  nearestKm,
   exiting,
 }: DiscoveryResultsProps) {
   return (
@@ -71,10 +83,27 @@ export function DiscoveryResults({
                 {suggestionLabel(suggestion)}
               </Button>
             </>
+          ) : nearestKm !== null ? (
+            /*
+             * Nenhuma folga resolve — nem os alternadores, que agora entram na
+             * busca por sugestão. Então a causa não é o filtro, é o alcance: o
+             * catálogo não tem nada perto desta partida.
+             *
+             * Dizer a distância é o que torna isso acionável. "Remova um filtro"
+             * era conselho impossível de seguir quando filtro nenhum estava
+             * ligado — e foi o que a auditoria encontrou em RASTRO-007.
+             */
+            <p className="text-small leading-relaxed text-ink-faint">
+              Nenhum filtro explica este vazio: o lugar mais próximo do catálogo
+              está a{' '}
+              <span className="instrument-value">
+                ~ {Math.round(nearestKm)} km
+              </span>{' '}
+              da sua partida. O Rastro ainda cobre só Santa Catarina.
+            </p>
           ) : (
             <p className="text-small leading-relaxed text-ink-faint">
-              Nem ampliando distância, tempo e categorias aparece destino. Remova
-              o filtro de favoritos ou o de não visitados.
+              O catálogo está vazio.
             </p>
           )}
         </div>

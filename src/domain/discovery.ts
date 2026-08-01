@@ -146,7 +146,12 @@ export function findDestinations(
 }
 
 /** O que precisaria mudar na consulta para que ela devolvesse algo. */
-export type DiscoveryRelaxation = 'maxDistanceKm' | 'timeBudget' | 'categories'
+export type DiscoveryRelaxation =
+  | 'maxDistanceKm'
+  | 'timeBudget'
+  | 'categories'
+  | 'onlyUnvisited'
+  | 'onlyFavorites'
 
 export interface DiscoverySuggestion {
   relaxation: DiscoveryRelaxation
@@ -195,10 +200,58 @@ export function suggestBroaderQuery(
     attempts.push({ relaxation: 'categories', query: { ...query, categories: [] } })
   }
 
+  /*
+   * Os dois alternadores também entram, e faltavam.
+   *
+   * Sem eles, quando nenhuma outra folga resolvia, a interface caía num texto
+   * fixo mandando "remover o filtro de favoritos ou o de não visitados" — mesmo
+   * quando nenhum dos dois estava ligado. Conselho impossível de seguir. Agora,
+   * se desligá-los resolve, isso vira um botão que resolve; e se não resolve,
+   * nada é sugerido, e quem chama sabe que a causa é outra. Ver RASTRO-007.
+   */
+  if (query.onlyUnvisited) {
+    attempts.push({
+      relaxation: 'onlyUnvisited',
+      query: { ...query, onlyUnvisited: false },
+    })
+  }
+
+  if (query.onlyFavorites) {
+    attempts.push({
+      relaxation: 'onlyFavorites',
+      query: { ...query, onlyFavorites: false },
+    })
+  }
+
   for (const attempt of attempts) {
     const count = findDestinations(places, attempt.query).length
     if (count > 0) return { ...attempt, count }
   }
 
   return null
+}
+
+/**
+ * Distância de estrada estimada até o lugar mais próximo do catálogo,
+ * ignorando **todo** filtro.
+ *
+ * Existe para separar dois vazios que a interface tratava como um só: "seus
+ * filtros estão apertados demais" e "não há nada perto de você". O segundo é o
+ * caso de quem abre o Rastro fora de Santa Catarina, e a resposta honesta não é
+ * mandar mexer em filtro — é dizer a que distância está o lugar mais próximo.
+ *
+ * `null` quando o catálogo está vazio.
+ */
+export function nearestPlaceKm(
+  places: readonly ExplorePlace[],
+  origin: Coordinates,
+): number | null {
+  let nearest: number | null = null
+
+  for (const place of places) {
+    const km = estimateRoadKm(haversineKm(origin, place))
+    if (nearest === null || km < nearest) nearest = km
+  }
+
+  return nearest
 }
