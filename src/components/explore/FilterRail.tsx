@@ -114,7 +114,7 @@ export function FilterRail({
             // o segmento entregava 36px de alvo — e ele é o controle mais
             // tocado da tela, num aparelho operado de luva.
             className="press h-11 flex-1 rounded-full text-small font-medium
-                       text-ink-muted aria-pressed:bg-accent
+                       text-ink-muted aria-pressed:bg-accent-fill
                        aria-pressed:font-bold aria-pressed:text-on-accent md:h-9"
           >
             Lista
@@ -125,7 +125,7 @@ export function FilterRail({
             onClick={() => setEditing(true)}
             className="press flex h-11 flex-1 items-center justify-center gap-2
                        rounded-full text-small font-medium text-ink-muted
-                       aria-pressed:bg-accent aria-pressed:font-bold
+                       aria-pressed:bg-accent-fill aria-pressed:font-bold
                        aria-pressed:text-on-accent md:h-9"
           >
             Filtros

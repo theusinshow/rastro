@@ -10,6 +10,7 @@ import {
   hasMapTilerKey,
 } from '@/lib/map/config'
 import { buildRastroStyle } from '@/lib/map/style'
+import { useTheme } from '@/components/layout/theme-context'
 import { MapFallback, MapLoadError } from './MapFallback'
 import { useMapRegistry } from './map-context'
 
@@ -26,8 +27,19 @@ interface MapCanvasProps {
 export function MapCanvas({ interactive = true }: MapCanvasProps = {}) {
   const containerRef = useRef<HTMLDivElement>(null)
   const { registerMap, updateView } = useMapRegistry()
+  const { theme } = useTheme()
   const [loadFailure, setLoadFailure] = useState<string | null>(null)
   const [loaded, setLoaded] = useState(false)
+  const mapRef = useRef<maplibregl.Map | null>(null)
+
+  // O tema entra como `ref` e NÃO como dependência do efeito que cria o mapa:
+  // recriar o mapa a cada troca de tema perderia a câmera, os pins e o traçado,
+  // e faria a tela piscar do zero. A troca é feita por `setStyle` no efeito
+  // separado abaixo.
+  const themeRef = useRef(theme)
+  useEffect(() => {
+    themeRef.current = theme
+  }, [theme])
 
   useEffect(() => {
     if (!hasMapTilerKey) return
@@ -36,7 +48,7 @@ export function MapCanvas({ interactive = true }: MapCanvasProps = {}) {
 
     const map = new maplibregl.Map({
       container,
-      style: buildRastroStyle(MAPTILER_KEY),
+      style: buildRastroStyle(MAPTILER_KEY, themeRef.current),
       center: [INITIAL_CENTER.longitude, INITIAL_CENTER.latitude],
       zoom: INITIAL_ZOOM,
       attributionControl: { compact: true },
@@ -76,12 +88,34 @@ export function MapCanvas({ interactive = true }: MapCanvasProps = {}) {
       setLoadFailure(event.error.message)
     })
 
+    mapRef.current = map
+
     return () => {
+      mapRef.current = null
       registerMap(null)
       setLoaded(false)
       map.remove()
     }
   }, [registerMap, updateView, interactive])
+
+  /*
+   * Troca de tema: `setStyle`, e não mapa novo.
+   *
+   * `setStyle` derruba TODAS as camadas nossas junto — pins, traçado, fonte de
+   * dados. Quem as recoloca são os componentes de camada, que já escutam
+   * `styledata` exatamente por isso: eles foram escritos assim quando se
+   * descobriu que `map.once('load')` nunca dispara para um mapa já carregado, e
+   * a rota ficava invisível ao navegar pelo cliente. A mesma escuta resolve
+   * isto de graça.
+   *
+   * `diff: false` porque a diferença entre os dois estilos é a paleta inteira:
+   * calcular o diff custa mais do que reconstruir.
+   */
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map) return
+    map.setStyle(buildRastroStyle(MAPTILER_KEY, theme), { diff: false })
+  }, [theme])
 
   if (!hasMapTilerKey) {
     return <MapFallback />

@@ -142,7 +142,7 @@ export function TripItineraryView({ trip }: TripItineraryViewProps) {
         {trip.status === 'planned' ? (
           <Link
             href={`/viagens/${trip.slug}/concluir`}
-            className={`${ACTION} bg-accent text-on-accent hover:bg-accent-strong`}
+            className={`${ACTION} bg-accent-fill text-on-accent hover:bg-accent-fill-strong`}
           >
             Concluir viagem
           </Link>

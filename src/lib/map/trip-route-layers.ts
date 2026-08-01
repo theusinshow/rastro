@@ -1,5 +1,6 @@
 import type { LineLayerSpecification } from 'maplibre-gl'
 import type { TripDetail } from '@/domain/trip'
+import { paletteFor, type MapTheme } from './palette'
 
 export const TRIP_ROUTE_SOURCE_ID = 'trip-route'
 
@@ -17,8 +18,7 @@ export const TRIP_ROUTE_LAYERS = [
  * não lê variável CSS. Mudar uma sem a outra faz interface e mapa divergirem.
  * Paleta do ADR 0012.
  */
-const ASPHALT = '#e5a338'
-const CENTERLINE = '#0e0d0c'
+// Vêm de `palette.ts`, que guarda as duas variantes lado a lado.
 
 /**
  * A rota é desenhada como a MARCA: traço âmbar com faixa central tracejada na cor
@@ -28,7 +28,13 @@ const CENTERLINE = '#0e0d0c'
  * Também resolve a leitura: as vias do mapa base são osso (`#c2b9a7`) e os pins
  * são círculos, então a rota não compete com nenhum dos dois.
  */
-export function buildTripRouteLayers(): LineLayerSpecification[] {
+export function buildTripRouteLayers(
+  theme: MapTheme = 'escuro',
+): LineLayerSpecification[] {
+  const { trip } = paletteFor(theme)
+  const ASPHALT = trip.asphalt
+  const CENTERLINE = trip.centerLine
+
   return [
     {
       id: ASPHALT_LAYER_ID,

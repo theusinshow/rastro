@@ -1,4 +1,5 @@
 import type { StyleSpecification } from 'maplibre-gl'
+import { paletteFor, type MapTheme } from './palette'
 
 /**
  * Estilo autoral do Rastro sobre os vector tiles do MapTiler (schema
@@ -20,14 +21,22 @@ import type { StyleSpecification } from 'maplibre-gl'
  * Nenhuma cor aqui usa o âmbar do produto: o âmbar é reservado aos pins e à
  * interface, para que sempre se destaque contra a base.
  *
- * As cores são hex literal, e não tokens: o MapLibre desenha em WebGL e não lê
- * variável CSS. Elas espelham à mão a paleta de `globals.css` — mudar uma sem a
- * outra faz a interface e o mapa divergirem, que foi exatamente o risco levantado
- * ao adotar o ADR 0009.
+ * As cores vêm de `palette.ts`, e são hex literal lá: o MapLibre desenha em
+ * WebGL e não lê variável CSS. Elas espelham à mão a paleta de `globals.css` —
+ * mudar uma sem a outra faz a interface e o mapa divergirem, que foi exatamente
+ * o risco levantado ao adotar o ADR 0009.
+ *
+ * A estrutura de camadas é a MESMA nos dois temas; só os valores mudam. Duas
+ * funções separadas divergiriam na primeira camada nova que alguém acrescentasse
+ * de um lado só.
  */
-export function buildRastroStyle(key: string): StyleSpecification {
+export function buildRastroStyle(
+  key: string,
+  theme: MapTheme = 'escuro',
+): StyleSpecification {
   const tiles = `https://api.maptiler.com/tiles/v3/tiles.json?key=${key}`
   const terrain = `https://api.maptiler.com/tiles/terrain-rgb-v2/tiles.json?key=${key}`
+  const { map: palette } = paletteFor(theme)
 
   return {
     version: 8,
@@ -42,7 +51,7 @@ export function buildRastroStyle(key: string): StyleSpecification {
         // chão e as estradas saltam.
         id: 'background',
         type: 'background',
-        paint: { 'background-color': '#0d0d0c' },
+        paint: { 'background-color': palette.background },
       },
       {
         // Vegetação é um dos dois lugares do mapa onde o MATIZ carrega
@@ -54,14 +63,14 @@ export function buildRastroStyle(key: string): StyleSpecification {
         source: 'basemap',
         'source-layer': 'landcover',
         filter: ['==', ['get', 'class'], 'wood'],
-        paint: { 'fill-color': '#141e11', 'fill-opacity': 0.75 },
+        paint: { 'fill-color': palette.vegetation, 'fill-opacity': 0.75 },
       },
       {
         id: 'park',
         type: 'fill',
         source: 'basemap',
         'source-layer': 'park',
-        paint: { 'fill-color': '#182414', 'fill-opacity': 0.6 },
+        paint: { 'fill-color': palette.forest, 'fill-opacity': 0.6 },
       },
       {
         id: 'water',
@@ -73,7 +82,7 @@ export function buildRastroStyle(key: string): StyleSpecification {
         // um quarto de qualquer vista do litoral: escondê-lo era jogar fora a
         // maior massa fria disponível, e era metade do motivo de o mapa inteiro
         // ler como marrom.
-        paint: { 'fill-color': '#101b2a' },
+        paint: { 'fill-color': palette.water },
       },
       {
         id: 'waterway',
@@ -81,7 +90,7 @@ export function buildRastroStyle(key: string): StyleSpecification {
         source: 'basemap',
         'source-layer': 'waterway',
         paint: {
-          'line-color': '#1a2c46',
+          'line-color': palette.waterOutline,
           'line-width': ['interpolate', ['linear'], ['zoom'], 8, 0.4, 14, 1.6],
         },
       },
@@ -92,14 +101,14 @@ export function buildRastroStyle(key: string): StyleSpecification {
         type: 'hillshade',
         source: 'terrain',
         paint: {
-          'hillshade-exaggeration': 0.38,
-          'hillshade-shadow-color': '#000000',
+          'hillshade-exaggeration': palette.hillshadeExaggeration,
+          'hillshade-shadow-color': palette.hillshadeShadow,
           // Cinza praticamente neutro. O hillshade cobre a tela INTEIRA — é a
           // camada onde saturação custa mais caro, porque ela multiplica por
           // toda a área visível. O que sobrou de quente aqui é lembrança, não
           // cor.
-          'hillshade-highlight-color': '#3b3936',
-          'hillshade-accent-color': '#141312',
+          'hillshade-highlight-color': palette.hillshadeHighlight,
+          'hillshade-accent-color': palette.hillshadeAccent,
         },
       },
       {
@@ -111,7 +120,7 @@ export function buildRastroStyle(key: string): StyleSpecification {
         filter: ['in', ['get', 'class'], ['literal', ['minor', 'service']]],
         layout: { 'line-cap': 'round', 'line-join': 'round' },
         paint: {
-          'line-color': '#35332f',
+          'line-color': palette.roadLocal,
           'line-width': ['interpolate', ['linear'], ['zoom'], 10, 0.4, 16, 3],
         },
       },
@@ -123,7 +132,7 @@ export function buildRastroStyle(key: string): StyleSpecification {
         filter: ['in', ['get', 'class'], ['literal', ['tertiary', 'secondary']]],
         layout: { 'line-cap': 'round', 'line-join': 'round' },
         paint: {
-          'line-color': '#665e52',
+          'line-color': palette.roadCollector,
           'line-width': ['interpolate', ['linear'], ['zoom'], 7, 0.5, 16, 5],
         },
       },
@@ -135,7 +144,7 @@ export function buildRastroStyle(key: string): StyleSpecification {
         filter: ['in', ['get', 'class'], ['literal', ['primary', 'trunk']]],
         layout: { 'line-cap': 'round', 'line-join': 'round' },
         paint: {
-          'line-color': '#958b7d',
+          'line-color': palette.roadArterial,
           'line-width': ['interpolate', ['linear'], ['zoom'], 6, 0.6, 16, 7],
         },
       },
@@ -147,7 +156,7 @@ export function buildRastroStyle(key: string): StyleSpecification {
         filter: ['==', ['get', 'class'], 'motorway'],
         layout: { 'line-cap': 'round', 'line-join': 'round' },
         paint: {
-          'line-color': '#c3baa8',
+          'line-color': palette.roadHighway,
           'line-width': ['interpolate', ['linear'], ['zoom'], 5, 0.8, 16, 9],
         },
       },
@@ -181,7 +190,7 @@ export function buildRastroStyle(key: string): StyleSpecification {
         paint: {
           'circle-radius': ['interpolate', ['linear'], ['zoom'], 14, 3, 16, 5.5],
           'circle-color': 'rgba(0,0,0,0)',
-          'circle-stroke-color': '#958b7d',
+          'circle-stroke-color': palette.roadArterial,
           'circle-stroke-width': 1.5,
           'circle-opacity': 1,
         },
@@ -208,8 +217,8 @@ export function buildRastroStyle(key: string): StyleSpecification {
           'text-optional': true,
         },
         paint: {
-          'text-color': '#958b7d',
-          'text-halo-color': '#0d0d0c',
+          'text-color': palette.roadArterial,
+          'text-halo-color': palette.background,
           'text-halo-width': 1.2,
         },
       },
@@ -220,7 +229,7 @@ export function buildRastroStyle(key: string): StyleSpecification {
         'source-layer': 'boundary',
         filter: ['<=', ['get', 'admin_level'], 4],
         paint: {
-          'line-color': '#2c2926',
+          'line-color': palette.boundary,
           'line-width': 0.7,
           'line-dasharray': [3, 2],
         },
@@ -239,8 +248,8 @@ export function buildRastroStyle(key: string): StyleSpecification {
           'text-letter-spacing': 0.08,
         },
         paint: {
-          'text-color': '#bcb2a4',
-          'text-halo-color': '#0e0d0c',
+          'text-color': palette.labelSmall,
+          'text-halo-color': palette.labelHalo,
           'text-halo-width': 1.2,
         },
       },
@@ -266,8 +275,8 @@ export function buildRastroStyle(key: string): StyleSpecification {
           'text-max-width': 8,
         },
         paint: {
-          'text-color': '#dad2c5',
-          'text-halo-color': '#0e0d0c',
+          'text-color': palette.labelLarge,
+          'text-halo-color': palette.labelHalo,
           'text-halo-width': 1.4,
         },
       },

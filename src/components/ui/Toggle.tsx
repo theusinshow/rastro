@@ -19,7 +19,7 @@ export function Toggle({ label, checked, onChange }: ToggleProps) {
         onChange={(event) => onChange(event.target.checked)}
         className="h-5 w-5 shrink-0 appearance-none rounded-sm border
                    border-line-strong transition-colors checked:border-accent
-                   checked:bg-accent"
+                   checked:bg-accent-fill"
       />
       <span className="text-body text-ink-muted">{label}</span>
     </label>

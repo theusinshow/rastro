@@ -27,6 +27,7 @@ import {
 import { animateProgress } from '@/lib/motion/animate-progress'
 import { useReducedMotion } from '@/lib/motion/use-reduced-motion'
 import { useSelectedPlace } from '@/components/explore/use-selected-place'
+import { useTheme } from '@/components/layout/theme-context'
 import { useMapInstance } from './map-context'
 
 const NO_MATCH = '__none__'
@@ -54,6 +55,7 @@ export function PlacesLayer({
   const map = useMapInstance()
   const { slug, select } = useSelectedPlace()
   const reducedMotion = useReducedMotion()
+  const { theme } = useTheme()
 
   const matched = useMemo(
     () => new Set(visible.map((place) => place.slug)),
@@ -68,29 +70,54 @@ export function PlacesLayer({
     to: ReadonlySet<string>
   } | null>(null)
 
-  // Registro da fonte e das camadas. Roda uma vez por instância de mapa.
+  /*
+   * Registro da fonte e das camadas.
+   *
+   * Escuta `styledata` pelo mesmo motivo que o traçado da viagem: trocar de tema
+   * chama `setStyle`, e `setStyle` derruba TODAS as camadas nossas junto. Sem
+   * esta escuta, alternar dia/noite apagava os catorze pins do mapa e não havia
+   * erro em lugar nenhum — o mesmo modo de falha silenciosa que já apareceu
+   * neste arquivo antes.
+   *
+   * `theme` é dependência aqui, e não `ref`: as camadas precisam ser
+   * reconstruídas com a paleta nova, não só recolocadas.
+   */
   useEffect(() => {
     if (!map) return
 
-    if (!map.getSource(PLACES_SOURCE_ID)) {
+    function apply(): boolean {
+      if (!map || !map.isStyleLoaded()) return false
+      if (map.getSource(PLACES_SOURCE_ID)) return true
+
       map.addSource(PLACES_SOURCE_ID, {
         type: 'geojson',
         data: buildPlacesGeoJson([], new Set()),
       })
-      for (const layer of buildPlaceLayers()) {
+      for (const layer of buildPlaceLayers(theme)) {
         map.addLayer(layer)
       }
+      return true
     }
 
-    return () => {
+    function cleanup() {
       // O mapa pode já ter sido destruído pelo MapCanvas.
-      if (!map.getStyle()) return
+      if (!map || !map.getStyle()) return
+      map.off('styledata', onStyleData)
       for (const id of Object.values(PLACE_LAYERS)) {
         if (map.getLayer(id)) map.removeLayer(id)
       }
       if (map.getSource(PLACES_SOURCE_ID)) map.removeSource(PLACES_SOURCE_ID)
     }
-  }, [map])
+
+    function onStyleData() {
+      apply()
+    }
+
+    apply()
+    map.on('styledata', onStyleData)
+
+    return cleanup
+  }, [map, theme])
 
   // Dados e crossfade do recorte. Sem o crossfade, marcar um filtro faz treze
   // dos catorze pins sumirem num quadro e o tamanho da mudança fica ilegível.

@@ -9,7 +9,10 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const VARIANT: Record<ButtonVariant, string> = {
-  solid: 'bg-accent text-on-accent hover:bg-accent-strong',
+  // `accent-fill`, e não `accent`: no tema claro o acento é a cor de TEXTO, um
+  // marrom de 6.42:1 — preenchendo um botão, ele receberia por cima a tinta
+  // quase preta de `--color-on-accent` e o rótulo sumiria.
+  solid: 'bg-accent-fill text-on-accent hover:bg-accent-fill-strong',
   outline:
     'border border-line-strong text-ink hover:border-accent hover:bg-overlay',
   ghost: 'text-ink-muted hover:bg-overlay hover:text-ink',

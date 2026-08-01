@@ -4,6 +4,7 @@ import type {
   SymbolLayerSpecification,
 } from 'maplibre-gl'
 import type { ExplorePlace } from '@/domain/place'
+import { paletteFor, type MapTheme, type PinPalette } from './palette'
 
 export const PLACES_SOURCE_ID = 'places'
 
@@ -87,14 +88,8 @@ export function buildPlacesGeoJson(
   }
 }
 
-// Cores duplicadas dos tokens CSS de propósito: o MapLibre desenha em WebGL e
-// não enxerga variáveis CSS. Ao alterar um token, altere aqui também.
-const VISITED = '#93a86e'
-const WANTED = '#e5a338'
-const UNVISITED = '#9b9082'
-/** Miolo do pin não visitado. É `--color-base`: o pin é oco, não escuro. */
-const HOLLOW = '#191817'
-const BONE = '#ede6db'
+// As cores vêm de `palette.ts`, que guarda as duas variantes lado a lado: o
+// MapLibre desenha em WebGL e não enxerga variáveis CSS.
 
 type CirclePaint = NonNullable<CircleLayerSpecification['paint']>
 type CircleOpacity = NonNullable<CirclePaint['circle-opacity']>
@@ -196,34 +191,39 @@ function weightedRadius(near: number, far: number): ExpressionSpecification {
 }
 
 /** Miolo preenchido para visitado e quero conhecer; vazado para não visitado. */
-const CORE_FILL: CircleLayerSpecification['paint'] = {
-  'circle-color': [
-    'match',
-    ['get', 'visitStatus'],
-    'visitado',
-    VISITED,
-    'quero-conhecer',
-    WANTED,
-    HOLLOW,
-  ],
-  'circle-stroke-color': [
-    'match',
-    ['get', 'visitStatus'],
-    'visitado',
-    VISITED,
-    'quero-conhecer',
-    WANTED,
-    UNVISITED,
-  ],
-  'circle-stroke-width': 1.4,
-  'circle-radius': weightedRadius(3.5, 6.5),
-  'circle-opacity': matchFadeOpacity(1),
-  'circle-stroke-opacity': matchFadeOpacity(1),
+function coreFill(pin: PinPalette): CircleLayerSpecification['paint'] {
+  return {
+    'circle-color': [
+      'match',
+      ['get', 'visitStatus'],
+      'visitado',
+      pin.visited,
+      'quero-conhecer',
+      pin.wanted,
+      pin.hollow,
+    ],
+    'circle-stroke-color': [
+      'match',
+      ['get', 'visitStatus'],
+      'visitado',
+      pin.visited,
+      'quero-conhecer',
+      pin.wanted,
+      pin.unvisited,
+    ],
+    'circle-stroke-width': 1.4,
+    'circle-radius': weightedRadius(3.5, 6.5),
+    'circle-opacity': matchFadeOpacity(1),
+    'circle-stroke-opacity': matchFadeOpacity(1),
+  }
 }
 
-export function buildPlaceLayers(): Array<
+export function buildPlaceLayers(theme: MapTheme = 'escuro'): Array<
   CircleLayerSpecification | SymbolLayerSpecification
 > {
+  const { pin, map } = paletteFor(theme)
+  const label = { large: map.labelLarge, halo: map.labelHalo }
+
   return [
     {
       id: PLACE_LAYERS.favoriteRing,
@@ -232,7 +232,7 @@ export function buildPlaceLayers(): Array<
       filter: ['==', ['get', 'isFavorite'], true],
       paint: {
         'circle-color': 'rgba(0,0,0,0)',
-        'circle-stroke-color': BONE,
+        'circle-stroke-color': pin.bone,
         'circle-stroke-width': 1,
         'circle-stroke-opacity': matchFadeOpacity(1, 0.55),
         'circle-radius': weightedRadius(7, 11),
@@ -245,7 +245,7 @@ export function buildPlaceLayers(): Array<
       // A opacidade já esconde quem saiu do recorte; o filtro existe para que
       // um pin invisível não continue capturando clique depois do crossfade.
       filter: IN_TRANSITION,
-      paint: CORE_FILL,
+      paint: coreFill(pin),
     },
     {
       id: PLACE_LAYERS.photoDot,
@@ -253,7 +253,7 @@ export function buildPlaceLayers(): Array<
       source: PLACES_SOURCE_ID,
       filter: ['==', ['get', 'hasPhotos'], true],
       paint: {
-        'circle-color': BONE,
+        'circle-color': pin.bone,
         'circle-opacity': matchFadeOpacity(1, 0.8),
         'circle-radius': 1.7,
         // Deslocado para o canto superior direito do pin.
@@ -267,7 +267,7 @@ export function buildPlaceLayers(): Array<
       filter: ['==', ['get', 'slug'], '__none__'],
       paint: {
         'circle-color': 'rgba(0,0,0,0)',
-        'circle-stroke-color': BONE,
+        'circle-stroke-color': pin.bone,
         'circle-stroke-width': 1,
         'circle-stroke-opacity': 0.9,
         'circle-radius': hoverRadius(1),
@@ -281,7 +281,7 @@ export function buildPlaceLayers(): Array<
       filter: ['==', ['get', 'slug'], '__none__'],
       paint: {
         'circle-color': 'rgba(0,0,0,0)',
-        'circle-stroke-color': BONE,
+        'circle-stroke-color': pin.bone,
         'circle-stroke-width': 1.2,
         'circle-stroke-opacity': 1,
         'circle-radius': selectionRadius(1),
@@ -312,8 +312,11 @@ export function buildPlaceLayers(): Array<
         'text-optional': true,
       },
       paint: {
-        'text-color': '#c3ccc8',
-        'text-halo-color': '#0a0c0b',
+        // Sobrou da paleta anterior — um cinza esverdeado que não existe em
+        // token nenhum desde o ADR 0012. O nome do lugar é o texto mais
+        // importante do mapa e estava numa cor de nenhum lugar.
+        'text-color': label.large,
+        'text-halo-color': label.halo,
         'text-halo-width': 1.4,
         'text-opacity': matchFadeTextOpacity(1),
       },

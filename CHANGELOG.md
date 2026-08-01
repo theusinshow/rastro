@@ -39,6 +39,11 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   quilometragem rodada, agora aparece como `~ 161` com o traço interrompido e
   "linha reta" escrito embaixo
 
+- **Tema claro**, com cartografia própria. O botão de sol e lua fica na barra, ao
+  lado do Sair, e a escolha sobrevive a fechar o navegador. O mapa muda junto —
+  no claro a rodovia é a via mais **escura**, porque o que faz a estrada ser o
+  conteúdo é a distância do fundo, não a claridade
+
 ### Corrigido
 
 - Três controles ficavam abaixo do alvo mínimo de 44px no celular: o segmento

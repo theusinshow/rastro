@@ -39,7 +39,18 @@
 
   /* Acento — amarelo queimado de instrumento: painel de moto, farol, GPS
      outdoor. Deliberadamente o oposto do azul de SaaS. */
-  --color-accent: #e5a338; /* 8.13:1 */
+  --color-accent: #e5a338; /* 8.13:1 — texto, régua, borda */
+  /*
+   * O acento PREENCHENDO, separado do acento escrevendo.
+   *
+   * No escuro os dois coincidem, e por isso a separação parece supérflua aqui.
+   * Ela existe por causa do claro: lá o âmbar que preenche um botão é claro
+   * demais para ser lido como texto sobre areia, e o âmbar que serve de texto é
+   * escuro demais para receber a tinta de `--color-on-accent` por cima. Um
+   * token só faria botão sólido ilegível de dia.
+   */
+  --color-accent-fill: #e5a338;
+  --color-accent-fill-strong: #cf8a1c;
   --color-accent-strong: #cf8a1c; /* 6.17:1 — hover de ação primária */
   --color-accent-dim: #6d4d13; /* 2.30:1 — preenchimento surdo, nunca texto */
   --color-on-accent: #16110b; /* 8.60:1 sobre o acento */
@@ -145,6 +156,13 @@
   --color-nav-viagens: #93a86e;
   --color-nav-memorias: #8fa9c2;
 
+  /* A tinta do glifo INATIVO. No escuro é a própria cor do destino; no claro
+     ela escurece, porque estes quatro matizes não têm razão sobre areia. */
+  --color-nav-explorar-ink: #e5a338;
+  --color-nav-descobrir-ink: #d9834a;
+  --color-nav-viagens-ink: #93a86e;
+  --color-nav-memorias-ink: #8fa9c2;
+
   --dur-instant: 90ms; /* press, feedback tátil */
   --dur-fast: 140ms; /* hover, cor */
   --dur-base: 220ms; /* entrada de painel, revelação */
@@ -165,6 +183,69 @@
      150ms com a curva `ease`. */
   --default-transition-duration: 140ms;
   --default-transition-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/*
+ * A RÉGUA, DE DIA.
+ *
+ * A mesma família invertida em claridade: areia clara na superfície, couro no
+ * texto, âmbar escurecido no acento. Toda razão abaixo foi medida sobre o
+ * `--color-base` claro.
+ *
+ * A única diferença ESTRUTURAL entre as duas variantes é que o acento se parte
+ * em dois papéis. No escuro, um âmbar de 8:1 serve de texto e de preenchimento.
+ * No claro isso é impossível: o âmbar que preenche um botão é claro demais para
+ * ser lido como texto sobre areia. Então `--color-accent` vira a cor de TEXTO,
+ * régua e borda, e `--color-accent-fill` a de preenchimento — com
+ * `--color-on-accent` medido sobre o segundo, não sobre o primeiro.
+ *
+ * Fora daqui, nenhum componente sabe que existem dois temas.
+ */
+[data-theme='claro'] {
+  --color-void: #e8e2d7;
+  --color-base: #f4efe6;
+  --color-raised: #ece5da;
+  --color-overlay: #e2dacd;
+
+  --color-line: rgba(38, 32, 26, 0.14);
+  --color-line-strong: rgba(38, 32, 26, 0.28);
+
+  --color-ink: #211d18; /* 14.63:1 */
+  --color-ink-muted: #554d43; /* 7.25:1 */
+  --color-ink-faint: #635a4e; /* 5.91:1 */
+
+  --color-accent: #7d4a06; /* 6.42:1 — texto, régua medida, borda */
+  --color-accent-fill: #d99327; /* só preenchimento de ação */
+  --color-accent-fill-strong: #c8821a; /* hover do preenchimento */
+  --color-accent-strong: #5f3804; /* 8.93:1 — hover de texto e borda */
+  --color-accent-dim: #f2ddb0; /* preenchimento surdo, nunca texto */
+  --color-on-accent: #1c1409; /* 7.07:1 sobre `--color-accent-fill` */
+
+  --color-visited: #445d24; /* 6.46:1 */
+  --color-wanted: #7d4a06; /* 6.42:1 */
+  --color-unvisited: #635a4e; /* 5.91:1 */
+  --color-ok: #445d24;
+  --color-warn: #7d4a06;
+  --color-alert: #9c2f16; /* 6.48:1 */
+
+  /* Pior caso sobre `--color-overlay`: ink 12.08 · muted 5.99 · faint 4.88 ·
+     accent 5.31 · visited 5.34 · alert 5.35. Folga maior que na escura. */
+
+  /* Sombra de couro, e não preta: preto sobre areia lê como sujeira. */
+  --shadow-float: 0 18px 40px -24px rgb(84 71 54 / 0.35);
+  --shadow-lift:
+    0 18px 40px -24px rgb(84 71 54 / 0.35), 0 10px 26px -16px rgb(84 71 54 / 0.28);
+
+  /* Só o glifo do destino INATIVO escurece: no claro, os quatro matizes do
+     escuro não têm razão sobre a superfície clara. O preenchimento do ativo
+     (`--color-nav-*`) não muda — o destino tem a mesma cor de dia e de noite, e
+     é isso que faz a cor ser identificador em vez de enfeite. */
+  --color-nav-explorar-ink: #8a5a0c;
+  --color-nav-descobrir-ink: #9c4a1f;
+  --color-nav-viagens-ink: #4f6b2c;
+  --color-nav-memorias-ink: #3f5a75;
+
+  color-scheme: light;
 }
 
 @layer base {
@@ -368,11 +449,15 @@
     );
   }
 
-  /* DESCONHECIDO — não sabemos. O valor é `—`, nunca um palpite. */
+  /* DESCONHECIDO — não sabemos. O valor é `—`, nunca um palpite.
+
+     As duas réguas abaixo derivam de `--color-line`, e não de um rgba literal:
+     literal é branco translúcido, que some sobre areia. Elas precisam existir
+     nos dois temas — uma régua invisível é um número sem procedência. */
   .instrument-rule--unknown {
     background-image: repeating-linear-gradient(
       90deg,
-      rgba(237, 230, 219, 0.22) 0 2px,
+      var(--color-line-strong) 0 2px,
       transparent 2px 6px
     );
   }
@@ -381,7 +466,7 @@
      existem. Régua neutra — presente, para a forma do `Stat` não variar, e
      surda, para não reivindicar precisão de instrumento. */
   .instrument-rule--count {
-    background-color: rgba(237, 230, 219, 0.12);
+    background-color: var(--color-line-strong);
   }
 
   /*
@@ -612,6 +697,18 @@
       inset 0 1px 0 rgba(237, 230, 219, 0.13),
       inset 0 -2px 6px rgba(0, 0, 0, 0.45),
       0 3px 0 rgba(0, 0, 0, 0.5),
+      var(--shadow-lift);
+  }
+
+  /* De dia a luz vem de cima do mesmo jeito, mas o material é outro: a aresta
+     e as sombras internas são de couro, e não pretas. Preto sobre areia lê como
+     sujeira, não como espessura. */
+  [data-theme='claro'] .chrome-capsule {
+    background-color: rgba(249, 245, 238, 0.94);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.95),
+      inset 0 -2px 6px rgba(84, 71, 54, 0.1),
+      0 3px 0 rgba(84, 71, 54, 0.14),
       var(--shadow-lift);
   }
 

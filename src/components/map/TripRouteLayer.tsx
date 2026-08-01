@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import type { PaddingOptions } from 'maplibre-gl'
 import type { Coordinates } from '@/domain/geo'
 import type { TripDetail } from '@/domain/trip'
@@ -11,6 +11,7 @@ import {
   buildTripRouteGeoJson,
   buildTripRouteLayers,
 } from '@/lib/map/trip-route-layers'
+import { useTheme } from '@/components/layout/theme-context'
 import { useMapInstance } from './map-context'
 
 interface TripRouteLayerProps {
@@ -21,6 +22,14 @@ interface TripRouteLayerProps {
 
 export function TripRouteLayer({ trip, cameraPadding }: TripRouteLayerProps) {
   const map = useMapInstance()
+  // Por `ref`, e não por dependência: trocar de tema derruba o estilo inteiro,
+  // e é o `styledata` abaixo que recoloca a camada — já com a paleta nova. Como
+  // dependência, o efeito ainda tentaria remover uma camada que já não existe.
+  const { theme } = useTheme()
+  const themeRef = useRef(theme)
+  useEffect(() => {
+    themeRef.current = theme
+  }, [theme])
 
   useEffect(() => {
     if (!map) return
@@ -35,7 +44,7 @@ export function TripRouteLayer({ trip, cameraPadding }: TripRouteLayerProps) {
 
       if (!map.getSource(TRIP_ROUTE_SOURCE_ID)) {
         map.addSource(TRIP_ROUTE_SOURCE_ID, { type: 'geojson', data })
-        for (const layer of buildTripRouteLayers()) {
+        for (const layer of buildTripRouteLayers(themeRef.current)) {
           map.addLayer(layer)
         }
       }

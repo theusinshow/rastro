@@ -9,9 +9,9 @@ interface TripListProps {
 
 /** Mesmo peso do `Button` variante `solid`, tamanho `md`, num elemento de link. */
 const CTA =
-  'press inline-flex h-12 items-center justify-center rounded-md bg-accent ' +
+  'press inline-flex h-12 items-center justify-center rounded-md bg-accent-fill ' +
   'px-5 text-body font-medium tracking-[0.02em] text-on-accent ' +
-  'hover:bg-accent-strong'
+  'hover:bg-accent-fill-strong'
 
 export function TripList({ trips }: TripListProps) {
   if (trips.length === 0) {

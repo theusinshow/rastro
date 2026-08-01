@@ -1,5 +1,8 @@
 import type { Metadata } from 'next'
+import { cookies } from 'next/headers'
 import { Archivo, JetBrains_Mono } from 'next/font/google'
+import { DEFAULT_THEME, THEME_COOKIE, isTheme } from '@/lib/theme'
+import { ThemeProvider } from '@/components/layout/theme-context'
 import './globals.css'
 
 /**
@@ -20,13 +23,27 @@ export const metadata: Metadata = {
   description: 'Para onde eu vou, onde eu já estive, o que ainda quero conhecer.',
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  // Lido no SERVIDOR, e escrito no `<html>` antes de qualquer pintura. Resolver
+  // isso no cliente daria um quadro inteiro no tema errado a cada carga — e um
+  // piscar de tela cheia é o pior defeito visual possível num produto que se
+  // abre no sol, com o olho já adaptado.
+  const cookieStore = await cookies()
+  const salvo = cookieStore.get(THEME_COOKIE)?.value
+  const theme = isTheme(salvo) ? salvo : DEFAULT_THEME
+
   return (
-    <html lang="pt-BR" className={`${sans.variable} ${mono.variable}`}>
+    <html
+      lang="pt-BR"
+      data-theme={theme}
+      className={`${sans.variable} ${mono.variable}`}
+    >
       {/* A família vem de `body` em `globals.css`, junto do piso de 17px. */}
-      <body>{children}</body>
+      <body>
+        <ThemeProvider initial={theme}>{children}</ThemeProvider>
+      </body>
     </html>
   )
 }

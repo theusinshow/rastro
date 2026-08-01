@@ -6,6 +6,7 @@ import { signOutAction } from '@/app/entrar/actions'
 import { Logo } from '@/components/ui/Logo'
 import { cn } from '@/lib/utils/cn'
 import { NavIcon, type NavIconName } from './nav-icons'
+import { ThemeToggle } from './ThemeToggle'
 
 /**
  * Uma cor por destino, e a MESMA cor sempre.
@@ -99,7 +100,13 @@ export function TopBar() {
                   aria-current={active ? 'page' : undefined}
                   style={
                     {
+                      // Duas tintas, e não uma: o PREENCHIMENTO do destino ativo
+                      // é o mesmo de dia e de noite — é o que faz a cor virar
+                      // identificador. Já o glifo do inativo precisa de razão
+                      // sobre a superfície, e no claro os quatro matizes do
+                      // escuro não têm.
                       '--tint': `var(--color-${item.tint})`,
+                      '--tint-ink': `var(--color-${item.tint}-ink)`,
                     } as React.CSSProperties
                   }
                   className={cn(
@@ -119,7 +126,7 @@ export function TopBar() {
                         // cor do destino. **O rótulo nunca é colorido** —
                         // colorir a palavra faria quatro cores competirem por
                         // atenção ao mesmo tempo, e nenhuma seria estado.
-                        'bg-raised text-ink-muted hover:bg-overlay hover:text-ink [&>svg]:text-(--tint)',
+                        'bg-raised text-ink-muted hover:bg-overlay hover:text-ink [&>svg]:text-(--tint-ink)',
                   )}
                 >
                   <NavIcon name={item.icon} drawing={active} />
@@ -141,9 +148,9 @@ export function TopBar() {
           href="/lugar/novo"
           // h-11 e não h-10: 44px é o piso de alvo, e este produto é usado
           // parado no acostamento, com luva.
-          className="press flex h-11 items-center gap-1.5 rounded-full bg-accent
-                     px-4 text-small font-bold whitespace-nowrap text-on-accent
-                     hover:bg-accent-strong"
+          className="press flex h-11 items-center gap-1.5 rounded-full
+                     bg-accent-fill px-4 text-small font-bold whitespace-nowrap
+                     text-on-accent hover:bg-accent-fill-strong"
         >
           <span aria-hidden className="text-lead leading-none">
             +
@@ -151,6 +158,8 @@ export function TopBar() {
           <span className="hidden sm:inline">Novo lugar</span>
           <span className="sr-only sm:hidden">Novo lugar</span>
         </Link>
+
+        <ThemeToggle />
 
         {/* Hairline separando a saída do resto. Sair não é navegação: é o fim
             da sessão, e não deve morar encostado no que se clica sempre. */}
