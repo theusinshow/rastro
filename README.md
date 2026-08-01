@@ -44,9 +44,24 @@ conta, nem lugares, nem nada gravado.
    - `supabase/migrations/0006_autonomy.sql`
    - `supabase/migrations/0007_access_surface.sql`
    - `supabase/migrations/0008_visitante.sql`
+   - `supabase/migrations/0009_credito_da_foto_de_capa.sql`
    - `supabase/seeds/0001_places.sql`
+   - `supabase/seeds/0003_lugares_de_santa_catarina.sql`
+   - `supabase/seeds/0002_fotos_de_capa.sql` — **por último**, porque ele
+     preenche as capas dos lugares que os dois seeds acima inseriram
 
-   Conferir com `select count(*) from places;` — deve dar **14**.
+   Conferir com `select count(*) from places;` — deve dar **20**.
+
+   > O `0002` é **gerado**, não escrito à mão: `node scripts/fotos-de-capa.mjs`
+   > lê o catálogo do banco, busca uma foto com autor e licença no Wikimedia
+   > Commons para cada lugar e regrava o arquivo inteiro. Rode-o **depois** de
+   > aplicar os seeds de lugares, ou ele não conhecerá os lugares novos.
+   >
+   > Ele regrava o arquivo **por completo**, e o Commons corta quem dispara em
+   > rajada — uma rodada pode voltar com menos lugares que a anterior. Isso não
+   > apaga capa nenhuma do banco (o `update` só toca nos slugs listados), mas
+   > deixa o arquivo pior do que estava. Se acontecer, `git checkout` no arquivo
+   > e rode de novo.
 3. Habilitar o Google em **Authentication → Providers**:
    - No [Google Cloud Console](https://console.cloud.google.com), configurar a
      tela de permissão OAuth e criar um *ID do cliente OAuth* do tipo
@@ -174,9 +189,20 @@ MapLibre desenha no canto.
 
 ## Dados não verificados
 
-Os catorze lugares do catálogo inicial são **dado de desenvolvimento**:
-coordenadas aproximadas, descrições não conferidas. Eles carregam
-`source = 'mock'` no banco justamente para que essa marca sobreviva à migração —
-nada ali deve ser tratado como informação real nem usado para decidir uma viagem.
+O catálogo tem duas levas, e elas **não têm o mesmo grau de confiança**. A marca
+está no banco, na coluna `source`, justamente para que a diferença sobreviva à
+migração:
+
+| Leva | `source` | Coordenada | Descrição |
+| --- | --- | --- | --- |
+| Os 14 iniciais (`0001_places.sql`) | `mock` | aproximada | não conferida |
+| Os 6 de SC (`0003_lugares_de_santa_catarina.sql`) | `imported` | **geocodificada** e conferida como município em SC | texto nosso, escrito a partir de leitura |
+
+Nenhuma das duas foi conferida por quem esteve lá, e **nada ali deve ser usado
+para decidir uma viagem** — nem condição de estrada, nem horário, nem acesso.
+
+As fotos de capa são a exceção: vêm do Wikimedia Commons com autor e licença
+nomeados, e foto sem crédito completo é descartada pelo script. Sem poder
+creditar, não há permissão para publicar.
 
 `src/mocks/` é fixture dos testes de domínio, não fonte de dados da aplicação.

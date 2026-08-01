@@ -67,6 +67,23 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Adicionado
 
+- **Seis lugares novos, e o mapa deixou de ser só o eixo Urubici–Florianópolis.**
+  O catálogo tinha catorze lugares concentrados numa faixa do estado, e nada no
+  extremo sul, no litoral sul, no alto do planalto ou no Vale do Itajaí. Entram
+  **Urupema**, **São Joaquim**, **Lauro Müller** (o pé da Serra do Rio do Rastro
+  pelo lado do litoral), **Praia Grande**, **Laguna** e **Pomerode** — cada um
+  ancorando uma região que não tinha nenhum.
+
+  A lista saiu de uma curadoria de relatos de viagem de moto pelo Sul, lida como
+  fonte de **fatos**: que Lauro Müller fica no pé da serra é fato, e fato não tem
+  dono. Nenhuma foto e nenhum texto de lá entrou no produto — as capas continuam
+  vindo do Wikimedia Commons, com autor e licença.
+
+  E as coordenadas destes seis, ao contrário das primeiras catorze, **não são
+  aproximadas**: cada uma foi geocodificada e conferida como município em Santa
+  Catarina. O banco guarda essa diferença na coluna `source`, para que ela não se
+  perca
+
 - **A entrada pergunta de onde você sai.** Quem entra sem ponto de partida cai
   direto na tela que pergunta por ele, em vez de chegar a um mapa onde o raio
   está indisponível, a distância de cada lugar some e a descoberta mostra um
