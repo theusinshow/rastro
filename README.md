@@ -47,10 +47,11 @@ conta, nem lugares, nem nada gravado.
    - `supabase/migrations/0009_credito_da_foto_de_capa.sql`
    - `supabase/seeds/0001_places.sql`
    - `supabase/seeds/0003_lugares_de_santa_catarina.sql`
+   - `supabase/seeds/0004_morro_do_queimado.sql`
    - `supabase/seeds/0002_fotos_de_capa.sql` — **por último**, porque ele
-     preenche as capas dos lugares que os dois seeds acima inseriram
+     preenche as capas dos lugares que os três seeds acima inseriram
 
-   Conferir com `select count(*) from places;` — deve dar **20**.
+   Conferir com `select count(*) from places;` — deve dar **21**.
 
    > O `0002` é **gerado**, não escrito à mão: `node scripts/fotos-de-capa.mjs`
    > lê o catálogo do banco, busca uma foto com autor e licença no Wikimedia

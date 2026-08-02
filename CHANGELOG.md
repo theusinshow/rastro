@@ -126,6 +126,15 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Adicionado
 
+- **O Morro do Queimado entrou no catálogo.** Rampa de parapente e mirante sobre
+  a Grande Florianópolis, em Santo Amaro da Imperatriz, no alto do Parque
+  Estadual da Serra do Tabuleiro. O pino está no cume, e não no bairro de mesmo
+  nome que fica 1,4 km abaixo — a diferença entre os dois é de quatrocentos
+  metros de altitude, e o geocodificador devolve o bairro.
+
+  Entra com capa própria: o entardecer visto do cume, com o vale aceso embaixo.
+  É a primeira do catálogo que não vem do Wikimedia Commons
+
 - **Vitrine de lugares na tela inicial.** No canto inferior direito passa a
   correr uma sequência de lugares que você ainda não conheceu, um por vez, com
   foto, categoria e a distância desde a sua origem. Enquanto o mapa passeia pelos
