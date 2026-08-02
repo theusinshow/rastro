@@ -82,6 +82,30 @@ considere um ADR.
 
 ---
 
+## Testes — não testar tudo
+
+**Não escreva teste para tudo. Teste não é entregável por padrão.**
+
+O que se testa neste repositório:
+
+- **Função pura em `src/domain/`** — sim, sempre. É onde a regra mora e é o que
+  o Vitest prova em menos de um segundo.
+- **Fumaça em `e2e/fumaca.spec.ts`** — só um caso nascido de um defeito real que
+  já aconteceu, e só depois de ter falhado na presença desse defeito
+  ([ADR 0022](./docs/decisions/0022-um-teste-que-abre-o-produto.md)).
+
+O que **não** se testa: componente visual, texto, espaçamento, cor, wrapper de
+biblioteca, Server Action que só encaminha, e qualquer coisa que `lint` e
+`typecheck` já provem. Cobertura não é meta e não se persegue número.
+
+Se uma alteração não toca função pura, o esperado é entregar **sem teste novo**.
+Escrever teste que ninguém pediu para código que não é função pura é trabalho
+inventado — e uma suíte que cresce por hábito é suíte que ninguém confia.
+
+Quando houver dúvida se um teste vale, pergunte antes de escrever.
+
+---
+
 ## Camadas
 
 Regra verificável por leitura de imports:

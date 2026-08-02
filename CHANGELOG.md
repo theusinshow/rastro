@@ -95,6 +95,12 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Adicionado
 
+- **Regra de teste no `CLAUDE.md`: não testar tudo.** Ficou escrito o que este
+  repositório já praticava sem dizer — teste existe para função pura de domínio
+  e para o caso de fumaça nascido de defeito real, e não para componente, texto,
+  cor ou código que `lint` e `typecheck` já provam. Entregar sem teste novo é o
+  resultado esperado quando a alteração não toca função pura
+
 - **O roteiro diz onde abastecer, e não só quantas vezes.** O Rastro já sabia
   que uma volta de 379 km numa moto de 300 pede uma parada por volta dos 255 km.
   Agora ele diz **que ponto da estrada é esse** e quais postos existem em volta
