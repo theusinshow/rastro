@@ -126,6 +126,11 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Adicionado
 
+- **Documentação de como adicionar um lugar.** O que precisa ser coletado, o que
+  o produto calcula sozinho e não deve ser coletado, e as três defesas contra o
+  erro que mais acontece — o geocodificador devolver o bairro em vez do lugar.
+  Em `docs/COMO-ADICIONAR-LUGAR.md`
+
 - **O Morro do Queimado entrou no catálogo.** Rampa de parapente e mirante sobre
   a Grande Florianópolis, em Santo Amaro da Imperatriz, no alto do Parque
   Estadual da Serra do Tabuleiro. O pino está no cume, e não no bairro de mesmo
