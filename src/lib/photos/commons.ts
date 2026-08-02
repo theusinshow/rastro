@@ -24,6 +24,16 @@ const THUMB_WIDTH = 480
 /** Busca lenta não pode segurar a abertura do painel. */
 const TIMEOUT_MS = 6000
 
+/**
+ * Um dia de cache.
+ *
+ * A tela inicial passou a pedir foto de uma dúzia de lugares por visita, e sem
+ * isto cada abertura repetiria a consulta inteira — abusar de um serviço aberto,
+ * gratuito e que ainda pede identificação de quem consulta. Foto do Commons para
+ * uma coordenada fixa não muda por hora.
+ */
+const REVALIDATE_S = 60 * 60 * 24
+
 interface CommonsPage {
   title?: unknown
   imageinfo?: {
@@ -103,6 +113,7 @@ function baseQuery(): URL {
 async function query(url: URL): Promise<CommonsPage[]> {
   const response = await fetch(url, {
     signal: AbortSignal.timeout(TIMEOUT_MS),
+    next: { revalidate: REVALIDATE_S },
     headers: {
       // O Commons pede identificação de quem consulta.
       'Api-User-Agent': 'Rastro/1.0 (projeto pessoal; mapa de viagem)',

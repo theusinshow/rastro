@@ -8,32 +8,24 @@ import Link from 'next/link'
  * fazia o olho tratar o botão como se fosse dado. O contorno âmbar sobre `base`
  * opaco mantém a ação inequívoca sem gastar o vocabulário do mapa.
  *
- * Abaixo de 768px a trilha de filtros vira folha inferior e o botão sobe para
- * ficar acima dela. A altura da folha vem de `--sheet-height`
- * (`src/app/globals.css`), a mesma variável que `.overlay-panel` usa como
- * `max-height`: mudar a altura da folha num lugar só move o botão junto, em
- * vez de os dois números divergirem em silêncio.
+ * Abaixo de 768px o botão sobe o suficiente para ficar acima da vitrine, cuja
+ * altura vem de `--carousel-height` (`src/app/globals.css`) — um número num
+ * lugar só, em vez de dois que divergem no dia em que um deles mudar. Antes ele
+ * subia acima da folha de filtros; ela não abre mais por padrão, e
+ * `--sheet-height` saiu da conta junto.
  *
- * A partir de 768px ele centraliza **na faixa de mapa que sobra entre os dois
- * painéis** — não na viewport, e não só à direita da trilha.
+ * A partir de 768px ele centraliza **na faixa de mapa que sobra à esquerda da
+ * vitrine** — não na viewport.
  *
- * Os dois lados são descontados, e o direito é o que faltava: com a trilha em
- * `--panel-base` de um lado e o painel de lugar em `--panel-wide` do outro,
- * ignorar o segundo fazia o botão nascer numa faixa que não existe. Medido em
- * 1440px depois de ele crescer: **115px do botão terminavam embaixo do painel
- * de lugar**, e a pergunta central do produto aparecia cortada no meio.
+ * O lado esquerdo deixou de descontar a trilha, que não nasce mais aberta. O
+ * direito desconta a vitrine, e é a mesma disciplina de antes: quando o botão
+ * cresceu ignorando o painel da direita, **115px dele terminavam embaixo do
+ * painel de lugar** — medido em 1440px —, e a pergunta central do produto
+ * aparecia cortada no meio.
  *
- * É a mesma conta que `CAMERA_PADDING` já faz em `ExploreView` — lá o padding
- * reserva 420+24 à direita para o pin selecionado não terminar sob o painel.
- * Botão e câmera passam a concordar sobre onde o mapa realmente está visível.
- *
- * A faixa é reservada mesmo sem painel aberto. É deliberado: um CTA que muda de
- * posição quando um painel abre chamaria mais atenção para o próprio movimento
- * do que para o destino.
- *
- * O deslocamento à esquerda lê `--panel-base`, a largura real da trilha. Estava
- * lendo `--panel-narrow` — 100px a menos, herdados de quando a trilha era mais
- * estreita.
+ * A faixa é reservada mesmo com a vitrine escondida. É deliberado: um CTA que
+ * muda de posição quando um painel abre chamaria mais atenção para o próprio
+ * movimento do que para o destino.
  */
 export function DiscoveryLauncher() {
   return (
@@ -59,15 +51,15 @@ export function DiscoveryLauncher() {
        * navegação faria o olho tratar o botão como dado.
        */
       className="chrome-capsule chrome-press press pointer-events-auto absolute
-                 bottom-[calc(var(--nav-height)+var(--safe-bottom)+var(--sheet-height)+var(--attrib-height)+var(--chrome-gap)*3)]
+                 bottom-[calc(var(--nav-height)+var(--safe-bottom)+var(--attrib-height)+var(--carousel-height)+var(--chrome-gap)*3)]
                  left-1/2 flex -translate-x-1/2 items-center gap-4 rounded-xl
                  border-accent px-6 py-4 whitespace-nowrap
                  hover:border-accent-strong hover:bg-accent/10
                  md:bottom-[calc(var(--status-height)+var(--chrome-gap)*2)]
-                 md:left-[calc(var(--panel-base)+var(--chrome-gap)*2)]
-                 md:right-[calc(var(--panel-wide)+var(--chrome-gap)*2)]
+                 md:left-(--chrome-gap)
+                 md:right-[calc(var(--carousel-width)+var(--chrome-gap)*2)]
                  md:mx-auto md:w-fit md:translate-x-0
-                 md:gap-6 md:px-8 md:py-5"
+                 md:gap-7 md:px-10 md:py-6"
     >
       {/*
         Duas linhas, e não uma.
@@ -88,7 +80,7 @@ export function DiscoveryLauncher() {
       <span className="flex flex-col gap-1 text-left">
         <span
           className="text-body font-bold tracking-widest text-accent uppercase
-                     md:text-lead"
+                     md:text-title"
         >
           Para onde vamos hoje?
         </span>

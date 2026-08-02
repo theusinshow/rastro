@@ -13,10 +13,11 @@ interface FuelToggleProps {
 /**
  * A chave da camada de postos, no canto livre do mapa.
  *
- * Fica no alto à esquerda da **área de mapa** — depois da trilha, e não sobre
- * ela — porque é um controle de mapa, e não de catálogo: ligar postos não filtra
- * lugar nenhum. Abaixo de 768px a trilha vira folha inferior e o alto fica todo
- * livre, então o mesmo canto serve nos dois tamanhos.
+ * Fica no alto à esquerda da **área de mapa** — depois da trilha quando ela
+ * está aberta, e encostada na borda quando não está — porque é um controle de
+ * mapa, e não de catálogo: ligar postos não filtra lugar nenhum. Abaixo de
+ * 768px a trilha vira folha inferior e o alto fica todo livre, então o mesmo
+ * canto serve nos dois tamanhos.
  *
  * É uma cápsula do mesmo material das barras (`.chrome-capsule`), e afunda ao
  * ser apertada em vez de encolher — cápsula que encolhe lê como erro de layout.
@@ -37,10 +38,11 @@ export function FuelToggle({
       onClick={onToggle}
       aria-pressed={active}
       className={cn(
-        'chrome-capsule chrome-press press pointer-events-auto absolute',
-        'top-[calc(var(--bar-height)+var(--chrome-gap)*2)]',
-        'left-(--chrome-gap) z-(--z-bar)',
-        'md:left-[calc(var(--panel-base)+var(--chrome-gap)*2)]',
+        'chrome-capsule chrome-press press pointer-events-auto',
+        // **Sem posição própria.** Ela e a porta da trilha moram lado a lado
+        // numa mesma fileira em `ExploreView`, que é quem sabe desviar da
+        // trilha quando ela abre. Enquanto cada uma se posicionava sozinha, as
+        // duas nasciam no mesmo canto e uma desenhava por cima da outra.
         // 44px: piso de alvo do produto inteiro, e este é apertado de luva.
         'flex h-11 items-center gap-2.5 rounded-full px-4 whitespace-nowrap',
         'text-small font-medium',

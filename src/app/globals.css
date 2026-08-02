@@ -343,6 +343,19 @@
     --panel-base: 380px;
     --panel-wide: 420px;
 
+    /* Vitrine da tela inicial. A largura vale de 768px para cima, onde ela mora
+       no canto; a altura vale abaixo disso, onde ela é uma faixa e o botão
+       principal precisa saber de quanto subir para não terminar embaixo dela.
+       É o mesmo acordo de `--sheet-height`: um número num lugar só, porque dois
+       números para a mesma medida divergem no dia em que um deles mudar.
+
+       A altura é a da FAIXA INTEIRA — foto mais a linha das setas —, e não a da
+       foto. Descrevendo só a foto, o botão subia 136px para desviar de uma
+       faixa de 183px e os dois terminavam sobrepostos em 35px. Medido em
+       390px. A faixa fixa a própria altura nisto, e a foto ocupa o que sobra. */
+    --carousel-width: 300px;
+    --carousel-height: 9.5rem;
+
     /* Empilhamento. Estava só num comentário, e sem os controles do MapLibre
        (`z-index: 2` de fábrica) desenhavam por cima dos painéis. */
     --z-map: 0;
@@ -832,26 +845,30 @@
 }
 
 /*
- * NO CELULAR A ATRIBUIÇÃO SOBE PARA CIMA DA FOLHA.
+ * NO CELULAR A ATRIBUIÇÃO SOBE PARA CIMA DA NAVEGAÇÃO.
  *
  * Ela mora no canto inferior direito, e abaixo de 768px esse canto não é mais
- * mapa: a folha inferior ocupa a metade de baixo da tela e a barra de navegação
- * o que sobra. Medido antes de a barra existir — a atribuição já estava coberta
- * por um botão da lista de lugares, e continuou coberta depois, pela navegação.
+ * mapa: a barra de navegação o ocupa. Medido antes de a barra existir — a
+ * atribuição já estava coberta por um botão da lista de lugares, e continuou
+ * coberta depois, pela navegação.
  *
  * Isso não é defeito de layout, é **licença descumprida**: o MapTiler e o
  * OpenStreetMap exigem o crédito visível, e um crédito atrás de um painel opaco
  * não é visível. O produto trata isso a sério em toda foto do Commons; o mapa
  * não pode ser a exceção.
  *
- * A posição nova é a borda inferior da FAIXA DE MAPA — que é, nessa largura, o
- * canto inferior do mapa de fato.
+ * **`--sheet-height` saiu da conta.** A folha de filtros abria por padrão, e a
+ * atribuição subia acima dela; com a tela inicial abrindo no mapa, a folha não
+ * está mais lá e esses 45vh viraram um empurrão para o nada — o crédito ficava
+ * pairando no meio do mapa, a 380px de qualquer borda. Medido em 390px depois
+ * de a trilha passar a abrir sob demanda.
+ *
+ * A vitrine da tela inicial não entra nesta conta e não precisa entrar: ela já
+ * se posiciona ACIMA da faixa de atribuição, descontando `--attrib-height` do
+ * próprio `bottom`. Somá-la aqui seria as duas peças desviando uma da outra.
  */
 @media (max-width: 767px) {
   .maplibregl-map .maplibregl-ctrl-bottom-right {
-    bottom: calc(
-      var(--nav-height) + var(--safe-bottom) + var(--sheet-height) +
-        var(--chrome-gap)
-    );
+    bottom: calc(var(--nav-height) + var(--safe-bottom) + var(--chrome-gap));
   }
 }

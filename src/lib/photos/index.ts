@@ -14,3 +14,6 @@ export function getCommonsClient(): CommonsClient {
 }
 
 export type { CommonsPhoto, CommonsClient } from './commons-client'
+
+export { loadCarouselCards } from './carousel'
+export type { CarouselCard } from '@/domain/carousel'

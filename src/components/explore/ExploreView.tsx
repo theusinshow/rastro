@@ -2,6 +2,7 @@
 
 import { Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import type { PaddingOptions } from 'maplibre-gl'
+import type { CarouselCard } from '@/domain/carousel'
 import { mergeAnchor, type FuelAnchor, type FuelStation } from '@/domain/fuel-stations'
 import { filterPlaces, mostRestrictiveCriterion } from '@/domain/filters'
 import type { ExplorePlace } from '@/domain/place'
@@ -15,22 +16,31 @@ import { ExploreTour } from '@/components/map/ExploreTour'
 import { FuelStationsLayer } from '@/components/map/FuelStationsLayer'
 import { useMapInstance } from '@/components/map/map-context'
 import { PlacesLayer } from '@/components/map/PlacesLayer'
+import { cn } from '@/lib/utils/cn'
 import { DiscoveryLauncher } from './DiscoveryLauncher'
 import { FilterRail } from './FilterRail'
+import { PlaceCarousel } from './PlaceCarousel'
 import { PlacePanel } from './PlacePanel'
+import { PlacesToggle } from './PlacesToggle'
 import { useExploreFilters } from './use-explore-filters'
 import { useSelectedPlace } from './use-selected-place'
 import { useSetVisiblePlaceCount } from './visible-places-context'
 
 /**
- * Espaço tomado pelo cromo desta rota. Precisa bater com `--panel-narrow`,
- * `--panel-base`, `--bar-height`, `--status-height` e `--chrome-gap` de
- * `globals.css`: a câmera do MapLibre roda em JavaScript e não lê variável CSS,
- * então os números são espelhados à mão. Divergir faz o pin selecionado terminar
- * embaixo de um painel.
+ * Espaço tomado pelo cromo desta rota. Precisa bater com `--panel-wide`,
+ * `--bar-height`, `--status-height` e `--chrome-gap` de `globals.css`: a câmera
+ * do MapLibre roda em JavaScript e não lê variável CSS, então os números são
+ * espelhados à mão. Divergir faz o pin selecionado terminar embaixo de um
+ * painel.
  *
- * Com o cromo flutuante (ADR 0010) cada lado soma a folga: painel de 280px mais
- * 12px de folga de cada borda; barra de 56px mais duas folgas.
+ * **A esquerda deixou de descontar a trilha.** Ela não nasce mais aberta, e
+ * reservar os 380px de um painel fechado empurrava todo enquadramento para a
+ * direita do centro real — sem erro e sem aviso, visível só como "o mapa está
+ * torto".
+ *
+ * A direita continua reservada mesmo com o painel fechado, e é deliberado: um
+ * enquadramento que muda quando um painel abre chama mais atenção para o próprio
+ * movimento do que para o lugar.
  *
  * Constante de módulo porque um literal novo a cada render remontaria o efeito
  * de câmera.
@@ -39,7 +49,7 @@ const CAMERA_PADDING: PaddingOptions = {
   top: 56 + 24,
   right: 420 + 24,
   bottom: 36 + 24,
-  left: 380 + 24,
+  left: 24,
 }
 
 /**
@@ -53,9 +63,11 @@ const NO_ORIGIN = { latitude: 0, longitude: 0 }
 
 interface ExploreViewProps {
   places: ExplorePlace[]
+  /** Resolvida no servidor, desembrulhada dentro do carrossel. Ver `page.tsx`. */
+  cardsPromise: Promise<CarouselCard[]>
 }
 
-function ExploreContent({ places }: ExploreViewProps) {
+function ExploreContent({ places, cardsPromise }: ExploreViewProps) {
   const { origin, label: originLabel } = useOrigin()
   const { filters, setFilters, reset, isDefault } = useExploreFilters(
     origin !== null,
@@ -65,6 +77,16 @@ function ExploreContent({ places }: ExploreViewProps) {
   const [hoveredSlug, setHoveredSlug] = useState<string | null>(null)
   const map = useMapInstance()
   const fuel = useFuelStations()
+
+  // A trilha não nasce aberta. Estado local e não na URL: é preferência de
+  // momento, não recorte compartilhável — o recorte já vive na URL pelo ADR
+  // 0006, e um `?lista=1` junto dele faria um link compartilhado abrir a gaveta
+  // de quem o mandou.
+  const [railOpen, setRailOpen] = useState(false)
+
+  // Qual cartão a vitrine mostra. Separado de `hoveredSlug` porque os dois têm
+  // tempos de vida diferentes — ver `handleTourFocus`.
+  const [carouselSlug, setCarouselSlug] = useState<string | null>(null)
 
   // Sem origem, `useExploreFilters` já devolve `radiusKm: null` — e o raio é o
   // único critério que consulta a origem. Os outros três não a tocam, então
@@ -172,6 +194,19 @@ function ExploreContent({ places }: ExploreViewProps) {
     fuel.open(anchor)
   }
 
+  /*
+   * A parada do passeio alimenta duas coisas, e elas não morrem juntas.
+   *
+   * O anel do pin segue o passeio e apaga com ele — é realce, e realce sem causa
+   * é ruído. O cartão da vitrine fica onde estava: o passeio terminou porque a
+   * pessoa tocou no mapa, não porque perdeu o interesse no lugar que estava na
+   * tela.
+   */
+  const handleTourFocus = useCallback((focused: string | null) => {
+    setHoveredSlug(focused)
+    if (focused !== null) setCarouselSlug(focused)
+  }, [])
+
   const centerOnStation = useCallback(
     (station: FuelStation) => {
       if (!map) return
@@ -199,7 +234,7 @@ function ExploreContent({ places }: ExploreViewProps) {
         places={places}
         active={slug === null}
         cameraPadding={CAMERA_PADDING}
-        onFocus={setHoveredSlug}
+        onFocus={handleTourFocus}
       />
 
       {fuel.active ? (
@@ -210,32 +245,77 @@ function ExploreContent({ places }: ExploreViewProps) {
         />
       ) : null}
 
-      <FuelToggle
-        active={fuel.active}
-        count={fuel.status === 'pronto' ? fuel.stations.length : null}
-        busy={fuel.status === 'buscando'}
-        onToggle={toggleFuel}
-      />
-
       {/* Antes da trilha de propósito: renderizado depois, o CTA principal era
           a 28ª parada de tabulação, atrás de dezenove controles de refinamento.
           Os dois são posicionados de forma absoluta, então a ordem visual não
           muda — só a de foco. */}
       <DiscoveryLauncher />
 
-      <FilterRail
-        filters={filters}
-        setFilters={setFilters}
-        reset={reset}
-        isDefault={isDefault}
-        visible={visible}
-        totalCount={places.length}
-        selectedSlug={slug}
-        onSelectPlace={select}
-        onHoverPlace={setHoveredSlug}
-        relaxation={relaxation}
-        hasOrigin={origin !== null}
-      />
+      {/*
+        A fileira de controles de mapa, no alto à esquerda da área de mapa.
+        As duas cápsulas moram aqui, e não se posicionam sozinhas: enquanto cada
+        uma trazia o próprio `absolute left-…`, as duas nasciam no mesmo ponto e
+        a de postos desenhava por cima da porta da trilha — medido no navegador,
+        em 1440px e em 390px.
+
+        A fileira inteira é que desvia da trilha quando ela abre, e só a partir
+        de 768px: abaixo disso a trilha é folha inferior e o alto fica livre.
+
+        A porta da trilha vem antes da chave de postos na ordem de foco: a
+        trilha é o caminho de teclado até um lugar, e a chave é refinamento.
+      */}
+      <div
+        className={cn(
+          'pointer-events-none absolute z-(--z-bar) flex gap-2',
+          'top-[calc(var(--bar-height)+var(--chrome-gap)*2)] left-(--chrome-gap)',
+          railOpen && 'md:left-[calc(var(--panel-base)+var(--chrome-gap)*2)]',
+        )}
+      >
+        <PlacesToggle
+          open={railOpen}
+          count={visible.length}
+          onToggle={() => setRailOpen((open) => !open)}
+        />
+
+        <FuelToggle
+          active={fuel.active}
+          count={fuel.status === 'pronto' ? fuel.stations.length : null}
+          busy={fuel.status === 'buscando'}
+          onToggle={toggleFuel}
+        />
+      </div>
+
+      {/* Some com qualquer painel da direita aberto. Os três moram no mesmo
+          canto, e é a mesma regra que já vale entre o painel do lugar e o dos
+          postos: um por vez. Fora isso a vitrine perdeu a função — a escolha
+          já foi feita. */}
+      {!panelPlace && !fuel.active ? (
+        <Suspense fallback={null}>
+          <PlaceCarousel
+            cardsPromise={cardsPromise}
+            activeSlug={carouselSlug}
+            onActiveChange={setCarouselSlug}
+            onSelect={select}
+            onHover={setHoveredSlug}
+          />
+        </Suspense>
+      ) : null}
+
+      {railOpen ? (
+        <FilterRail
+          filters={filters}
+          setFilters={setFilters}
+          reset={reset}
+          isDefault={isDefault}
+          visible={visible}
+          totalCount={places.length}
+          selectedSlug={slug}
+          onSelectPlace={select}
+          onHoverPlace={setHoveredSlug}
+          relaxation={relaxation}
+          hasOrigin={origin !== null}
+        />
+      ) : null}
 
       {/* Um painel por vez do lado direito. O lugar escolhido tem precedência:
           ele é o objeto do produto, e o posto é o serviço em volta dele. Fechar
@@ -270,14 +350,14 @@ function ExploreContent({ places }: ExploreViewProps) {
   )
 }
 
-export function ExploreView({ places }: ExploreViewProps) {
+export function ExploreView({ places, cardsPromise }: ExploreViewProps) {
   // `useSelectedPlace` (usado aqui e dentro de `PlacesLayer`) usa
   // `useSearchParams`, que exige um limite de Suspense para não travar a
   // pré-renderização estática da rota. Nada aqui desenha algo síncrono antes
   // dos dados de busca, então o fallback nunca aparece.
   return (
     <Suspense fallback={null}>
-      <ExploreContent places={places} />
+      <ExploreContent places={places} cardsPromise={cardsPromise} />
     </Suspense>
   )
 }

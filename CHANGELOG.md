@@ -14,6 +14,17 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Corrigido
 
+- **O mapa abria torto.** O enquadramento reservava a largura da trilha da
+  esquerda mesmo com ela fechada, e todo lugar selecionado nascia deslocado do
+  centro da área visível. Não dava erro nem aviso: aparecia só como "o mapa está
+  estranho"
+
+- **O crédito do mapa ficava pairando no meio da tela no celular.** Ele subia
+  para cima da folha de filtros, que deixou de abrir por padrão — e passou a
+  subir 45% da altura da tela para desviar de algo que não está mais lá. Voltou
+  a encostar logo acima da barra de navegação, que é onde o crédito precisa
+  estar para cumprir a licença do MapTiler e do OpenStreetMap
+
 - **Trocar de tema apagava o mapa.** Os pins do catálogo, o traçado da viagem e
   os marcadores de posto sumiam ao alternar dia e noite, e não voltavam — só
   recarregando a página. O mapa é redesenhado do zero a cada troca de tema, e o
@@ -65,6 +76,26 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ### Alterado
 
+- **A tela inicial abre no mapa.** A trilha de busca, lista e filtros deixou de
+  ocupar a lateral por padrão e passou a abrir pelo botão "Lugares", no alto à
+  esquerda. O mapa ganhou a tela inteira, que é o que ele sempre deveria ter
+  sido
+
+- **"Para onde vamos hoje?" virou a peça principal da tela inicial.** Cresceu e
+  passou a dividir a tela com o mapa e a vitrine, em vez de disputar atenção com
+  dezenove controles de refinamento em volta
+
+- **Uma foto só ilustra um lugar quando é comprovadamente dele.** A vitrine usa
+  a capa do lugar quando existe; sem ela, aceita foto de terceiro apenas quando o
+  arquivo traz coordenada, e escreve a distância. Foto encontrada pelo nome do
+  município fica de fora — procurar "Santo Amaro da Imperatriz" devolve o
+  hospital do município junto, e num cartão de vitrine a foto é o argumento
+  inteiro
+
+- **As fotos de terceiros passam a ser guardadas por um dia.** A tela inicial
+  pede foto de uma dúzia de lugares por visita, e repetir essa consulta a cada
+  abertura era abusar de um serviço aberto e gratuito sem ganho nenhum
+
 - O botão **"Para onde vamos hoje?"** deixou de ser cortado pelo painel do
   lugar. Ele centraliza na faixa de mapa que sobra entre as duas colunas, e não
   mais numa faixa que ignorava a da direita — depois de crescer, 115px dele
@@ -94,6 +125,16 @@ projeto adota [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   "Filtrar" solto: os dois modos não são um principal e um secundário
 
 ### Adicionado
+
+- **Vitrine de lugares na tela inicial.** No canto inferior direito passa a
+  correr uma sequência de lugares que você ainda não conheceu, um por vez, com
+  foto, categoria e a distância desde a sua origem. Enquanto o mapa passeia pelos
+  lugares, o cartão mostra o lugar sobrevoado — mapa e foto contam a mesma
+  história. No primeiro toque o passeio para e o cartão fica onde estava, com
+  setas para seguir na mão.
+
+  Tocar no cartão voa até o lugar e abre o painel dele, com "Abrir rota" e
+  "Montar roteiro com este lugar" à mão
 
 - **Regra de teste no `CLAUDE.md`: não testar tudo.** Ficou escrito o que este
   repositório já praticava sem dizer — teste existe para função pura de domínio
